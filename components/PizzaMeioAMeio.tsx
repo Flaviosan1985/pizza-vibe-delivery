@@ -230,8 +230,8 @@ const PizzaMeioAMeio: React.FC<PizzaMeioAMeioProps> = ({ products, extras, onAdd
           </div>
         </div>
 
-        {/* Customization (Only if 2 flavors selected OR forced logic) */}
-        {/* Requirement: "Borda recheada só aparece depois do 2º sabor escolhido" */}
+        {/* Customization - Shows after second flavor is selected */}
+        {/* Bordas e complementos aparecem após a escolha do segundo sabor */}
         {flavor1 && flavor2 && (
           <div className="space-y-6 pt-4 border-t border-neutral-800 animate-slide-up">
             

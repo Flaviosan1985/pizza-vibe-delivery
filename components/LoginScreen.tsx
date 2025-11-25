@@ -31,8 +31,9 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, logo, storeName, bac
     setError('');
 
     if (isAdminMode) {
-      // Simple Admin Check (In production, use backend auth)
-      if (adminPass === 'admin123') {
+      // Admin Check with customizable password stored in localStorage
+      const storedPassword = localStorage.getItem('adminPassword') || 'admin123';
+      if (adminPass === storedPassword) {
         onLogin({ name: 'Administrador', phone: '000', isAdmin: true });
       } else {
         setError('Senha de administrador incorreta.');

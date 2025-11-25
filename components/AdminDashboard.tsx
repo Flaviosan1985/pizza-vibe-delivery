@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, useDragControls } from 'framer-motion';
-import { Save, Plus, Trash2, ToggleLeft, ToggleRight, Pizza as PizzaIcon, Tag, DollarSign, Palette, LogOut, X, Check, Calendar, Upload, Image as ImageIcon, Settings, List, Layout, Move, Minimize2, Maximize2 } from 'lucide-react';
+import { Save, Plus, Trash2, ToggleLeft, ToggleRight, Pizza as PizzaIcon, Tag, DollarSign, Palette, LogOut, X, Check, Calendar, Upload, Image as ImageIcon, Settings, List, Layout, Move, Minimize2, Maximize2, Lock } from 'lucide-react';
 import { useAdmin } from '../contexts/AdminContext';
 import { Pizza, Coupon, OptionItem, BannerItem, CartItem, User } from '../types';
 
@@ -19,7 +19,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
     banners, addBanner, removeBanner
   } = useAdmin();
 
-  const [activeTab, setActiveTab] = useState<'menu' | 'coupons' | 'cashback' | 'theme'>('menu');
+  const [activeTab, setActiveTab] = useState<'menu' | 'coupons' | 'cashback' | 'theme' | 'settings'>('menu');
   const [subTabMenu, setSubTabMenu] = useState<'categorias' | 'pizzas' | 'extras'>('categorias');
   const [isMinimized, setIsMinimized] = useState(false);
   const dragControls = useDragControls();
@@ -48,6 +48,15 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
   // New Banner State
   const [newBanner, setNewBanner] = useState<Partial<BannerItem>>({ title: '', subtitle: '', colorTheme: 'orange', image: '' });
   const [isAddingBanner, setIsAddingBanner] = useState(false);
+
+  // Password Change State
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordMessage, setPasswordMessage] = useState<{type: 'success' | 'error', text: string} | null>(null);
+
+  // Sync notification state
+  const [showSyncNotification, setShowSyncNotification] = useState(false);
 
   // Edit Prices State (Inline)
   const [editingPrice, setEditingPrice] = useState<{id: number | string, price: string} | null>(null);
@@ -132,7 +141,42 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
       addPizza(pizza);
       setAddingPizzaToCategory(null);
       setNewPizza({ name: '', description: '', price: 0, category: 'Pizza grande 8 pedaços', image: '', rating: 5 });
+      showSyncMessage();
     }
+  };
+
+  const showSyncMessage = () => {
+    setShowSyncNotification(true);
+    setTimeout(() => setShowSyncNotification(false), 3000);
+  };
+
+  const handleChangePassword = () => {
+    const storedPassword = localStorage.getItem('adminPassword') || 'admin123';
+    
+    if (currentPassword !== storedPassword) {
+      setPasswordMessage({ type: 'error', text: 'Senha atual incorreta!' });
+      setTimeout(() => setPasswordMessage(null), 3000);
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      setPasswordMessage({ type: 'error', text: 'Nova senha deve ter no mínimo 6 caracteres!' });
+      setTimeout(() => setPasswordMessage(null), 3000);
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setPasswordMessage({ type: 'error', text: 'As senhas não coincidem!' });
+      setTimeout(() => setPasswordMessage(null), 3000);
+      return;
+    }
+
+    localStorage.setItem('adminPassword', newPassword);
+    setPasswordMessage({ type: 'success', text: 'Senha alterada com sucesso!' });
+    setCurrentPassword('');
+    setNewPassword('');
+    setConfirmPassword('');
+    setTimeout(() => setPasswordMessage(null), 3000);
   };
 
   // --- Renderers ---
@@ -277,6 +321,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
             if (newCategoryName.trim()) {
               addCategory({ id: Date.now().toString(), name: newCategoryName.trim() });
               setNewCategoryName('');
+              showSyncMessage();
             }
           }}
           className="px-6 py-3 bg-brand-green hover:bg-green-600 text-white rounded-lg font-bold flex items-center justify-center gap-2"
@@ -459,6 +504,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
             if(newCoupon.code && newCoupon.value) {
               addCoupon({ id: Date.now().toString(), active: true, ...newCoupon } as Coupon);
               setNewCoupon({ code: '', type: 'percent', value: 0, active: true, expirationDate: '' });
+              showSyncMessage();
             }
           }}
           className="w-full md:w-auto px-6 py-2 bg-brand-green hover:bg-green-600 text-white rounded-lg font-bold flex items-center justify-center gap-2"
@@ -565,6 +611,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
                         addBanner({ id: Date.now().toString(), title: newBanner.title!, subtitle: newBanner.subtitle!, image: newBanner.image!, colorTheme: newBanner.colorTheme as any });
                         setIsAddingBanner(false);
                         setNewBanner({ title: '', subtitle: '', colorTheme: 'orange', image: '' });
+                        showSyncMessage();
                      }
                   }}
                   className="bg-brand-green px-6 py-2 rounded font-bold text-white"
@@ -782,7 +829,18 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
           <button onClick={() => setActiveTab('theme')} className={getTabClassV2('theme', 'border-blue-500')}>
             <Palette size={16} /> Tema
           </button>
+          <button onClick={() => setActiveTab('settings')} className={getTabClassV2('settings', 'border-purple-500')}>
+            <Settings size={16} /> Configurações
+          </button>
         </nav>
+
+        {/* Sync Notification */}
+        {showSyncNotification && (
+          <div className="absolute top-20 right-4 z-50 bg-green-500/90 backdrop-blur-md text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-2 animate-slide-up">
+            <Check size={18} />
+            <span className="font-bold text-sm">Alterações salvas e sincronizadas!</span>
+          </div>
+        )}
 
         {/* Tab Content */}
         <main className="flex-1 p-6 overflow-y-auto custom-scrollbar">
@@ -816,6 +874,82 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
           {activeTab === 'coupons' && renderCouponsTab()}
           {activeTab === 'theme' && renderThemeTab()}
           {activeTab === 'cashback' && renderCashbackTab()}
+          {activeTab === 'settings' && (
+            <div className="space-y-6 animate-slide-up">
+              <h3 className="text-xl font-bold text-white font-display">Configurações da Conta</h3>
+              
+              {/* Change Password Section */}
+              <div className="bg-white/5 border border-white/10 rounded-xl p-6 space-y-6">
+                <div className="flex items-center gap-3 border-b border-white/10 pb-4">
+                  <Lock size={24} className="text-brand-orange" />
+                  <div>
+                    <h4 className="text-lg font-bold text-white">Alterar Senha de Acesso</h4>
+                    <p className="text-xs text-gray-400">Mantenha sua conta segura alterando a senha periodicamente</p>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-gray-400 mb-2 font-medium text-sm">Senha Atual</label>
+                    <input 
+                      type="password"
+                      value={currentPassword}
+                      onChange={(e) => setCurrentPassword(e.target.value)}
+                      className="w-full bg-black/30 border border-gray-600 rounded-lg p-3 text-white focus:border-brand-orange outline-none"
+                      placeholder="Digite sua senha atual"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-gray-400 mb-2 font-medium text-sm">Nova Senha</label>
+                    <input 
+                      type="password"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      className="w-full bg-black/30 border border-gray-600 rounded-lg p-3 text-white focus:border-brand-orange outline-none"
+                      placeholder="Mínimo 6 caracteres"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-gray-400 mb-2 font-medium text-sm">Confirmar Nova Senha</label>
+                    <input 
+                      type="password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      className="w-full bg-black/30 border border-gray-600 rounded-lg p-3 text-white focus:border-brand-orange outline-none"
+                      placeholder="Digite a nova senha novamente"
+                    />
+                  </div>
+
+                  {passwordMessage && (
+                    <div className={`p-3 rounded-lg text-sm font-medium ${passwordMessage.type === 'success' ? 'bg-green-500/20 text-green-500 border border-green-500/30' : 'bg-red-500/20 text-red-500 border border-red-500/30'}`}>
+                      {passwordMessage.text}
+                    </div>
+                  )}
+
+                  <button 
+                    onClick={handleChangePassword}
+                    disabled={!currentPassword || !newPassword || !confirmPassword}
+                    className="w-full bg-brand-orange hover:bg-orange-600 text-white font-bold py-3 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  >
+                    Alterar Senha
+                  </button>
+                </div>
+              </div>
+
+              {/* Info Section */}
+              <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4">
+                <h4 className="text-blue-400 font-bold mb-2 flex items-center gap-2">
+                  <Check size={18} /> Sincronização Automática Ativa
+                </h4>
+                <p className="text-xs text-gray-400">
+                  Todas as alterações feitas no painel (pizzas, categorias, tema, cupons, etc.) são salvas automaticamente 
+                  e sincronizadas em tempo real com o site. Os clientes verão as mudanças imediatamente!
+                </p>
+              </div>
+            </div>
+          )}
         </main>
       </div>
     </motion.div>
