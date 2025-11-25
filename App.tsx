@@ -272,12 +272,18 @@ const App: React.FC = () => {
     if (p.categoryId) {
       return categories.find(c => c.id === p.categoryId);
     }
-    // Fallback: buscar por nome exato ou similar
+    // Fallback: buscar por nome exato com normalização de acentos
     if (p.category) {
-      return categories.find(c => 
-        c.name.toLowerCase() === p.category.toLowerCase() ||
-        c.name.toLowerCase().includes(p.category.toLowerCase())
-      );
+      const normalizeAccents = (str: string): string => 
+        str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      const pizzaCategoryLower = p.category.toLowerCase();
+      const pizzaCategoryNormalized = normalizeAccents(pizzaCategoryLower);
+      
+      return categories.find(c => {
+        const categoryNameLower = c.name.toLowerCase();
+        return categoryNameLower === pizzaCategoryLower ||
+               normalizeAccents(categoryNameLower) === pizzaCategoryNormalized;
+      });
     }
     return undefined;
   };
