@@ -297,13 +297,21 @@ const App: React.FC = () => {
     if (pizza.categoryId) {
       return pizza.categoryId === category.id;
     }
-    // Fallback: match by category name (case-insensitive, includes partial match)
+    // Fallback: match by category name (case-insensitive, handles accent variations)
     if (pizza.category) {
       const categoryNameLower = category.name.toLowerCase();
       const pizzaCategoryLower = pizza.category.toLowerCase();
-      return categoryNameLower === pizzaCategoryLower ||
-             categoryNameLower.includes(pizzaCategoryLower) ||
-             pizzaCategoryLower.includes(categoryNameLower);
+      
+      // Exact match (case-insensitive)
+      if (categoryNameLower === pizzaCategoryLower) {
+        return true;
+      }
+      
+      // Handle accent variations (e.g., "Clássica" vs "Classica")
+      const normalizeAccents = (str: string): string => 
+        str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      
+      return normalizeAccents(categoryNameLower) === normalizeAccents(pizzaCategoryLower);
     }
     return false;
   };
