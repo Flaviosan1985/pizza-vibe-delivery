@@ -1,19 +1,15 @@
 @import "tailwindcss";
 
-@theme {
-  /* Cores da Marca */
-  --color-brand-orange: #D62828;
-  --color-brand-red: #B91C1C;
-  --color-brand-green: #009246;
-  --color-brand-yellow: #F4C430;
-  --color-brand-dark: #09090b;
-  --color-brand-gray: #18181b;
-  --color-brand-light: #F5F5F5;
-
-  /* Animações */
-  --animate-float: float 3s ease-in-out infinite;
-  --animate-slide-up: slideUp 0.5s ease-out forwards;
-  --animate-fly-to-cart: flyToCart 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+@layer base {
+  :root {
+    --color-brand-orange: #D62828;
+    --color-brand-red: #B91C1C;
+    --color-brand-green: #009246;
+    --color-brand-yellow: #F4C430;
+    --color-brand-dark: #09090b;
+    --color-brand-gray: #18181b;
+    --color-brand-light: #F5F5F5;
+  }
 }
 
 @keyframes float {
