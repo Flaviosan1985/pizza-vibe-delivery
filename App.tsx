@@ -94,9 +94,9 @@ const App: React.FC = () => {
       if (user && order.customerId === user.phone) {
         const messages: Record<OrderStatus, string> = {
           pending: 'Seu pedido foi recebido e está aguardando confirmação.',
-          preparing: 'Seu pedido está sendo preparado com muito carinho! 👨‍🍳',
-          ready: 'Seu pedido está pronto! 🎉',
-          delivered: 'Seu pedido foi entregue. Bom apetite! 🍕',
+          preparing: '👨‍🍳 Seu pedido está sendo preparado! Pizza quentinha a caminho!',
+          ready: '🎉 SEU PEDIDO ESTÁ PRONTO! Pode vir buscar na loja!',
+          delivered: '🚚 Seu pedido saiu para entrega! Chegando em breve!',
           cancelled: 'Seu pedido foi cancelado.'
         };
         
@@ -106,6 +106,30 @@ const App: React.FC = () => {
           status: newStatus,
           orderNumber: order.orderNumber
         });
+
+        // Play a notification sound for ready and delivered status
+        if (newStatus === 'ready' || newStatus === 'delivered') {
+          try {
+            const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+            const audioContext = new AudioContext();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.type = 'sine';
+            oscillator.frequency.value = newStatus === 'ready' ? 1000 : 800;
+            
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.5);
+          } catch (error) {
+            console.log('Could not play notification sound');
+          }
+        }
       }
     };
 

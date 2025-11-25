@@ -24,10 +24,12 @@ const Toast: React.FC<ToastProps> = ({
 }) => {
   useEffect(() => {
     if (visible && duration > 0) {
-      const timer = setTimeout(onClose, duration);
+      // Increase duration for important status updates
+      const finalDuration = (status === 'ready' || status === 'delivered') ? 10000 : duration;
+      const timer = setTimeout(onClose, finalDuration);
       return () => clearTimeout(timer);
     }
-  }, [visible, duration, onClose]);
+  }, [visible, duration, onClose, status]);
 
   const getStatusConfig = () => {
     switch (status) {
@@ -43,17 +45,17 @@ const Toast: React.FC<ToastProps> = ({
         return {
           icon: <CheckCircle className="w-6 h-6" />,
           color: 'bg-green-500',
-          bgColor: 'bg-green-500/10',
-          borderColor: 'border-green-500/30',
-          title: 'Pedido Pronto! 🎉'
+          bgColor: 'bg-green-500/20',
+          borderColor: 'border-green-500',
+          title: '✅ SEU PEDIDO ESTÁ PRONTO!'
         };
       case 'delivered':
         return {
           icon: <Truck className="w-6 h-6" />,
-          color: 'bg-gray-500',
-          bgColor: 'bg-gray-500/10',
-          borderColor: 'border-gray-500/30',
-          title: 'Pedido Entregue'
+          color: 'bg-blue-500',
+          bgColor: 'bg-blue-500/20',
+          borderColor: 'border-blue-500',
+          title: '🚚 SAIU PARA ENTREGA!'
         };
       case 'cancelled':
         return {
@@ -86,7 +88,9 @@ const Toast: React.FC<ToastProps> = ({
           transition={{ type: 'spring', stiffness: 300, damping: 25 }}
           className="fixed top-20 right-4 z-[9999] max-w-md"
         >
-          <div className={`${config.bgColor} ${config.borderColor} border-2 rounded-2xl shadow-2xl backdrop-blur-md p-4 pr-12`}>
+          <div className={`${config.bgColor} ${config.borderColor} border-2 rounded-2xl shadow-2xl backdrop-blur-md p-4 pr-12 ${
+            (status === 'ready' || status === 'delivered') ? 'animate-pulse' : ''
+          }`}>
             <button
               onClick={onClose}
               className="absolute top-3 right-3 text-gray-400 hover:text-white transition-colors"

@@ -38,21 +38,21 @@ const MyOrdersPage: React.FC<MyOrdersPageProps> = ({ user, onBack, onReorder }) 
 
   const getStatusLabel = (status: OrderStatus) => {
     switch (status) {
-      case 'pending': return 'Aguardando';
-      case 'preparing': return 'Em Preparo';
-      case 'ready': return '🎉 Pronto para Retirada!';
-      case 'delivered': return 'Entregue';
+      case 'pending': return 'Aguardando Confirmação';
+      case 'preparing': return '👨‍🍳 Em Preparo';
+      case 'ready': return '✅ SEU PEDIDO ESTÁ PRONTO!';
+      case 'delivered': return '🚚 Saiu para Entrega';
       case 'cancelled': return 'Cancelado';
     }
   };
 
   const getStatusMessage = (status: OrderStatus) => {
     switch (status) {
-      case 'pending': return 'Seu pedido foi recebido e será processado em breve.';
-      case 'preparing': return 'Nosso chef está preparando seu pedido com carinho!';
-      case 'ready': return 'Seu pedido está prontinho! Pode vir buscar! 🍕';
-      case 'delivered': return 'Pedido entregue. Esperamos que tenha gostado!';
-      case 'cancelled': return 'Este pedido foi cancelado.';
+      case 'pending': return 'Seu pedido foi recebido! Aguarde enquanto confirmamos.';
+      case 'preparing': return 'Nosso chef está preparando sua pizza com muito carinho! 🍕🔥';
+      case 'ready': return '🎉 PRONTO! Seu pedido está quentinho e pode ser retirado na loja!';
+      case 'delivered': return '🚚 Pedido saiu para entrega! Em breve estará aí!';
+      case 'cancelled': return 'Este pedido foi cancelado. Entre em contato se tiver dúvidas.';
     }
   };
 
@@ -123,9 +123,31 @@ const MyOrdersPage: React.FC<MyOrdersPageProps> = ({ user, onBack, onReorder }) 
                   </div>
 
                   {/* Status Message */}
-                  {order.status !== 'delivered' && order.status !== 'cancelled' && (
-                    <div className={`p-4 rounded-xl border ${getStatusColor(order.status)}`}>
-                      <p className="text-sm font-medium">{getStatusMessage(order.status)}</p>
+                  {order.status !== 'cancelled' && (
+                    <div className={`p-4 rounded-xl border ${
+                      order.status === 'ready' 
+                        ? 'bg-green-500/20 border-green-500 animate-pulse' 
+                        : order.status === 'delivered'
+                        ? 'bg-blue-500/20 border-blue-500 animate-pulse'
+                        : getStatusColor(order.status)
+                    }`}>
+                      <p className={`font-bold ${
+                        order.status === 'ready' || order.status === 'delivered' 
+                          ? 'text-base md:text-lg' 
+                          : 'text-sm'
+                      }`}>
+                        {getStatusMessage(order.status)}
+                      </p>
+                      {order.status === 'ready' && (
+                        <p className="text-xs text-green-300 mt-2">
+                          📍 Venha retirar na loja o mais rápido possível para garantir que sua pizza esteja quentinha!
+                        </p>
+                      )}
+                      {order.status === 'delivered' && (
+                        <p className="text-xs text-blue-300 mt-2">
+                          ⏱️ Tempo estimado de entrega: 30-45 minutos
+                        </p>
+                      )}
                     </div>
                   )}
                 </div>
@@ -185,8 +207,8 @@ const MyOrdersPage: React.FC<MyOrdersPageProps> = ({ user, onBack, onReorder }) 
                     </div>
                   </div>
 
-                  {/* Reorder Button */}
-                  {(order.status === 'delivered' || order.status === 'cancelled') && (
+                  {/* Reorder Button - Only for cancelled orders */}
+                  {order.status === 'cancelled' && (
                     <button
                       onClick={() => onReorder(order)}
                       className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-brand-orange hover:bg-orange-600 rounded-xl transition font-bold mt-4"
