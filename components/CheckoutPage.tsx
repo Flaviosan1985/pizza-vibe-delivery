@@ -306,11 +306,19 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({
               </div>
               <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-2 font-display">Retirar na Loja</h3>
               <p className="text-gray-500 dark:text-gray-400">
-                Rua das Pizzas, 123 - Centro<br/>
-                (11) 99999-9999
+                Rua Tiradentes, 403 - Jangada
               </p>
+              <a 
+                href="https://maps.app.goo.gl/NYjRtDwTaza4GWaq9" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="mt-4 inline-flex items-center gap-2 px-6 py-3 bg-brand-green hover:bg-green-600 text-white font-bold rounded-lg transition-all active:scale-95 shadow-lg animate-pulse"
+              >
+                <MapPin size={18} />
+                Ver Localização no Mapa
+              </a>
               <div className="mt-4 p-3 bg-brand-yellow/20 text-yellow-800 dark:text-yellow-200 rounded-lg text-sm inline-block font-bold">
-                Tempo estimado: 30-40 min
+                ⏱️ Tempo estimado: 30 minutos
               </div>
             </section>
           )}

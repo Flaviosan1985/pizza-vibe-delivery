@@ -332,9 +332,26 @@ const App: React.FC = () => {
 
     window.open(`https://wa.me/5513996511793?text=${encodeURIComponent(text)}`, '_blank');
     
-    // Clear cart after successful order
-    setCart([]);
-    setIsCartOpen(false);
+    // Show success message with estimated time
+    const estimatedTime = deliveryMode === 'delivery' ? '60 a 90 minutos' : '30 minutos';
+    const message = deliveryMode === 'delivery' 
+      ? `🍕 Seu pedido está sendo preparado!\n\n⏱️ Tempo aproximado: ${estimatedTime}\n\nObrigado por comprar na Pizzaria Zattera! ❤️`
+      : `🍕 Seu pedido foi encaminhado!\n\n⏱️ Tempo aproximado: ${estimatedTime}\n\nObrigado por comprar na Pizzaria Zattera! ❤️`;
+    
+    setNotification({
+      visible: true,
+      message,
+      status: 'pending'
+    });
+    
+    // Clear cart and return to home after 5 seconds
+    setTimeout(() => {
+      setCart([]);
+      setIsCartOpen(false);
+      setCurrentView('home');
+      setNotification({ visible: false, message: '' });
+      window.scrollTo(0, 0);
+    }, 5000);
   };
 
   const scrollToMenu = () => menuRef.current?.scrollIntoView({ behavior: 'smooth' });

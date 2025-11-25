@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle, Clock, Truck, XCircle, X } from 'lucide-react';
+import { CheckCircle, Clock, Truck, XCircle, X, MapPin } from 'lucide-react';
 import { OrderStatus } from '../types';
 
 interface ToastProps {
@@ -10,6 +10,7 @@ interface ToastProps {
   visible: boolean;
   onClose: () => void;
   duration?: number;
+  showMapLink?: boolean;
 }
 
 const Toast: React.FC<ToastProps> = ({ 
@@ -18,7 +19,8 @@ const Toast: React.FC<ToastProps> = ({
   orderNumber, 
   visible, 
   onClose, 
-  duration = 5000 
+  duration = 5000,
+  showMapLink = false
 }) => {
   useEffect(() => {
     if (visible && duration > 0) {
@@ -107,9 +109,21 @@ const Toast: React.FC<ToastProps> = ({
                     Pedido #{orderNumber}
                   </p>
                 )}
-                <p className="text-white text-sm leading-relaxed">
+                <p className="text-white text-sm leading-relaxed whitespace-pre-line">
                   {message}
                 </p>
+                
+                {showMapLink && (
+                  <a 
+                    href="https://maps.app.goo.gl/NYjRtDwTaza4GWaq9" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="mt-3 inline-flex items-center gap-2 px-4 py-2 bg-brand-green hover:bg-green-600 text-white font-bold rounded-lg transition-all active:scale-95 shadow-lg text-sm animate-pulse"
+                  >
+                    <MapPin size={16} />
+                    Ver no Mapa
+                  </a>
+                )}
               </div>
             </div>
           </div>
