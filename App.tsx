@@ -18,8 +18,17 @@ import { Pizza, CartItem, User, Category } from './types';
 import { Phone, MapPin, Instagram, Facebook, Search, X, CircleDashed } from 'lucide-react';
 
 // Utility function to normalize accents for string comparison (e.g., "Clássica" → "Classica")
+// Used internally by category matching functions; input strings should be non-null
 const normalizeAccents = (str: string): string => 
   str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+// Utility function to check if two category names match (case-insensitive, handles accents)
+const categoryNamesMatch = (name1: string, name2: string): boolean => {
+  const name1Lower = name1.toLowerCase();
+  const name2Lower = name2.toLowerCase();
+  return name1Lower === name2Lower || 
+         normalizeAccents(name1Lower) === normalizeAccents(name2Lower);
+};
 
 // Wrapper component to provide context to the inner App logic
 const AppWrapper: React.FC = () => {
@@ -278,14 +287,7 @@ const App: React.FC = () => {
     }
     // Fallback: buscar por nome exato com normalização de acentos
     if (p.category) {
-      const pizzaCategoryLower = p.category.toLowerCase();
-      const pizzaCategoryNormalized = normalizeAccents(pizzaCategoryLower);
-      
-      return categories.find(c => {
-        const categoryNameLower = c.name.toLowerCase();
-        return categoryNameLower === pizzaCategoryLower ||
-               normalizeAccents(categoryNameLower) === pizzaCategoryNormalized;
-      });
+      return categories.find(c => categoryNamesMatch(c.name, p.category));
     }
     return undefined;
   };
@@ -307,12 +309,7 @@ const App: React.FC = () => {
     }
     // Fallback: match by category name (case-insensitive, handles accent variations)
     if (pizza.category) {
-      const categoryNameLower = category.name.toLowerCase();
-      const pizzaCategoryLower = pizza.category.toLowerCase();
-      
-      // Exact match (case-insensitive) or accent-normalized match
-      return categoryNameLower === pizzaCategoryLower ||
-             normalizeAccents(categoryNameLower) === normalizeAccents(pizzaCategoryLower);
+      return categoryNamesMatch(category.name, pizza.category);
     }
     return false;
   };
