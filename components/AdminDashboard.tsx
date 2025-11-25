@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, useDragControls } from 'framer-motion';
-import { Save, Plus, Trash2, ToggleLeft, ToggleRight, Pizza as PizzaIcon, Tag, DollarSign, Palette, LogOut, X, Check, Calendar, Upload, Image as ImageIcon, Settings, List, Layout, Move, Minimize2, Maximize2, Lock } from 'lucide-react';
+import { Save, Plus, Trash2, ToggleLeft, ToggleRight, Pizza as PizzaIcon, Tag, DollarSign, Palette, LogOut, X, Check, Calendar, Upload, Image as ImageIcon, Settings, List, Layout, Move, Minimize2, Maximize2, Lock, ShoppingCart, Clock, CheckCircle, Truck, XCircle, Eye, AlertCircle } from 'lucide-react';
 import { useAdmin } from '../contexts/AdminContext';
-import { Pizza, Coupon, OptionItem, BannerItem, CartItem, User } from '../types';
+import { Pizza, Coupon, OptionItem, BannerItem, CartItem, User, Order, OrderStatus } from '../types';
 
 interface AdminDashboardProps {
   onLogout: () => void;
@@ -17,10 +17,11 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
     cashback, updateCashback,
     theme, updateTheme,
     banners, addBanner, removeBanner,
-    promotion, updatePromotion, addPromotionProduct, updatePromotionProduct, removePromotionProduct
+    promotion, updatePromotion, addPromotionProduct, updatePromotionProduct, removePromotionProduct,
+    orders, updateOrderStatus
   } = useAdmin();
 
-  const [activeTab, setActiveTab] = useState<'menu' | 'coupons' | 'cashback' | 'theme' | 'promotions' | 'settings'>('menu');
+  const [activeTab, setActiveTab] = useState<'menu' | 'pdv' | 'coupons' | 'cashback' | 'theme' | 'promotions' | 'settings'>('menu');
   const [subTabMenu, setSubTabMenu] = useState<'categorias' | 'pizzas' | 'extras'>('categorias');
   const [isMinimized, setIsMinimized] = useState(false);
   const dragControls = useDragControls();
@@ -74,6 +75,10 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
   const [editingPromotionProduct, setEditingPromotionProduct] = useState<{id: string, name: string, image: string} | null>(null);
   const [newPromotionProduct, setNewPromotionProduct] = useState<{name: string, image: string}>({ name: '', image: '' });
   const promotionImageRef = useRef<HTMLInputElement>(null);
+
+  // PDV State
+  const [orderStatusFilter, setOrderStatusFilter] = useState<OrderStatus | 'all'>('all');
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
   // Prevent page scroll while dragging
   useEffect(() => {
@@ -750,6 +755,191 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
     </div>
   );
 
+  const renderPDVTab = () => {
+    const getStatusColor = (status: OrderStatus) => {
+      switch (status) {
+        case 'pending': return 'text-yellow-500 bg-yellow-500/10 border-yellow-500/30';
+        case 'preparing': return 'text-blue-500 bg-blue-500/10 border-blue-500/30';
+        case 'ready': return 'text-green-500 bg-green-500/10 border-green-500/30';
+        case 'delivered': return 'text-gray-500 bg-gray-500/10 border-gray-500/30';
+        case 'cancelled': return 'text-red-500 bg-red-500/10 border-red-500/30';
+      }
+    };
+
+    const getStatusIcon = (status: OrderStatus) => {
+      switch (status) {
+        case 'pending': return <Clock size={16} />;
+        case 'preparing': return <AlertCircle size={16} />;
+        case 'ready': return <CheckCircle size={16} />;
+        case 'delivered': return <Truck size={16} />;
+        case 'cancelled': return <XCircle size={16} />;
+      }
+    };
+
+    const getStatusLabel = (status: OrderStatus) => {
+      switch (status) {
+        case 'pending': return 'Pendente';
+        case 'preparing': return 'Em Preparo';
+        case 'ready': return 'Pronto';
+        case 'delivered': return 'Entregue';
+        case 'cancelled': return 'Cancelado';
+      }
+    };
+
+    const filteredOrders = orderStatusFilter === 'all' 
+      ? orders 
+      : orders.filter(o => o.status === orderStatusFilter);
+
+    const handleStatusChange = (orderId: string, newStatus: OrderStatus) => {
+      updateOrderStatus(orderId, newStatus);
+      showSyncMessage();
+    };
+
+    return (
+      <div className="space-y-6 animate-slide-up">
+        <div className="flex items-center justify-between">
+          <h3 className="text-xl font-bold text-white font-display">Gerenciar Pedidos (PDV)</h3>
+          <div className="text-sm text-gray-400">
+            Total: <span className="text-white font-bold">{orders.length}</span> pedidos
+          </div>
+        </div>
+
+        {/* Status Filter */}
+        <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
+          {['all', 'pending', 'preparing', 'ready', 'delivered', 'cancelled'].map((status) => {
+            const count = status === 'all' ? orders.length : orders.filter(o => o.status === status).length;
+            return (
+              <button
+                key={status}
+                onClick={() => setOrderStatusFilter(status as OrderStatus | 'all')}
+                className={`flex-shrink-0 px-4 py-2 rounded-lg font-medium text-sm transition-all ${
+                  orderStatusFilter === status
+                    ? 'bg-brand-orange text-white shadow-lg'
+                    : 'bg-white/5 text-gray-400 hover:bg-white/10'
+                }`}
+              >
+                {status === 'all' ? 'Todos' : getStatusLabel(status as OrderStatus)} ({count})
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Orders List */}
+        <div className="space-y-3">
+          {filteredOrders.length === 0 ? (
+            <div className="text-center py-12 bg-white/5 rounded-xl border border-white/10">
+              <ShoppingCart size={48} className="mx-auto text-gray-600 mb-4" />
+              <p className="text-gray-400">Nenhum pedido {orderStatusFilter !== 'all' && `com status "${getStatusLabel(orderStatusFilter as OrderStatus)}"`}</p>
+            </div>
+          ) : (
+            filteredOrders.map((order) => (
+              <div 
+                key={order.id} 
+                className="bg-white/5 border border-white/10 rounded-xl p-4 space-y-4 hover:bg-white/10 transition-colors"
+              >
+                {/* Order Header */}
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-2">
+                      <span className="text-2xl font-bold text-white font-display">
+                        #{order.orderNumber}
+                      </span>
+                      <span className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${getStatusColor(order.status)}`}>
+                        {getStatusIcon(order.status)}
+                        {getStatusLabel(order.status)}
+                      </span>
+                    </div>
+                    <div className="text-sm text-gray-400 space-y-1">
+                      <p className="flex items-center gap-2">
+                        <span className="font-medium text-white">{order.customerName}</span>
+                        • {order.customerPhone}
+                      </p>
+                      <p>{new Date(order.createdAt).toLocaleString('pt-BR')}</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-2xl font-bold text-brand-orange">
+                      R$ {order.total.toFixed(2).replace('.', ',')}
+                    </p>
+                    <p className="text-xs text-gray-400">{order.items.length} {order.items.length === 1 ? 'item' : 'itens'}</p>
+                  </div>
+                </div>
+
+                {/* Order Items */}
+                <div className="space-y-2 border-t border-white/10 pt-3">
+                  {order.items.map((item, idx) => (
+                    <div key={idx} className="flex items-center gap-3 text-sm">
+                      <img src={item.pizzaImage} alt={item.pizzaName} className="w-12 h-12 rounded-lg object-cover" />
+                      <div className="flex-1">
+                        <p className="text-white font-medium">
+                          {item.quantity}x {item.pizzaName}
+                          {item.isHalfHalf && item.secondFlavorName && ` + ${item.secondFlavorName}`}
+                        </p>
+                        {(item.crust || (item.addons && item.addons.length > 0)) && (
+                          <p className="text-xs text-gray-400">
+                            {item.crust && `+ ${item.crust}`}
+                            {item.addons && item.addons.length > 0 && ` + ${item.addons.join(', ')}`}
+                          </p>
+                        )}
+                      </div>
+                      <p className="text-gray-300 font-medium">
+                        R$ {item.total.toFixed(2).replace('.', ',')}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex gap-2 border-t border-white/10 pt-3">
+                  {order.status === 'pending' && (
+                    <>
+                      <button
+                        onClick={() => handleStatusChange(order.id, 'preparing')}
+                        className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition font-bold text-sm"
+                      >
+                        <AlertCircle size={16} />
+                        Iniciar Preparo
+                      </button>
+                      <button
+                        onClick={() => handleStatusChange(order.id, 'cancelled')}
+                        className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg transition text-sm"
+                      >
+                        Cancelar
+                      </button>
+                    </>
+                  )}
+                  {order.status === 'preparing' && (
+                    <button
+                      onClick={() => handleStatusChange(order.id, 'ready')}
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg transition font-bold text-sm"
+                    >
+                      <CheckCircle size={16} />
+                      Marcar como Pronto
+                    </button>
+                  )}
+                  {order.status === 'ready' && (
+                    <button
+                      onClick={() => handleStatusChange(order.id, 'delivered')}
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg transition font-bold text-sm"
+                    >
+                      <Truck size={16} />
+                      Marcar como Entregue
+                    </button>
+                  )}
+                  {(order.status === 'delivered' || order.status === 'cancelled') && (
+                    <div className="flex-1 text-center text-sm text-gray-500 py-2">
+                      Pedido finalizado
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+    );
+  };
+
   const renderPromotionsTab = () => {
     const handlePromotionImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
@@ -995,6 +1185,9 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
           <button onClick={() => setActiveTab('menu')} className={getTabClassV2('menu', 'border-orange-500')}>
             <PizzaIcon size={16} /> Cardápio
           </button>
+          <button onClick={() => setActiveTab('pdv')} className={getTabClassV2('pdv', 'border-cyan-500')}>
+            <ShoppingCart size={16} /> PDV
+          </button>
           <button onClick={() => setActiveTab('coupons')} className={getTabClassV2('coupons', 'border-green-500')}>
             <Tag size={16} /> Cupons
           </button>
@@ -1049,6 +1242,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
               {subTabMenu === 'categorias' ? renderMenuCategorias() : subTabMenu === 'pizzas' ? renderMenuPizzas() : renderMenuExtras()}
             </div>
           )}
+          {activeTab === 'pdv' && renderPDVTab()}
           {activeTab === 'coupons' && renderCouponsTab()}
           {activeTab === 'theme' && renderThemeTab()}
           {activeTab === 'cashback' && renderCashbackTab()}

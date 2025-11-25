@@ -99,3 +99,45 @@ export interface Promotion {
   minValue: number; // Valor mínimo para ganhar o brinde
   products: PromotionProduct[]; // Refrigerantes disponíveis
 }
+
+// Order Management Types
+export type OrderStatus = 'pending' | 'preparing' | 'ready' | 'delivered' | 'cancelled';
+
+export interface OrderItem {
+  pizzaId: number;
+  pizzaName: string;
+  pizzaImage: string;
+  quantity: number;
+  unitPrice: number;
+  total: number;
+  crust?: string;
+  addons?: string[];
+  observation?: string;
+  isHalfHalf?: boolean;
+  secondFlavorName?: string;
+}
+
+export interface Order {
+  id: string; // Unique order ID
+  orderNumber: number; // Sequential number for display
+  customerId: string; // User phone
+  customerName: string;
+  customerPhone: string;
+  items: OrderItem[];
+  subtotal: number;
+  deliveryFee: number;
+  discount: number;
+  total: number;
+  status: OrderStatus;
+  paymentMethod: string;
+  deliveryAddress?: string;
+  createdAt: string; // ISO timestamp
+  updatedAt: string; // ISO timestamp
+  estimatedTime?: number; // Minutes
+}
+
+export interface FavoritePizza {
+  userId: string; // User phone
+  pizzaId: number;
+  addedAt: string; // ISO timestamp
+}

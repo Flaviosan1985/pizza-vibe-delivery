@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { Pizza, Coupon, CashbackSettings, ThemeSettings, OptionItem, BannerItem, Category, Promotion, PromotionProduct } from '../types';
+import { Pizza, Coupon, CashbackSettings, ThemeSettings, OptionItem, BannerItem, Category, Promotion, PromotionProduct, Order, OrderStatus, FavoritePizza } from '../types';
 import { PIZZAS as INITIAL_PIZZAS, CRUST_OPTIONS as INITIAL_CRUSTS, ADDON_OPTIONS as INITIAL_ADDONS } from '../constants';
 
 interface AdminContextData {
@@ -13,6 +13,8 @@ interface AdminContextData {
   banners: BannerItem[];
   categories: Category[];
   promotion: Promotion;
+  orders: Order[];
+  favorites: FavoritePizza[];
   
   // Pizza Actions
   addPizza: (pizza: Pizza) => void;
@@ -39,6 +41,17 @@ interface AdminContextData {
   addPromotionProduct: (product: PromotionProduct) => void;
   updatePromotionProduct: (product: PromotionProduct) => void;
   removePromotionProduct: (id: string) => void;
+
+  // Order Actions
+  addOrder: (order: Order) => void;
+  updateOrderStatus: (orderId: string, status: OrderStatus) => void;
+  getOrdersByUser: (userId: string) => Order[];
+  getOrderById: (orderId: string) => Order | undefined;
+
+  // Favorite Actions
+  toggleFavorite: (userId: string, pizzaId: number) => void;
+  isFavorite: (userId: string, pizzaId: number) => boolean;
+  getUserFavorites: (userId: string) => number[];
 
   // Other Actions
   addCoupon: (coupon: Coupon) => void;
@@ -150,6 +163,23 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     };
   });
 
+  // Orders
+  const [orders, setOrders] = useState<Order[]>(() => {
+    const saved = localStorage.getItem('pv_orders');
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  const [orderCounter, setOrderCounter] = useState<number>(() => {
+    const saved = localStorage.getItem('pv_orderCounter');
+    return saved ? parseInt(saved) : 1;
+  });
+
+  // Favorites
+  const [favorites, setFavorites] = useState<FavoritePizza[]>(() => {
+    const saved = localStorage.getItem('pv_favorites');
+    return saved ? JSON.parse(saved) : [];
+  });
+
   // --- Persistence ---
   useEffect(() => { localStorage.setItem('pv_pizzas', JSON.stringify(pizzas)); }, [pizzas]);
   useEffect(() => { localStorage.setItem('pv_crusts', JSON.stringify(crusts)); }, [crusts]);
@@ -160,6 +190,9 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   useEffect(() => { localStorage.setItem('pv_promotion', JSON.stringify(promotion)); }, [promotion]);
   useEffect(() => { localStorage.setItem('pv_cashback', JSON.stringify(cashback)); }, [cashback]);
   useEffect(() => { localStorage.setItem('pv_theme', JSON.stringify(theme)); }, [theme]);
+  useEffect(() => { localStorage.setItem('pv_orders', JSON.stringify(orders)); }, [orders]);
+  useEffect(() => { localStorage.setItem('pv_orderCounter', orderCounter.toString()); }, [orderCounter]);
+  useEffect(() => { localStorage.setItem('pv_favorites', JSON.stringify(favorites)); }, [favorites]);
 
   // --- Theme Application ---
   useEffect(() => {
@@ -290,6 +323,62 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     }));
   };
 
+  // --- Order Actions ---
+  const addOrder = (order: Order) => {
+    const newOrder = {
+      ...order,
+      orderNumber: orderCounter,
+      id: `ORD-${Date.now()}`,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    setOrders(prev => [newOrder, ...prev]);
+    setOrderCounter(prev => prev + 1);
+  };
+
+  const updateOrderStatus = (orderId: string, status: OrderStatus) => {
+    setOrders(prev => prev.map(order => 
+      order.id === orderId 
+        ? { ...order, status, updatedAt: new Date().toISOString() }
+        : order
+    ));
+  };
+
+  const getOrdersByUser = (userId: string): Order[] => {
+    return orders.filter(order => order.customerId === userId);
+  };
+
+  const getOrderById = (orderId: string): Order | undefined => {
+    return orders.find(order => order.id === orderId);
+  };
+
+  // --- Favorite Actions ---
+  const toggleFavorite = (userId: string, pizzaId: number) => {
+    const existingFav = favorites.find(f => f.userId === userId && f.pizzaId === pizzaId);
+    
+    if (existingFav) {
+      // Remove favorite
+      setFavorites(prev => prev.filter(f => !(f.userId === userId && f.pizzaId === pizzaId)));
+    } else {
+      // Add favorite
+      setFavorites(prev => [...prev, {
+        userId,
+        pizzaId,
+        addedAt: new Date().toISOString()
+      }]);
+    }
+  };
+
+  const isFavorite = (userId: string, pizzaId: number): boolean => {
+    return favorites.some(f => f.userId === userId && f.pizzaId === pizzaId);
+  };
+
+  const getUserFavorites = (userId: string): number[] => {
+    return favorites
+      .filter(f => f.userId === userId)
+      .map(f => f.pizzaId);
+  };
+
   return (
     <AdminContext.Provider value={{
       pizzas,
@@ -301,6 +390,8 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       banners,
       categories,
       promotion,
+      orders,
+      favorites,
       addPizza,
       updatePizza,
       deletePizza,
@@ -320,6 +411,13 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       addPromotionProduct,
       updatePromotionProduct,
       removePromotionProduct,
+      addOrder,
+      updateOrderStatus,
+      getOrdersByUser,
+      getOrderById,
+      toggleFavorite,
+      isFavorite,
+      getUserFavorites,
       updateCashback,
       updateTheme,
       validateCoupon
