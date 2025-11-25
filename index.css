@@ -1,8 +1,7 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-:root {
+@theme {
+  /* Cores da Marca */
   --color-brand-orange: #D62828;
   --color-brand-red: #B91C1C;
   --color-brand-green: #009246;
@@ -10,6 +9,39 @@
   --color-brand-dark: #09090b;
   --color-brand-gray: #18181b;
   --color-brand-light: #F5F5F5;
+
+  /* Animações */
+  --animate-float: float 3s ease-in-out infinite;
+  --animate-slide-up: slideUp 0.5s ease-out forwards;
+  --animate-fly-to-cart: flyToCart 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes slideUp {
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes flyToCart {
+  0% {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(1) rotate(0deg);
+    opacity: 1;
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    top: 30px;
+    left: calc(100% - 50px);
+    transform: translate(-50%, -50%) scale(0.1) rotate(360deg);
+    opacity: 0;
+  }
 }
 
 body {
