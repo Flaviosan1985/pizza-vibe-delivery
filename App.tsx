@@ -28,7 +28,7 @@ const AppWrapper: React.FC = () => {
 
 const App: React.FC = () => {
   // Use Context for Data (Pizzas, Crusts, Addons, Categories)
-  const { pizzas, crusts, addons, theme, categories } = useAdmin();
+  const { pizzas, crusts, addons, theme, categories, promotion } = useAdmin();
 
   // Authentication State
   const [user, setUser] = useState<User | null>(null);
