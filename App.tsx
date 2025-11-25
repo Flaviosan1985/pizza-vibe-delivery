@@ -267,6 +267,10 @@ const App: React.FC = () => {
 
   const cartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
 
+  // Helper to normalize accents for string comparison (e.g., "Clássica" → "Classica")
+  const normalizeAccents = (str: string): string => 
+    str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
   // Helper para buscar categoria por ID ou nome (compatibilidade com sistema antigo)
   const getCategoryForPizza = (p: Pizza): Category | undefined => {
     if (p.categoryId) {
@@ -274,8 +278,6 @@ const App: React.FC = () => {
     }
     // Fallback: buscar por nome exato com normalização de acentos
     if (p.category) {
-      const normalizeAccents = (str: string): string => 
-        str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
       const pizzaCategoryLower = p.category.toLowerCase();
       const pizzaCategoryNormalized = normalizeAccents(pizzaCategoryLower);
       
@@ -308,16 +310,9 @@ const App: React.FC = () => {
       const categoryNameLower = category.name.toLowerCase();
       const pizzaCategoryLower = pizza.category.toLowerCase();
       
-      // Exact match (case-insensitive)
-      if (categoryNameLower === pizzaCategoryLower) {
-        return true;
-      }
-      
-      // Handle accent variations (e.g., "Clássica" vs "Classica")
-      const normalizeAccents = (str: string): string => 
-        str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-      
-      return normalizeAccents(categoryNameLower) === normalizeAccents(pizzaCategoryLower);
+      // Exact match (case-insensitive) or accent-normalized match
+      return categoryNameLower === pizzaCategoryLower ||
+             normalizeAccents(categoryNameLower) === normalizeAccents(pizzaCategoryLower);
     }
     return false;
   };
