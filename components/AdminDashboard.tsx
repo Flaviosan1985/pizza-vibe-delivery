@@ -1,8 +1,9 @@
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useAdmin } from '../contexts/AdminContext';
-import { Pizza, Coupon, OptionItem, BannerItem } from '../types';
-import { Save, Plus, Trash2, ToggleLeft, ToggleRight, Pizza as PizzaIcon, Tag, DollarSign, Palette, LogOut, X, Check, Calendar, Upload, Image as ImageIcon, Settings, List, Layout } from 'lucide-react';
+import { Pizza, Coupon, OptionItem, BannerItem, Category } from '../types';
+import { Save, Plus, Trash2, ToggleLeft, ToggleRight, Pizza as PizzaIcon, Tag, DollarSign, Palette, LogOut, X, Check, Calendar, Upload, Image as ImageIcon, Settings, List, Layout, Move, Minimize2, Maximize2 } from 'lucide-react';
+import { motion, useDragControls } from 'framer-motion';
 
 interface AdminDashboardProps {
   onLogout: () => void;
@@ -12,6 +13,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
   const { 
     pizzas, addPizza, updatePizza, togglePizzaAvailability, deletePizza,
     crusts, addons, addOption, updateOption, removeOption,
+    categories, addCategory, removeCategory, updateCategory,
     coupons, addCoupon, removeCoupon, toggleCoupon, 
     cashback, updateCashback,
     theme, updateTheme,
@@ -19,12 +21,15 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
   } = useAdmin();
 
   const [activeTab, setActiveTab] = useState<'menu' | 'coupons' | 'cashback' | 'theme'>('menu');
-  const [subTabMenu, setSubTabMenu] = useState<'pizzas' | 'extras'>('pizzas');
+  const [subTabMenu, setSubTabMenu] = useState<'categorias' | 'pizzas' | 'extras'>('categorias');
+  const [isMinimized, setIsMinimized] = useState(false);
+  const dragControls = useDragControls();
+  const panelRef = useRef<HTMLDivElement>(null);
 
   // --- Local States for Forms ---
   
   // New Pizza State
-  const [isAddingPizza, setIsAddingPizza] = useState(false);
+  const [addingPizzaToCategory, setAddingPizzaToCategory] = useState<string | null>(null);
   const [newPizza, setNewPizza] = useState<Partial<Pizza>>({
     name: '',
     description: '',
@@ -49,9 +54,22 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
   const [editingPrice, setEditingPrice] = useState<{id: number | string, price: string} | null>(null);
   const [editingName, setEditingName] = useState<{id: string, name: string} | null>(null);
 
+  // Category State
+  const [newCategoryName, setNewCategoryName] = useState('');
+  const [editingCategory, setEditingCategory] = useState<{id: string, name: string} | null>(null);
+
   // New Option State
   const [newOption, setNewOption] = useState<{name: string, price: number}>({ name: '', price: 0 });
 
+  // Prevent page scroll while dragging
+  useEffect(() => {
+    const panel = panelRef.current;
+    if (panel) {
+      const handleWheel = (e: WheelEvent) => e.stopPropagation();
+      panel.addEventListener('wheel', handleWheel, { passive: true });
+      return () => panel.removeEventListener('wheel', handleWheel);
+    }
+  }, []);
 
   // --- Helper Functions ---
 
@@ -108,119 +126,96 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
         price: newPizza.price,
         image: newPizza.image || 'https://picsum.photos/600/400', // Fallback
         category: newPizza.category as any,
-        rating: 5,
+        categoryId: addingPizzaToCategory!, // Assign category ID
         available: true
       };
       addPizza(pizza);
-      setIsAddingPizza(false);
+      setAddingPizzaToCategory(null);
       setNewPizza({ name: '', description: '', price: 0, category: 'Classica', image: '', rating: 5 });
     }
   };
 
   // --- Renderers ---
 
+  const renderPizzaForm = (categoryId: string) => (
+    <div className="bg-white/10 border border-white/20 rounded-xl p-6 animate-slide-up mt-4">
+       <div className="flex justify-between items-center mb-6">
+          <h4 className="text-xl font-bold text-white font-display">Novo Sabor</h4>
+          <button onClick={() => setAddingPizzaToCategory(null)} className="p-2 hover:bg-white/10 rounded-full"><X size={20}/></button>
+       </div>
+       
+       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Image Upload Area */}
+          <div 
+            className="relative aspect-video bg-black/40 rounded-xl border-2 border-dashed border-gray-600 flex flex-col items-center justify-center cursor-pointer hover:border-brand-orange overflow-hidden"
+            onClick={() => fileInputRef.current?.click()}
+          >
+             {newPizza.image ? (
+               <>
+                 <img src={newPizza.image} alt="Preview" className="w-full h-full object-cover" />
+                 <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                    <span className="text-white font-bold flex items-center gap-2"><Upload size={16}/> Alterar</span>
+                 </div>
+               </>
+             ) : (
+               <div className="text-gray-400 flex flex-col items-center">
+                  <ImageIcon size={32} className="mb-2" />
+                  <span className="text-sm">Clique para upload da imagem</span>
+                  <span className="text-xs text-gray-500">(PC ou Celular)</span>
+               </div>
+             )}
+             <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+          </div>
+
+          <div className="space-y-4">
+             <div>
+                <label className="block text-xs text-gray-400 mb-1">Nome da Pizza</label>
+                <input 
+                  value={newPizza.name} 
+                  onChange={e => setNewPizza({...newPizza, name: e.target.value})}
+                  className="w-full bg-black/30 border border-gray-600 rounded-lg p-3 text-white focus:border-brand-orange outline-none" 
+                  placeholder="Ex: Calabresa Especial"
+                />
+             </div>
+             <div>
+                <label className="block text-xs text-gray-400 mb-1">Preço (R$)</label>
+                <input 
+                  type="number"
+                  value={newPizza.price} 
+                  onChange={e => setNewPizza({...newPizza, price: parseFloat(e.target.value)})}
+                  className="w-full bg-black/30 border border-gray-600 rounded-lg p-3 text-white focus:border-brand-orange outline-none" 
+                />
+             </div>
+          </div>
+          
+          <div className="md:col-span-2">
+             <label className="block text-xs text-gray-400 mb-1">Descrição</label>
+             <textarea 
+                value={newPizza.description}
+                onChange={e => setNewPizza({...newPizza, description: e.target.value})}
+                className="w-full bg-black/30 border border-gray-600 rounded-lg p-3 text-white focus:border-brand-orange outline-none h-24 resize-none"
+                placeholder="Descreva os ingredientes..."
+             />
+          </div>
+       </div>
+       
+       <div className="flex justify-end mt-6 pt-6 border-t border-white/10">
+          <button 
+            onClick={handleAddPizza}
+            disabled={!newPizza.name || !newPizza.price}
+            className="bg-brand-orange hover:bg-orange-600 text-white font-bold py-3 px-8 rounded-xl flex items-center gap-2 disabled:opacity-50"
+          >
+            <Save size={18} /> Salvar Pizza
+          </button>
+       </div>
+    </div>
+  );
+
   const renderMenuPizzas = () => (
     <div className="space-y-6">
-      {/* Add Button */}
-      {!isAddingPizza ? (
-        <button 
-          onClick={() => setIsAddingPizza(true)}
-          className="w-full bg-white/5 border-2 border-dashed border-white/20 rounded-xl p-8 flex flex-col items-center justify-center text-gray-400 hover:text-white hover:border-brand-orange hover:bg-brand-orange/5 transition-all group"
-        >
-          <div className="p-4 bg-white/10 rounded-full mb-3 group-hover:scale-110 transition-transform">
-             <Plus size={32} />
-          </div>
-          <span className="font-bold">Adicionar Novo Sabor</span>
-        </button>
-      ) : (
-        <div className="bg-white/10 border border-white/20 rounded-xl p-6 animate-slide-up">
-           <div className="flex justify-between items-center mb-6">
-              <h4 className="text-xl font-bold text-white font-display">Novo Sabor</h4>
-              <button onClick={() => setIsAddingPizza(false)} className="p-2 hover:bg-white/10 rounded-full"><X size={20}/></button>
-           </div>
-           
-           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Image Upload Area */}
-              <div 
-                className="relative aspect-video bg-black/40 rounded-xl border-2 border-dashed border-gray-600 flex flex-col items-center justify-center cursor-pointer hover:border-brand-orange overflow-hidden"
-                onClick={() => fileInputRef.current?.click()}
-              >
-                 {newPizza.image ? (
-                   <>
-                     <img src={newPizza.image} alt="Preview" className="w-full h-full object-cover" />
-                     <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-                        <span className="text-white font-bold flex items-center gap-2"><Upload size={16}/> Alterar</span>
-                     </div>
-                   </>
-                 ) : (
-                   <div className="text-gray-400 flex flex-col items-center">
-                      <ImageIcon size={32} className="mb-2" />
-                      <span className="text-sm">Clique para upload da imagem</span>
-                      <span className="text-xs text-gray-500">(PC ou Celular)</span>
-                   </div>
-                 )}
-                 <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
-              </div>
-
-              <div className="space-y-4">
-                 <div>
-                    <label className="block text-xs text-gray-400 mb-1">Nome da Pizza</label>
-                    <input 
-                      value={newPizza.name} 
-                      onChange={e => setNewPizza({...newPizza, name: e.target.value})}
-                      className="w-full bg-black/30 border border-gray-600 rounded-lg p-3 text-white focus:border-brand-orange outline-none" 
-                      placeholder="Ex: Calabresa Especial"
-                    />
-                 </div>
-                 <div>
-                    <label className="block text-xs text-gray-400 mb-1">Categoria</label>
-                    <select 
-                      value={newPizza.category}
-                      onChange={e => setNewPizza({...newPizza, category: e.target.value as any})}
-                      className="w-full bg-black/30 border border-gray-600 rounded-lg p-3 text-white focus:border-brand-orange outline-none"
-                    >
-                       {['Classica', 'Especial', 'Vegana', 'Doce', 'Broto'].map(c => (
-                         <option key={c} value={c}>{c}</option>
-                       ))}
-                    </select>
-                 </div>
-                 <div>
-                    <label className="block text-xs text-gray-400 mb-1">Preço (R$)</label>
-                    <input 
-                      type="number"
-                      value={newPizza.price} 
-                      onChange={e => setNewPizza({...newPizza, price: parseFloat(e.target.value)})}
-                      className="w-full bg-black/30 border border-gray-600 rounded-lg p-3 text-white focus:border-brand-orange outline-none" 
-                    />
-                 </div>
-              </div>
-              
-              <div className="md:col-span-2">
-                 <label className="block text-xs text-gray-400 mb-1">Descrição</label>
-                 <textarea 
-                    value={newPizza.description}
-                    onChange={e => setNewPizza({...newPizza, description: e.target.value})}
-                    className="w-full bg-black/30 border border-gray-600 rounded-lg p-3 text-white focus:border-brand-orange outline-none h-24 resize-none"
-                    placeholder="Descreva os ingredientes..."
-                 />
-              </div>
-           </div>
-           
-           <div className="flex justify-end mt-6 pt-6 border-t border-white/10">
-              <button 
-                onClick={handleAddPizza}
-                disabled={!newPizza.name || !newPizza.price}
-                className="bg-brand-orange hover:bg-orange-600 text-white font-bold py-3 px-8 rounded-xl flex items-center gap-2 disabled:opacity-50"
-              >
-                <Save size={18} /> Salvar Pizza
-              </button>
-           </div>
-        </div>
-      )}
-
       {/* Pizza List */}
       <div className="grid gap-4">
-        {pizzas.filter(p => p.category !== 'Meio a Meio').sort((a,b) => b.id - a.id).map(pizza => (
+        {pizzas.sort((a,b) => b.id - a.id).map(pizza => (
           <div key={pizza.id} className="bg-white/5 border border-white/10 rounded-xl p-4 flex flex-col md:flex-row items-center gap-4 group hover:bg-white/10 transition-colors">
             <div className="w-16 h-16 rounded-lg overflow-hidden shrink-0 relative">
                <img src={pizza.image} alt={pizza.name} className="w-full h-full object-cover" />
@@ -228,7 +223,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
             
             <div className="flex-1 text-center md:text-left">
               <h4 className="font-bold text-white font-display">{pizza.name}</h4>
-              <p className="text-xs text-gray-400">{pizza.category}</p>
+              <p className="text-xs text-gray-400">{categories.find(c => c.id === pizza.categoryId)?.name || 'Sem Categoria'}</p>
             </div>
 
             <div className="flex items-center gap-4">
@@ -258,6 +253,88 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
               
               <button onClick={() => deletePizza(pizza.id)} className="text-gray-500 hover:text-red-500 p-2"><Trash2 size={16} /></button>
             </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  const renderMenuCategorias = () => (
+    <div className="space-y-8 animate-slide-up">
+      {/* Add Category Form */}
+      <div className="bg-white/5 border border-white/10 rounded-xl p-4 flex items-end gap-4">
+        <div className="flex-1">
+          <label className="block text-xs text-gray-400 mb-1">Nome da Nova Categoria</label>
+          <input 
+            value={newCategoryName}
+            onChange={(e) => setNewCategoryName(e.target.value)}
+            className="w-full bg-black/30 border border-gray-600 rounded-lg p-3 text-white focus:border-brand-orange outline-none"
+            placeholder="Ex: Pizzas Doces"
+          />
+        </div>
+        <button 
+          onClick={() => {
+            if (newCategoryName.trim()) {
+              addCategory({ id: Date.now().toString(), name: newCategoryName.trim() });
+              setNewCategoryName('');
+            }
+          }}
+          className="px-6 py-3 bg-brand-green hover:bg-green-600 text-white rounded-lg font-bold flex items-center justify-center gap-2"
+        >
+          <Plus size={18} /> Criar
+        </button>
+      </div>
+
+      {/* Categories List */}
+      <div className="space-y-6">
+        {categories.map(category => (
+          <div key={category.id} className="bg-white/5 border border-white/10 rounded-xl p-4">
+            <div className="flex justify-between items-center mb-4 border-b border-white/10 pb-3">
+              {editingCategory?.id === category.id ? (
+                <div className="flex items-center gap-2 flex-1">
+                  <input 
+                    value={editingCategory.name}
+                    onChange={(e) => setEditingCategory({ ...editingCategory, name: e.target.value })}
+                    className="bg-black/50 border border-brand-orange rounded px-2 py-1 text-white text-lg font-bold font-display"
+                    autoFocus
+                  />
+                  <button onClick={() => { updateCategory(category.id, editingCategory.name); setEditingCategory(null); }} className="p-1 bg-green-600 rounded"><Check size={14}/></button>
+                  <button onClick={() => setEditingCategory(null)} className="p-1 bg-gray-600 rounded"><X size={14}/></button>
+                </div>
+              ) : (
+                <h4 
+                  className="text-xl font-bold text-white font-display cursor-pointer hover:text-brand-orange"
+                  onClick={() => setEditingCategory({ id: category.id, name: category.name })}
+                >
+                  {category.name}
+                </h4>
+              )}
+              <button onClick={() => removeCategory(category.id)} className="text-gray-500 hover:text-red-500 p-2"><Trash2 size={16} /></button>
+            </div>
+
+            <div className="space-y-3 mb-4">
+              {pizzas.filter(p => p.categoryId === category.id).map(pizza => (
+                <div key={pizza.id} className="bg-black/20 p-2 rounded-lg flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <img src={pizza.image} alt={pizza.name} className="w-10 h-10 rounded object-cover" />
+                    <span className="font-medium text-gray-300">{pizza.name}</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm font-bold text-brand-yellow">R$ {pizza.price.toFixed(2)}</span>
+                    <button onClick={() => togglePizzaAvailability(pizza.id)} className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${pizza.available !== false ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
+                      {pizza.available !== false ? 'Ativo' : 'Pausado'}
+                    </button>
+                    <button onClick={() => deletePizza(pizza.id)} className="text-gray-600 hover:text-red-500"><Trash2 size={14} /></button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {addingPizzaToCategory === category.id ? renderPizzaForm(category.id) : (
+              <button onClick={() => setAddingPizzaToCategory(category.id)} className="w-full text-sm bg-white/10 hover:bg-white/20 text-white font-bold py-2 rounded-lg flex items-center justify-center gap-2">
+                <Plus size={16} /> Adicionar Sabor a esta Categoria
+              </button>
+            )}
           </div>
         ))}
       </div>
@@ -654,67 +731,94 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
     return `w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-bold ${isActive ? `${colorClass} text-white shadow-lg` : 'text-gray-400 hover:bg-white/5'}`;
   };
 
+  const getTabClassV2 = (tabName: string, colorClass: string) => {
+    const isActive = activeTab === tabName;
+    return `flex-1 flex items-center justify-center gap-2 px-3 py-3 text-sm font-bold transition-all border-b-4 ${isActive ? `${colorClass} text-white` : 'text-gray-400 border-transparent hover:bg-white/5'}`;
+  };
+
   return (
-    <div className="min-h-screen bg-brand-dark text-white font-sans flex flex-col md:flex-row">
-      {/* Sidebar */}
-      <aside className="w-full md:w-64 bg-black/40 border-r border-white/10 flex flex-col">
-        <div className="p-6 border-b border-white/10">
-          <h1 className="text-2xl font-bold text-white font-display">Painel <span className="text-brand-orange">Admin</span></h1>
-          <p className="text-xs text-gray-500 mt-1">PDV & Configurações</p>
+    <motion.div
+      ref={panelRef}
+      drag
+      dragListener={false}
+      dragControls={dragControls}
+      dragMomentum={false}
+      className="fixed bottom-10 right-10 z-[100] w-[90vw] max-w-4xl h-[70vh] bg-neutral-900/80 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl flex flex-col overflow-hidden font-sans text-white"
+      animate={{ height: isMinimized ? '64px' : '70vh' }}
+      transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+    >
+      {/* Header / Drag Handle */}
+      <div 
+        onPointerDown={(e) => dragControls.start(e)}
+        className="p-4 bg-black/40 border-b border-white/10 flex justify-between items-center cursor-grab active:cursor-grabbing"
+      >
+        <div className="flex items-center gap-3">
+          <Move size={16} className="text-gray-500" />
+          <h1 className="text-lg font-bold text-white font-display">Painel <span className="text-brand-orange">Admin</span></h1>
         </div>
-        
-        <nav className="flex-1 p-4 space-y-2">
-          <button onClick={() => setActiveTab('menu')} className={getTabClass('menu', 'bg-orange-600')}>
-            <PizzaIcon size={20} /> Cardápio
+        <div className="flex items-center gap-2">
+          <button onClick={() => setIsMinimized(!isMinimized)} className="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-full">
+            {isMinimized ? <Maximize2 size={16} /> : <Minimize2 size={16} />}
           </button>
-          <button onClick={() => setActiveTab('coupons')} className={getTabClass('coupons', 'bg-green-600')}>
-            <Tag size={20} /> Cupons
+          <button onClick={onLogout} className="p-2 text-red-500 hover:text-red-400 hover:bg-red-500/10 rounded-full">
+            <LogOut size={16} />
           </button>
-          <button onClick={() => setActiveTab('cashback')} className={getTabClass('cashback', 'bg-yellow-600')}>
-            <DollarSign size={20} /> Cashback
+        </div>
+      </div>
+
+      {/* Main Content Area */}
+      <div className={`flex flex-col flex-1 min-h-0 transition-opacity ${isMinimized ? 'opacity-0' : 'opacity-100'}`}>
+        {/* Tab Navigation */}
+        <nav className="flex-shrink-0 flex border-b border-white/10 bg-black/20">
+          <button onClick={() => setActiveTab('menu')} className={getTabClassV2('menu', 'border-orange-500')}>
+            <PizzaIcon size={16} /> Cardápio
           </button>
-          <button onClick={() => setActiveTab('theme')} className={getTabClass('theme', 'bg-blue-600')}>
-            <Palette size={20} /> Cores & Tema
+          <button onClick={() => setActiveTab('coupons')} className={getTabClassV2('coupons', 'border-green-500')}>
+            <Tag size={16} /> Cupons
+          </button>
+          <button onClick={() => setActiveTab('cashback')} className={getTabClassV2('cashback', 'border-yellow-500')}>
+            <DollarSign size={16} /> Cashback
+          </button>
+          <button onClick={() => setActiveTab('theme')} className={getTabClassV2('theme', 'border-blue-500')}>
+            <Palette size={16} /> Tema
           </button>
         </nav>
 
-        <div className="p-4 border-t border-white/10">
-          <button onClick={onLogout} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-500 hover:bg-red-500/10 transition-colors">
-            <LogOut size={20} /> Sair do Admin
-          </button>
-        </div>
-      </aside>
+        {/* Tab Content */}
+        <main className="flex-1 p-6 overflow-y-auto custom-scrollbar">
+          {activeTab === 'menu' && (
+            <div className="animate-slide-up">
+              {/* Sub Tabs */}
+              <div className="flex gap-4 border-b border-white/10 mb-6">
+                  <button 
+                    onClick={() => setSubTabMenu('categorias')} 
+                    className={`pb-3 px-2 font-bold transition-colors border-b-2 ${subTabMenu === 'categorias' ? 'text-brand-orange border-brand-orange' : 'text-gray-500 border-transparent hover:text-white'}`}
+                  >
+                    Categorias & Sabores
+                  </button>
+                  <button 
+                    onClick={() => setSubTabMenu('pizzas')} 
+                    className={`pb-3 px-2 font-bold transition-colors border-b-2 ${subTabMenu === 'pizzas' ? 'text-brand-orange border-brand-orange' : 'text-gray-500 border-transparent hover:text-white'}`}
+                  >
+                    Visão Geral
+                  </button>
+                  <button 
+                    onClick={() => setSubTabMenu('extras')} 
+                    className={`pb-3 px-2 font-bold transition-colors border-b-2 ${subTabMenu === 'extras' ? 'text-brand-orange border-brand-orange' : 'text-gray-500 border-transparent hover:text-white'}`}
+                  >
+                    Bordas e Adicionais
+                  </button>
+              </div>
 
-      {/* Main Content */}
-      <main className="flex-1 p-6 md:p-10 overflow-y-auto">
-        {activeTab === 'menu' && (
-           <div className="animate-slide-up">
-             <h3 className="text-2xl font-bold text-white mb-6 font-display">Gerenciar Cardápio</h3>
-             
-             {/* Sub Tabs */}
-             <div className="flex gap-4 border-b border-white/10 mb-6">
-                <button 
-                  onClick={() => setSubTabMenu('pizzas')} 
-                  className={`pb-3 px-2 font-bold transition-colors border-b-2 ${subTabMenu === 'pizzas' ? 'text-brand-orange border-brand-orange' : 'text-gray-500 border-transparent hover:text-white'}`}
-                >
-                   Pizzas & Sabores
-                </button>
-                <button 
-                  onClick={() => setSubTabMenu('extras')} 
-                  className={`pb-3 px-2 font-bold transition-colors border-b-2 ${subTabMenu === 'extras' ? 'text-brand-orange border-brand-orange' : 'text-gray-500 border-transparent hover:text-white'}`}
-                >
-                   Bordas & Extras
-                </button>
-             </div>
-
-             {subTabMenu === 'pizzas' ? renderMenuPizzas() : renderMenuExtras()}
-           </div>
-        )}
-        {activeTab === 'coupons' && renderCouponsTab()}
-        {activeTab === 'theme' && renderThemeTab()}
-        {activeTab === 'cashback' && renderCashbackTab()}
-      </main>
-    </div>
+              {subTabMenu === 'categorias' ? renderMenuCategorias() : subTabMenu === 'pizzas' ? renderMenuPizzas() : renderMenuExtras()}
+            </div>
+          )}
+          {activeTab === 'coupons' && renderCouponsTab()}
+          {activeTab === 'theme' && renderThemeTab()}
+          {activeTab === 'cashback' && renderCashbackTab()}
+        </main>
+      </div>
+    </motion.div>
   );
 };
 
