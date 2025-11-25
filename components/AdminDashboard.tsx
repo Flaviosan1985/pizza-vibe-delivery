@@ -104,52 +104,33 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
       playAlertSound();
     }
 
-    previousPendingCount.current = currentPendingCount;
-  }, [orders, activeTab]);
+    // Stop alert if no more pending orders
+    if (currentPendingCount === 0 && playingAlert) {
+      stopAlertSound();
+    }
 
-  // Initialize audio element
-  useEffect(() => {
-    // Create audio element with notification sound (using a notification tone frequency)
-    const audio = new Audio();
-    audio.loop = true;
-    audio.volume = 0.7;
-    
-    // Using Web Audio API to generate a notification sound
-    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
-    
-    oscillator.type = 'sine';
-    oscillator.frequency.setValueAtTime(800, audioContext.currentTime); // Frequency for notification
-    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-    
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-    
-    audioRef.current = audio;
-    
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current = null;
-      }
-      audioContext.close();
-    };
-  }, []);
+    previousPendingCount.current = currentPendingCount;
+  }, [orders, activeTab, playingAlert]);
 
   const playAlertSound = () => {
     try {
-      // Create a simple notification sound using Web Audio API
-      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      // Stop any existing alert
+      if (audioRef.current) {
+        clearInterval(audioRef.current as any);
+      }
+
+      const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+      const audioContext = new AudioContext();
       
       const createBeep = (frequency: number, startTime: number, duration: number) => {
         const oscillator = audioContext.createOscillator();
         const gainNode = audioContext.createGain();
         
         oscillator.type = 'sine';
-        oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+        oscillator.frequency.value = frequency;
         
-        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime + startTime);
+        gainNode.gain.setValueAtTime(0, audioContext.currentTime + startTime);
+        gainNode.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + startTime + 0.01);
         gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + startTime + duration);
         
         oscillator.connect(gainNode);
@@ -159,37 +140,83 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
         oscillator.stop(audioContext.currentTime + startTime + duration);
       };
       
-      // Create a pattern similar to delivery app notifications (3 beeps)
-      createBeep(800, 0, 0.15);      // First beep
-      createBeep(800, 0.2, 0.15);    // Second beep
-      createBeep(1000, 0.4, 0.3);    // Final higher beep
+      const playPattern = () => {
+        const hasPending = orders.some(o => o.status === 'pending');
+        if (!hasPending || activeTab !== 'pdv') {
+          stopAlertSound();
+          return;
+        }
+        
+        // Create a pattern similar to delivery app notifications (3 beeps)
+        createBeep(800, 0, 0.15);      // First beep
+        createBeep(800, 0.2, 0.15);    // Second beep  
+        createBeep(1000, 0.4, 0.25);   // Final higher beep
+      };
       
+      // Play immediately
+      playPattern();
       setPlayingAlert(true);
       
-      // Loop the sound every 3 seconds while orders are pending
+      // Loop the sound every 3 seconds
       const interval = setInterval(() => {
+        const newContext = new AudioContext();
         const hasPending = orders.some(o => o.status === 'pending');
+        
         if (hasPending && activeTab === 'pdv') {
-          createBeep(800, 0, 0.15);
-          createBeep(800, 0.2, 0.15);
-          createBeep(1000, 0.4, 0.3);
+          const beep1 = newContext.createOscillator();
+          const beep2 = newContext.createOscillator();
+          const beep3 = newContext.createOscillator();
+          const gain1 = newContext.createGain();
+          const gain2 = newContext.createGain();
+          const gain3 = newContext.createGain();
+          
+          beep1.type = 'sine';
+          beep2.type = 'sine';
+          beep3.type = 'sine';
+          beep1.frequency.value = 800;
+          beep2.frequency.value = 800;
+          beep3.frequency.value = 1000;
+          
+          gain1.gain.setValueAtTime(0.3, newContext.currentTime);
+          gain1.gain.exponentialRampToValueAtTime(0.01, newContext.currentTime + 0.15);
+          gain2.gain.setValueAtTime(0.3, newContext.currentTime);
+          gain2.gain.exponentialRampToValueAtTime(0.01, newContext.currentTime + 0.15);
+          gain3.gain.setValueAtTime(0.3, newContext.currentTime);
+          gain3.gain.exponentialRampToValueAtTime(0.01, newContext.currentTime + 0.25);
+          
+          beep1.connect(gain1);
+          beep2.connect(gain2);
+          beep3.connect(gain3);
+          gain1.connect(newContext.destination);
+          gain2.connect(newContext.destination);
+          gain3.connect(newContext.destination);
+          
+          beep1.start(newContext.currentTime);
+          beep1.stop(newContext.currentTime + 0.15);
+          beep2.start(newContext.currentTime + 0.2);
+          beep2.stop(newContext.currentTime + 0.35);
+          beep3.start(newContext.currentTime + 0.4);
+          beep3.stop(newContext.currentTime + 0.65);
         } else {
           clearInterval(interval);
           setPlayingAlert(false);
         }
       }, 3000);
       
-      // Store interval ID to clear it later
-      (audioContext as any).alertInterval = interval;
+      audioRef.current = interval as any;
       
     } catch (error) {
       console.error('Error playing alert sound:', error);
+      setPlayingAlert(false);
     }
   };
 
   const stopAlertSound = () => {
+    if (audioRef.current) {
+      clearInterval(audioRef.current as any);
+      audioRef.current = null;
+    }
     setPlayingAlert(false);
-    // Additional cleanup if needed
   };
 
   // --- Helper Functions ---
