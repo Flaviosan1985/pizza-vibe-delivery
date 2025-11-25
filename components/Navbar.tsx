@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ShoppingCart, Pizza, Moon, Sun, ClipboardList, Heart } from 'lucide-react';
+import { ShoppingCart, Pizza, ClipboardList, Heart } from 'lucide-react';
 import UserMenu from './UserMenu';
 
 interface NavbarProps {
@@ -54,8 +54,16 @@ const Navbar: React.FC<NavbarProps> = ({ cartCount, onOpenCart, onOpenAI, isDark
   return (
     <nav className={`fixed w-full z-50 transition-all duration-300 ${navBackground}`}>
       <div className="container mx-auto px-4 flex justify-between items-center">
-        {/* Logo */}
-        <div className="flex items-center space-x-3">
+        {/* Left: Welcome Message (Desktop Only) */}
+        <div className="hidden md:flex items-center">
+          <div className="text-white/90">
+            <p className="text-sm font-light">Bem-vindo(a), <span className="font-display font-bold text-brand-orange">{userName}</span></p>
+            <p className="text-xs text-white/70">As melhores pizzas da região 🍕</p>
+          </div>
+        </div>
+
+        {/* Center: Logo */}
+        <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center space-x-3">
           {logo ? (
             <img src={logo} alt="Logo" className="w-12 h-12 md:w-14 md:h-14 rounded-full object-cover shadow-lg border-2 border-white/20" />
           ) : (
@@ -69,19 +77,17 @@ const Navbar: React.FC<NavbarProps> = ({ cartCount, onOpenCart, onOpenAI, isDark
           </span>
         </div>
 
-        {/* Desktop Links */}
-        <div className="hidden md:flex items-center space-x-4">
-          <button 
-            onClick={onOpenAI}
-            className={`px-5 py-2.5 rounded-full border border-brand-orange text-brand-orange hover:bg-brand-orange hover:text-white transition-all font-display font-bold text-sm uppercase tracking-wider bg-black/20 backdrop-blur-sm shadow-lg`}
-          >
-            ✨ Sommelier IA
-          </button>
-        </div>
-
-        {/* Actions */}
+        {/* Right: Actions */}
         <div className="flex items-center space-x-2 md:space-x-4">
           
+          {/* AI Sommelier - Visible on all screens */}
+          <button 
+            onClick={onOpenAI}
+            className={`px-3 py-2 md:px-5 md:py-2.5 rounded-full border border-brand-orange text-brand-orange hover:bg-brand-orange hover:text-white transition-all font-display font-bold text-[10px] md:text-sm uppercase tracking-wider bg-black/20 backdrop-blur-sm shadow-lg`}
+          >
+            ✨ IA
+          </button>
+
           {/* My Orders - Mobile Icon Only */}
           <button
             onClick={onMyOrders}
@@ -98,15 +104,6 @@ const Navbar: React.FC<NavbarProps> = ({ cartCount, onOpenCart, onOpenAI, isDark
             title="Meus Favoritos"
           >
             <Heart size={22} />
-          </button>
-          
-          {/* Theme Toggle */}
-          <button
-            onClick={toggleTheme}
-            className={`p-2.5 rounded-full transition-colors hover:bg-white/10 ${iconColor}`}
-            title={isDarkMode ? "Mudar para Modo Claro" : "Mudar para Modo Escuro"}
-          >
-            {isDarkMode ? <Sun size={22} /> : <Moon size={22} />}
           </button>
 
           {/* Cart */}

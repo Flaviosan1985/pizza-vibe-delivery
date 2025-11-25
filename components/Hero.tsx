@@ -38,19 +38,12 @@ const Hero: React.FC<{ onCtaClick: () => void }> = ({ onCtaClick }) => {
   const currentItem = banners[currentIndex];
 
   return (
-    <div className="relative h-[320px] md:h-[500px] flex items-center justify-center overflow-hidden mb-[-20px] md:mb-[-40px]">
+    <div className="relative h-[280px] md:h-[400px] flex items-center justify-center overflow-hidden mb-[-20px] md:mb-[-40px]">
       {/* Content */}
-      <div className="container mx-auto px-4 relative z-20 text-center pt-8 md:pt-10">
-        
-        <h1 className="font-display text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-white mb-4 md:mb-6 leading-[0.9] drop-shadow-2xl">
-          Sabor que <br/>
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-green via-white to-brand-orange">
-            Conecta Pessoas
-          </span>
-        </h1>
+      <div className="container mx-auto px-4 relative z-20 text-center pt-20 md:pt-24">
         
         {/* Animated Image Banner Carousel */}
-        <div className="mt-2 md:mt-4 mx-auto max-w-4xl h-40 md:h-64 relative rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl border border-white/10 bg-black/40 backdrop-blur-sm group">
+        <div className="mx-auto max-w-4xl h-48 md:h-72 relative rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl border border-white/10 bg-black/40 backdrop-blur-sm group">
            <AnimatePresence mode='wait'>
              {currentItem && (
                <motion.div
