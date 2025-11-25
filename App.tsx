@@ -292,6 +292,22 @@ const App: React.FC = () => {
     ...addons.map(a => ({ ...a, type: 'addon' as const }))
   ];
 
+  // Helper to check if a pizza belongs to a category (supports both categoryId and legacy category string)
+  const pizzaBelongsToCategory = (pizza: Pizza, category: Category): boolean => {
+    if (pizza.categoryId) {
+      return pizza.categoryId === category.id;
+    }
+    // Fallback: match by category name (case-insensitive, includes partial match)
+    if (pizza.category) {
+      const categoryNameLower = category.name.toLowerCase();
+      const pizzaCategoryLower = pizza.category.toLowerCase();
+      return categoryNameLower === pizzaCategoryLower ||
+             categoryNameLower.includes(pizzaCategoryLower) ||
+             pizzaCategoryLower.includes(categoryNameLower);
+    }
+    return false;
+  };
+
   const renderTabPizzaGrid = (filterFn: (p: Pizza) => boolean) => {
     const filteredPizzas = pizzas.filter(p => filterFn(p) && p.available !== false);
 
@@ -306,15 +322,15 @@ const App: React.FC = () => {
       );
     }
 
-    // Agrupar pizzas por categoryId usando as categorias dinâmicas
+    // Agrupar pizzas por categoryId ou category string usando as categorias dinâmicas
     const categoriesInTab = categories
-      .filter(cat => filteredPizzas.some(p => p.categoryId === cat.id))
+      .filter(cat => filteredPizzas.some(p => pizzaBelongsToCategory(p, cat)))
       .sort((a, b) => a.name.localeCompare(b.name));
 
     return (
       <div className="space-y-8 md:space-y-12 animate-slide-up">
         {categoriesInTab.map(category => {
-          const pizzasInCategory = filteredPizzas.filter(p => p.categoryId === category.id);
+          const pizzasInCategory = filteredPizzas.filter(p => pizzaBelongsToCategory(p, category));
           return (
             <div key={category.id}>
               <h4 className="font-display text-xl md:text-3xl font-bold mb-4 md:mb-6 text-white tracking-tight border-b border-white/10 pb-3 flex items-center gap-3">
@@ -354,20 +370,6 @@ const App: React.FC = () => {
           </div>
         );
      }
-
-     // Helper to check if a pizza belongs to a category (supports both categoryId and legacy category string)
-     const pizzaBelongsToCategory = (pizza: Pizza, category: Category): boolean => {
-       if (pizza.categoryId) {
-         return pizza.categoryId === category.id;
-       }
-       // Fallback: match by category name (case-insensitive, includes partial match)
-       if (pizza.category) {
-         return category.name.toLowerCase() === pizza.category.toLowerCase() ||
-                category.name.toLowerCase().includes(pizza.category.toLowerCase()) ||
-                pizza.category.toLowerCase().includes(category.name.toLowerCase());
-       }
-       return false;
-     };
 
      // Agrupar por categoryId ou category string usando categorias dinâmicas
      const categoriesInResults = categories
