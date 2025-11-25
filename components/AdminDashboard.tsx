@@ -80,6 +80,9 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
   // PDV State
   const [orderStatusFilter, setOrderStatusFilter] = useState<OrderStatus | 'all'>('all');
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [playingAlert, setPlayingAlert] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const previousPendingCount = useRef<number>(0);
 
   // Prevent page scroll while dragging
   useEffect(() => {
@@ -90,6 +93,104 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
       return () => panel.removeEventListener('wheel', handleWheel);
     }
   }, []);
+
+  // Monitor new pending orders and play alert sound
+  useEffect(() => {
+    const pendingOrders = orders.filter(o => o.status === 'pending');
+    const currentPendingCount = pendingOrders.length;
+
+    // Play alert if new pending order arrived
+    if (currentPendingCount > previousPendingCount.current && activeTab === 'pdv') {
+      playAlertSound();
+    }
+
+    previousPendingCount.current = currentPendingCount;
+  }, [orders, activeTab]);
+
+  // Initialize audio element
+  useEffect(() => {
+    // Create audio element with notification sound (using a notification tone frequency)
+    const audio = new Audio();
+    audio.loop = true;
+    audio.volume = 0.7;
+    
+    // Using Web Audio API to generate a notification sound
+    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(800, audioContext.currentTime); // Frequency for notification
+    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    audioRef.current = audio;
+    
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+      audioContext.close();
+    };
+  }, []);
+
+  const playAlertSound = () => {
+    try {
+      // Create a simple notification sound using Web Audio API
+      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      
+      const createBeep = (frequency: number, startTime: number, duration: number) => {
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+        
+        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime + startTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + startTime + duration);
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.start(audioContext.currentTime + startTime);
+        oscillator.stop(audioContext.currentTime + startTime + duration);
+      };
+      
+      // Create a pattern similar to delivery app notifications (3 beeps)
+      createBeep(800, 0, 0.15);      // First beep
+      createBeep(800, 0.2, 0.15);    // Second beep
+      createBeep(1000, 0.4, 0.3);    // Final higher beep
+      
+      setPlayingAlert(true);
+      
+      // Loop the sound every 3 seconds while orders are pending
+      const interval = setInterval(() => {
+        const hasPending = orders.some(o => o.status === 'pending');
+        if (hasPending && activeTab === 'pdv') {
+          createBeep(800, 0, 0.15);
+          createBeep(800, 0.2, 0.15);
+          createBeep(1000, 0.4, 0.3);
+        } else {
+          clearInterval(interval);
+          setPlayingAlert(false);
+        }
+      }, 3000);
+      
+      // Store interval ID to clear it later
+      (audioContext as any).alertInterval = interval;
+      
+    } catch (error) {
+      console.error('Error playing alert sound:', error);
+    }
+  };
+
+  const stopAlertSound = () => {
+    setPlayingAlert(false);
+    // Additional cleanup if needed
+  };
 
   // --- Helper Functions ---
 
@@ -794,12 +895,25 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
     const handleStatusChange = (orderId: string, newStatus: OrderStatus) => {
       updateOrderStatus(orderId, newStatus);
       showSyncMessage();
+      
+      // Stop alert sound when moving from pending to preparing
+      if (newStatus === 'preparing') {
+        stopAlertSound();
+      }
     };
 
     return (
       <div className="space-y-6 animate-slide-up">
         <div className="flex items-center justify-between">
-          <h3 className="text-xl font-bold text-white font-display">Gerenciar Pedidos (PDV)</h3>
+          <div className="flex items-center gap-3">
+            <h3 className="text-xl font-bold text-white font-display">Gerenciar Pedidos (PDV)</h3>
+            {playingAlert && (
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-red-500/20 border border-red-500/30 animate-pulse">
+                <div className="w-2 h-2 rounded-full bg-red-500" />
+                <span className="text-xs font-bold text-red-500">Novo Pedido!</span>
+              </div>
+            )}
+          </div>
           <div className="text-sm text-gray-400">
             Total: <span className="text-white font-bold">{orders.length}</span> pedidos
           </div>
