@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PizzaVibe Delivery</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --color-brand-orange: #D62828; /* Primary (Italian Red) */
+        --color-brand-red: #B91C1C;    /* Darker Red */
+        --color-brand-green: #009246;  /* Secondary (Italian Green) */
+        --color-brand-yellow: #F4C430; /* Accent (Gold) */
+        --color-brand-dark: #09090b;   /* Background (Zinc 950) */
+        --color-brand-gray: #18181b;   /* Surface (Zinc 900) */
+        --color-brand-light: #F5F5F5;  /* Text Light */
+      }
+
+      body {
+        transition: background-color 0.3s ease, color 0.3s ease;
+      }
+      /* Light Mode Scrollbar */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #E5E7EB;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: var(--color-brand-orange);
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: var(--color-brand-red);
+      }
+
+      /* Dark Mode Scrollbar override */
+      .dark ::-webkit-scrollbar-track {
+        background: #18181b;
+      }
+      .dark ::-webkit-scrollbar-thumb {
+        background: var(--color-brand-orange);
+      }
+
+      /* Flying Pizza Animation */
+      @keyframes flyToCart {
+        0% {
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%) scale(1) rotate(0deg);
+          opacity: 1;
+        }
+        60% {
+          opacity: 1;
+        }
+        100% {
+          top: 30px; /* Approx Navbar height center */
+          left: calc(100% - 50px); /* Approx Cart Icon position */
+          transform: translate(-50%, -50%) scale(0.1) rotate(360deg);
+          opacity: 0;
+        }
+      }
+      .animate-fly-to-cart {
+        animation: flyToCart 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      }
+    </style>
+    <script>
+      tailwind.config = {
+        darkMode: 'class', // Enable class-based dark mode
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+              display: ['Outfit', 'sans-serif'],
+            },
+            colors: {
+              brand: {
+                orange: 'var(--color-brand-orange)',
+                red: 'var(--color-brand-red)',
+                green: 'var(--color-brand-green)',
+                yellow: 'var(--color-brand-yellow)',
+                dark: 'var(--color-brand-dark)',
+                gray: 'var(--color-brand-gray)',
+                light: 'var(--color-brand-light)'
+              }
+            },
+            animation: {
+              'float': 'float 3s ease-in-out infinite',
+              'slide-up': 'slideUp 0.5s ease-out forwards',
+            },
+            keyframes: {
+              float: {
+                '0%, 100%': { transform: 'translateY(0)' },
+                '50%': { transform: 'translateY(-10px)' },
+              },
+              slideUp: {
+                '0%': { opacity: '0', transform: 'translateY(20px)' },
+                '100%': { opacity: '1', transform: 'translateY(0)' },
+              }
+            }
+          },
+        },
+      }
+    </script>
+  <script type="importmap">
+{
+  "imports": {
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.554.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "framer-motion": "https://aistudiocdn.com/framer-motion@^12.23.24"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body class="bg-brand-light text-gray-900 dark:bg-brand-dark dark:text-gray-100 font-sans antialiased selection:bg-brand-green selection:text-white">
+    <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>
