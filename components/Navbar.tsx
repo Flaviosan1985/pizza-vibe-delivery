@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { ShoppingCart, Pizza, Moon, Sun, LogOut } from 'lucide-react';
+import { ShoppingCart, Pizza, Moon, Sun } from 'lucide-react';
+import UserMenu from './UserMenu';
 
 interface NavbarProps {
   cartCount: number;
@@ -8,11 +9,16 @@ interface NavbarProps {
   isDarkMode: boolean;
   toggleTheme: () => void;
   onLogout: () => void;
+  onMyAccount: () => void;
+  onMyOrders: () => void;
+  onMyFavorites: () => void;
+  userName: string;
+  userAvatar?: string;
   logo?: string;
   storeName?: string;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ cartCount, onOpenCart, onOpenAI, isDarkMode, toggleTheme, onLogout, logo, storeName }) => {
+const Navbar: React.FC<NavbarProps> = ({ cartCount, onOpenCart, onOpenAI, isDarkMode, toggleTheme, onLogout, onMyAccount, onMyOrders, onMyFavorites, userName, userAvatar, logo, storeName }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isBumping, setIsBumping] = useState(false);
 
@@ -64,7 +70,7 @@ const Navbar: React.FC<NavbarProps> = ({ cartCount, onOpenCart, onOpenAI, isDark
         </div>
 
         {/* Desktop Links */}
-        <div className="hidden md:flex items-center space-x-8">
+        <div className="hidden md:flex items-center space-x-4">
           <button 
             onClick={onOpenAI}
             className={`px-5 py-2.5 rounded-full border border-brand-orange text-brand-orange hover:bg-brand-orange hover:text-white transition-all font-display font-bold text-sm uppercase tracking-wider bg-black/20 backdrop-blur-sm shadow-lg`}
@@ -75,6 +81,24 @@ const Navbar: React.FC<NavbarProps> = ({ cartCount, onOpenCart, onOpenAI, isDark
 
         {/* Actions */}
         <div className="flex items-center space-x-2 md:space-x-4">
+          
+          {/* My Orders - Mobile Icon Only */}
+          <button
+            onClick={onMyOrders}
+            className={`md:hidden p-2.5 rounded-full transition-colors hover:bg-white/10 ${iconColor}`}
+            title="Meus Pedidos"
+          >
+            <ClipboardList size={22} />
+          </button>
+
+          {/* My Favorites - Mobile Icon Only */}
+          <button
+            onClick={onMyFavorites}
+            className={`md:hidden p-2.5 rounded-full transition-colors hover:bg-white/10 ${iconColor}`}
+            title="Meus Favoritos"
+          >
+            <Heart size={22} />
+          </button>
           
           {/* Theme Toggle */}
           <button
@@ -99,14 +123,15 @@ const Navbar: React.FC<NavbarProps> = ({ cartCount, onOpenCart, onOpenAI, isDark
             )}
           </button>
 
-          {/* Logout (Visible on Mobile & Desktop) */}
-          <button
-            onClick={onLogout}
-            className={`flex p-2.5 rounded-full transition-colors hover:bg-red-500/20 hover:text-red-500 ${iconColor}`}
-            title="Sair"
-          >
-            <LogOut size={24} />
-          </button>
+          {/* User Menu */}
+          <UserMenu
+            userName={userName}
+            userAvatar={userAvatar}
+            onMyAccount={onMyAccount}
+            onMyOrders={onMyOrders}
+            onMyFavorites={onMyFavorites}
+            onLogout={onLogout}
+          />
           
         </div>
       </div>

@@ -12,9 +12,13 @@ import CheckoutPage, { PaymentInfo } from './components/CheckoutPage';
 import FloatingCartButton from './components/FloatingCartButton';
 import AdminDashboard from './components/AdminDashboard';
 import CartPage from './components/CartPage';
+import MyOrdersPage from './components/MyOrdersPage';
+import MyFavoritesPage from './components/MyFavoritesPage';
+import MyAccountPage from './components/MyAccountPage';
+import Toast from './components/Toast';
 import { AdminProvider, useAdmin } from './contexts/AdminContext';
 // REMOVED static imports of CRUST_OPTIONS, ADDON_OPTIONS
-import { Pizza, CartItem, User } from './types';
+import { Pizza, CartItem, User, Order, OrderStatus } from './types';
 import { Phone, MapPin, Instagram, Facebook, Search, X, CircleDashed } from 'lucide-react';
 
 // Wrapper component to provide context to the inner App logic
@@ -28,13 +32,13 @@ const AppWrapper: React.FC = () => {
 
 const App: React.FC = () => {
   // Use Context for Data (Pizzas, Crusts, Addons, Categories)
-  const { pizzas, crusts, addons, theme, categories, promotion } = useAdmin();
+  const { pizzas, crusts, addons, theme, categories, promotion, addOrder, setOnOrderStatusChange } = useAdmin();
 
   // Authentication State
   const [user, setUser] = useState<User | null>(null);
 
   // App Flow State
-  const [currentView, setCurrentView] = useState<'home' | 'checkout' | 'admin' | 'cart'>('home');
+  const [currentView, setCurrentView] = useState<'home' | 'checkout' | 'admin' | 'cart' | 'myOrders' | 'myFavorites' | 'myAccount'>('home');
 
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -42,6 +46,14 @@ const App: React.FC = () => {
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [activeMenuTab, setActiveMenuTab] = useState<'traditional' | 'half' | 'broto' | 'sweet'>('traditional');
   const [searchQuery, setSearchQuery] = useState('');
+  
+  // Notification state
+  const [notification, setNotification] = useState<{
+    visible: boolean;
+    message: string;
+    status?: OrderStatus;
+    orderNumber?: number;
+  }>({ visible: false, message: '' });
   
   // Customization modal state
   const [selectedPizza, setSelectedPizza] = useState<Pizza | null>(null);
@@ -74,6 +86,31 @@ const App: React.FC = () => {
       } catch (e) { console.error("Failed to parse user"); }
     }
   }, []);
+
+  // Register notification callback for order status changes
+  useEffect(() => {
+    const handleOrderStatusChange = (order: Order, newStatus: OrderStatus) => {
+      // Only show notification if it's the current user's order
+      if (user && order.customerId === user.phone) {
+        const messages: Record<OrderStatus, string> = {
+          pending: 'Seu pedido foi recebido e está aguardando confirmação.',
+          preparing: 'Seu pedido está sendo preparado com muito carinho! 👨‍🍳',
+          ready: 'Seu pedido está pronto! 🎉',
+          delivered: 'Seu pedido foi entregue. Bom apetite! 🍕',
+          cancelled: 'Seu pedido foi cancelado.'
+        };
+        
+        setNotification({
+          visible: true,
+          message: messages[newStatus],
+          status: newStatus,
+          orderNumber: order.orderNumber
+        });
+      }
+    };
+
+    setOnOrderStatusChange(handleOrderStatusChange);
+  }, [user, setOnOrderStatusChange]);
 
   // Auto-add promotional item when threshold is reached
   useEffect(() => {
@@ -124,6 +161,11 @@ const App: React.FC = () => {
     setCart([]);
     setCurrentView('home');
     window.scrollTo(0, 0);
+  };
+
+  const handleUpdateUser = (updatedUser: User) => {
+    setUser(updatedUser);
+    localStorage.setItem('pizzaVibeUser', JSON.stringify(updatedUser));
   };
 
   const toggleTheme = () => {
@@ -227,7 +269,40 @@ const App: React.FC = () => {
 
     const subtotal = cart.reduce((acc, item) => acc + (item.unitTotal * item.quantity), 0);
     const deliveryFee = deliveryMode === 'pickup' ? 0 : 5.00;
-    const total = subtotal + deliveryFee;
+    const discount = 0; // TODO: Add coupon discount if applied
+    const total = subtotal + deliveryFee - discount;
+
+    // Create Order in system
+    const newOrder: Omit<Order, 'id' | 'orderNumber' | 'createdAt' | 'updatedAt'> = {
+      customerId: user.phone,
+      customerName: user.name,
+      customerPhone: user.phone,
+      items: cart.map(item => ({
+        pizzaId: item.id,
+        pizzaName: item.name,
+        pizzaImage: item.image,
+        quantity: item.quantity,
+        unitPrice: item.price,
+        total: item.unitTotal * item.quantity,
+        crust: item.selectedCrust?.name,
+        addons: item.selectedAddons?.map(a => a.name),
+        observation: item.observation,
+        isHalfHalf: item.isHalfHalf,
+        secondFlavorName: item.secondFlavor?.name
+      })),
+      subtotal,
+      deliveryFee,
+      discount,
+      total,
+      status: 'pending',
+      paymentMethod: payment.method === 'credit' ? 'Cartão de Crédito' : 
+                     payment.method === 'debit' ? 'Cartão de Débito' : 
+                     payment.method === 'pix' ? 'PIX' : 'Dinheiro',
+      deliveryAddress: deliveryMode === 'delivery' && address 
+        ? `${address.street}, ${address.number}${address.complement ? ', ' + address.complement : ''}, ${address.neighborhood} - ${address.city}`
+        : undefined
+    };
+    addOrder(newOrder as Order);
 
     let text = `*NOVO PEDIDO - ${theme.storeName || 'PizzaVibe'}*\n\n`;
     text += `👤 *Cliente:* ${user.name}\n`;
@@ -256,6 +331,10 @@ const App: React.FC = () => {
     text += `\n\n🧾 *TOTAL: R$ ${fmt(total)}*`;
 
     window.open(`https://wa.me/5513996511793?text=${encodeURIComponent(text)}`, '_blank');
+    
+    // Clear cart after successful order
+    setCart([]);
+    setIsCartOpen(false);
   };
 
   const scrollToMenu = () => menuRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -263,6 +342,39 @@ const App: React.FC = () => {
     setRecommendedId(id);
     scrollToMenu();
     setTimeout(() => setRecommendedId(null), 10000);
+  };
+
+  const handleReorder = (order: Order) => {
+    // Clear current cart
+    setCart([]);
+    
+    // Add order items back to cart
+    order.items.forEach(item => {
+      const pizza = pizzas.find(p => p.id === item.pizzaId);
+      if (pizza && pizza.available !== false) {
+        const crust = item.crust ? crusts.find(c => c.name === item.crust) : null;
+        const itemAddons = item.addons ? addons.filter(a => item.addons?.includes(a.name)) : [];
+        
+        const cartItem: CartItem = {
+          ...pizza,
+          cartId: `reorder-${Date.now()}-${Math.random()}`,
+          quantity: item.quantity,
+          selectedCrust: crust || null,
+          selectedAddons: itemAddons,
+          observation: item.observation || '',
+          unitTotal: item.unitPrice + (crust?.price || 0) + itemAddons.reduce((sum, a) => sum + a.price, 0),
+          isHalfHalf: item.isHalfHalf,
+          secondFlavor: item.isHalfHalf && item.secondFlavorName ? pizzas.find(p => p.name === item.secondFlavorName) : undefined
+        };
+        
+        setCart(prev => [...prev, cartItem]);
+      }
+    });
+    
+    // Navigate to home and show cart
+    setCurrentView('home');
+    setIsCartOpen(true);
+    window.scrollTo(0, 0);
   };
 
   const cartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
@@ -328,6 +440,7 @@ const App: React.FC = () => {
                       pizza={pizza} 
                       onSelect={handleSelectPizza} 
                       isRecommended={recommendedId === pizza.id}
+                      userId={user?.phone}
                     />
                   </div>
                 ))}
@@ -377,7 +490,7 @@ const App: React.FC = () => {
                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-6">
                       {pizzasInCategory.map(pizza => (
                          <div key={pizza.id} className="h-full">
-                            <PizzaCard pizza={pizza} onSelect={handleSelectPizza} isRecommended={recommendedId === pizza.id} />
+                            <PizzaCard pizza={pizza} onSelect={handleSelectPizza} isRecommended={recommendedId === pizza.id} userId={user?.phone} />
                          </div>
                       ))}
                    </div>
@@ -397,6 +510,15 @@ const App: React.FC = () => {
          </div>
       </div>
 
+      {/* Toast Notification */}
+      <Toast
+        visible={notification.visible}
+        message={notification.message}
+        status={notification.status}
+        orderNumber={notification.orderNumber}
+        onClose={() => setNotification({ visible: false, message: '' })}
+      />
+
       <div className="relative z-10">
         {currentView === 'checkout' ? (
           <CheckoutPage 
@@ -415,6 +537,26 @@ const App: React.FC = () => {
              onBackToMenu={() => { setCurrentView('home'); window.scrollTo(0,0); }}
              user={user}
            />
+        ) : currentView === 'myOrders' ? (
+          <MyOrdersPage
+            user={user}
+            onBack={() => { setCurrentView('home'); window.scrollTo(0, 0); }}
+            onReorder={handleReorder}
+          />
+        ) : currentView === 'myFavorites' ? (
+          <MyFavoritesPage
+            user={user}
+            onBack={() => { setCurrentView('home'); window.scrollTo(0, 0); }}
+            onSelectPizza={handleSelectPizza}
+          />
+        ) : currentView === 'myAccount' ? (
+          <MyAccountPage
+            user={user}
+            onBack={() => { setCurrentView('home'); window.scrollTo(0, 0); }}
+            onMyOrders={() => setCurrentView('myOrders')}
+            onMyFavorites={() => setCurrentView('myFavorites')}
+            onUpdateUser={handleUpdateUser}
+          />
         ) : (
           <>
             <Navbar 
@@ -424,6 +566,11 @@ const App: React.FC = () => {
               isDarkMode={isDarkMode}
               toggleTheme={toggleTheme}
               onLogout={handleLogout}
+              onMyAccount={() => setCurrentView('myAccount')}
+              onMyOrders={() => setCurrentView('myOrders')}
+              onMyFavorites={() => setCurrentView('myFavorites')}
+              userName={user?.name || 'Usuário'}
+              userAvatar={user?.avatar}
               logo={theme.logo}
               storeName={theme.storeName}
             />
@@ -515,7 +662,7 @@ const App: React.FC = () => {
                         <div className="w-full max-w-sm px-4">
                           {halfHalfProduct && (
                             <div className="transform transition-transform hover:scale-[1.02] duration-300">
-                              <PizzaCard pizza={halfHalfProduct} onSelect={handleSelectPizza} isRecommended={true} />
+                              <PizzaCard pizza={halfHalfProduct} onSelect={handleSelectPizza} isRecommended={true} userId={user?.phone} />
                             </div>
                           )}
                         </div>

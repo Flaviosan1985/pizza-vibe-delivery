@@ -18,7 +18,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
     theme, updateTheme,
     banners, addBanner, removeBanner,
     promotion, updatePromotion, addPromotionProduct, updatePromotionProduct, removePromotionProduct,
-    orders, updateOrderStatus
+    orders, updateOrderStatus,
+    isFirebaseConnected
   } = useAdmin();
 
   const [activeTab, setActiveTab] = useState<'menu' | 'pdv' | 'coupons' | 'cashback' | 'theme' | 'promotions' | 'settings'>('menu');
@@ -1167,6 +1168,15 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
         <div className="flex items-center gap-3">
           <Move size={16} className="text-gray-500" />
           <h1 className="text-lg font-bold text-white font-display">Painel <span className="text-brand-orange">Admin</span></h1>
+          {/* Firebase Connection Indicator */}
+          <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${
+            isFirebaseConnected 
+              ? 'bg-green-500/20 text-green-400 border border-green-500/30' 
+              : 'bg-orange-500/20 text-orange-400 border border-orange-500/30'
+          }`}>
+            <div className={`w-1.5 h-1.5 rounded-full ${isFirebaseConnected ? 'bg-green-400 animate-pulse' : 'bg-orange-400'}`} />
+            {isFirebaseConnected ? 'Firebase' : 'Modo Local'}
+          </div>
         </div>
         <div className="flex items-center gap-2">
           <button onClick={() => setIsMinimized(!isMinimized)} className="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-full">

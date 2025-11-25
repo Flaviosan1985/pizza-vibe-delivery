@@ -1,15 +1,26 @@
 import React from 'react';
 import { Pizza } from '../types';
-import { ShoppingCart } from 'lucide-react';
+import { ShoppingCart, Heart } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useAdmin } from '../contexts/AdminContext';
 
 interface PizzaCardProps {
   pizza: Pizza;
   onSelect: (pizza: Pizza) => void;
   isRecommended?: boolean;
+  userId?: string;
 }
 
-const PizzaCard: React.FC<PizzaCardProps> = ({ pizza, onSelect, isRecommended }) => {
+const PizzaCard: React.FC<PizzaCardProps> = ({ pizza, onSelect, isRecommended, userId }) => {
+  const { toggleFavorite, isFavorite } = useAdmin();
+  const isFav = userId ? isFavorite(userId, pizza.id) : false;
+
+  const handleFavoriteClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (userId) {
+      toggleFavorite(userId, pizza.id);
+    }
+  };
   return (
     <div 
       className={`group flex flex-col h-full rounded-2xl transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 cursor-pointer relative bg-black/40 backdrop-blur-xl border border-white/10 hover:border-white/20 shadow-lg overflow-hidden ${isRecommended ? 'ring-1 ring-brand-green/50 shadow-green-900/20' : ''}`}
@@ -20,6 +31,23 @@ const PizzaCard: React.FC<PizzaCardProps> = ({ pizza, onSelect, isRecommended })
         <div className="absolute top-2 left-2 bg-brand-green text-white text-[9px] uppercase font-display font-black tracking-widest px-2 py-0.5 rounded-full shadow-md z-10">
           Top
         </div>
+      )}
+
+      {/* Favorite Button */}
+      {userId && (
+        <motion.button
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          onClick={handleFavoriteClick}
+          className={`absolute top-2 right-2 w-8 h-8 sm:w-10 sm:h-10 rounded-full shadow-lg flex items-center justify-center z-10 border backdrop-blur-sm transition-colors ${
+            isFav 
+              ? 'bg-red-500/90 border-red-500 text-white' 
+              : 'bg-black/60 border-white/20 text-white hover:bg-red-500/50'
+          }`}
+          aria-label={isFav ? "Remover dos favoritos" : "Adicionar aos favoritos"}
+        >
+          <Heart size={16} className={isFav ? 'fill-current' : ''} />
+        </motion.button>
       )}
 
       {/* Image Content - Optimized Height for Mobile/Desktop */}

@@ -47,6 +47,8 @@ export interface User {
   phone: string;
   isAdmin?: boolean;
   cashbackBalance?: number; // Balance available for redemption
+  avatar?: string; // URL or base64 image for user avatar
+  address?: string; // User's default address
 }
 
 // Admin & PDV Types

@@ -2,6 +2,10 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Pizza, Coupon, CashbackSettings, ThemeSettings, OptionItem, BannerItem, Category, Promotion, PromotionProduct, Order, OrderStatus, FavoritePizza } from '../types';
 import { PIZZAS as INITIAL_PIZZAS, CRUST_OPTIONS as INITIAL_CRUSTS, ADDON_OPTIONS as INITIAL_ADDONS } from '../constants';
+// Firestore integration (optional, falls back to localStorage if not configured)
+import { saveOrder as saveOrderToDB, updateOrderStatus as updateOrderStatusInDB, savePizza as savePizzaToDB, saveCoupon as saveCouponToDB, saveFavorite as saveFavoriteToDB, removeFavorite as removeFavoriteFromDB } from '../services/firestoreService';
+import { collection, onSnapshot, orderBy, query } from 'firebase/firestore';
+import { db, isFirebaseConfigured } from '../services/firebaseConfig';
 
 interface AdminContextData {
   pizzas: Pizza[];
@@ -15,6 +19,8 @@ interface AdminContextData {
   promotion: Promotion;
   orders: Order[];
   favorites: FavoritePizza[];
+  isFirebaseConnected: boolean;
+  onOrderStatusChange?: (order: Order, newStatus: OrderStatus) => void;
   
   // Pizza Actions
   addPizza: (pizza: Pizza) => void;
@@ -47,6 +53,7 @@ interface AdminContextData {
   updateOrderStatus: (orderId: string, status: OrderStatus) => void;
   getOrdersByUser: (userId: string) => Order[];
   getOrderById: (orderId: string) => Order | undefined;
+  setOnOrderStatusChange: (callback: (order: Order, newStatus: OrderStatus) => void) => void;
 
   // Favorite Actions
   toggleFavorite: (userId: string, pizzaId: number) => void;
@@ -90,6 +97,9 @@ const INITIAL_BANNERS: BannerItem[] = [
 
 export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   // --- State Initialization ---
+  
+  // Firebase connection state
+  const [isFirebaseConnected, setIsFirebaseConnected] = useState(false);
   
   // Menu (Pizzas)
   const [pizzas, setPizzas] = useState<Pizza[]>(() => {
@@ -180,6 +190,9 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     return saved ? JSON.parse(saved) : [];
   });
 
+  // Notification callback
+  const [orderStatusChangeCallback, setOrderStatusChangeCallback] = useState<((order: Order, newStatus: OrderStatus) => void) | undefined>();
+
   // --- Persistence ---
   useEffect(() => { localStorage.setItem('pv_pizzas', JSON.stringify(pizzas)); }, [pizzas]);
   useEffect(() => { localStorage.setItem('pv_crusts', JSON.stringify(crusts)); }, [crusts]);
@@ -194,6 +207,96 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   useEffect(() => { localStorage.setItem('pv_orderCounter', orderCounter.toString()); }, [orderCounter]);
   useEffect(() => { localStorage.setItem('pv_favorites', JSON.stringify(favorites)); }, [favorites]);
 
+  // Try to hydrate and subscribe to orders from Firestore on startup (if configured)
+  useEffect(() => {
+    let unsubscribeOrders: undefined | (() => void);
+    let unsubscribePizzas: undefined | (() => void);
+    let unsubscribeCoupons: undefined | (() => void);
+    let unsubscribeFavorites: undefined | (() => void);
+    
+    (async () => {
+      if (!isFirebaseConfigured() || !db) {
+        console.warn('[PDV] Firestore não configurado. Usando modo local (localStorage).');
+        setIsFirebaseConnected(false);
+        return;
+      }
+
+      try {
+        // Test connection with orders listener
+        const ordersQuery = query(collection(db, 'orders'), orderBy('createdAt', 'desc'));
+        unsubscribeOrders = onSnapshot(ordersQuery, 
+          (snap) => {
+            const remoteOrders = snap.docs.map(doc => doc.data() as Order);
+            setOrders(remoteOrders);
+            const maxOrderNumber = remoteOrders.reduce((max, o) => Math.max(max, Number(o.orderNumber || 0)), 0);
+            setOrderCounter(isFinite(maxOrderNumber) && maxOrderNumber > 0 ? maxOrderNumber + 1 : 1);
+            setIsFirebaseConnected(true);
+          },
+          (error) => {
+            console.warn('[PDV] Erro no listener de pedidos:', error);
+            setIsFirebaseConnected(false);
+          }
+        );
+
+        // Real-time listener for pizzas
+        const pizzasQuery = query(collection(db, 'pizzas'));
+        unsubscribePizzas = onSnapshot(pizzasQuery,
+          (snap) => {
+            if (!snap.empty) {
+              const remotePizzas = snap.docs.map(doc => doc.data() as Pizza);
+              setPizzas(remotePizzas);
+            }
+          },
+          (error) => {
+            console.warn('[PDV] Erro no listener de pizzas:', error);
+          }
+        );
+
+        // Real-time listener for coupons
+        const couponsQuery = query(collection(db, 'coupons'));
+        unsubscribeCoupons = onSnapshot(couponsQuery,
+          (snap) => {
+            if (!snap.empty) {
+              const remoteCoupons = snap.docs.map(doc => doc.data() as Coupon);
+              setCoupons(remoteCoupons);
+            }
+          },
+          (error) => {
+            console.warn('[PDV] Erro no listener de cupons:', error);
+          }
+        );
+
+        // Real-time listener for favorites
+        const favoritesQuery = query(collection(db, 'favorites'));
+        unsubscribeFavorites = onSnapshot(favoritesQuery,
+          (snap) => {
+            if (!snap.empty) {
+              const remoteFavorites = snap.docs.map(doc => doc.data() as FavoritePizza);
+              setFavorites(remoteFavorites);
+            }
+          },
+          (error) => {
+            console.warn('[PDV] Erro no listener de favoritos:', error);
+          }
+        );
+
+      } catch (err) {
+        console.warn('[PDV] Firestore não disponível. Usando localStorage.', err);
+        setIsFirebaseConnected(false);
+      }
+    })();
+
+    return () => { 
+      try { 
+        unsubscribeOrders && unsubscribeOrders();
+        unsubscribePizzas && unsubscribePizzas();
+        unsubscribeCoupons && unsubscribeCoupons();
+        unsubscribeFavorites && unsubscribeFavorites();
+      } catch { /* noop */ } 
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // --- Theme Application ---
   useEffect(() => {
     const root = document.documentElement;
@@ -206,10 +309,22 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
   const addPizza = (pizza: Pizza) => {
     setPizzas(prev => [pizza, ...prev]);
+    // Sync to Firebase if connected
+    if (isFirebaseConnected) {
+      try {
+        savePizzaToDB(pizza).catch(() => {/* noop */});
+      } catch (_) { /* ignore */ }
+    }
   };
 
   const updatePizza = (updatedPizza: Pizza) => {
     setPizzas(prev => prev.map(p => p.id === updatedPizza.id ? updatedPizza : p));
+    // Sync to Firebase if connected
+    if (isFirebaseConnected) {
+      try {
+        savePizzaToDB(updatedPizza).catch(() => {/* noop */});
+      } catch (_) { /* ignore */ }
+    }
   };
 
   const deletePizza = (id: number) => {
@@ -257,6 +372,12 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
   const addCoupon = (coupon: Coupon) => {
     setCoupons(prev => [...prev, coupon]);
+    // Sync to Firebase if connected
+    if (isFirebaseConnected) {
+      try {
+        saveCouponToDB(coupon).catch(() => {/* noop */});
+      } catch (_) { /* ignore */ }
+    }
   };
 
   const removeCoupon = (id: string) => {
@@ -264,7 +385,19 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   };
 
   const toggleCoupon = (id: string) => {
-    setCoupons(prev => prev.map(c => c.id === id ? { ...c, active: !c.active } : c));
+    setCoupons(prev => {
+      const updated = prev.map(c => c.id === id ? { ...c, active: !c.active } : c);
+      // Sync to Firebase if connected
+      if (isFirebaseConnected) {
+        const updatedCoupon = updated.find(c => c.id === id);
+        if (updatedCoupon) {
+          try {
+            saveCouponToDB(updatedCoupon).catch(() => {/* noop */});
+          } catch (_) { /* ignore */ }
+        }
+      }
+      return updated;
+    });
   };
 
   const updateCashback = (settings: CashbackSettings) => {
@@ -334,14 +467,51 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     };
     setOrders(prev => [newOrder, ...prev]);
     setOrderCounter(prev => prev + 1);
+
+    // Write-through to Firestore (best-effort) only if connected
+    if (isFirebaseConnected) {
+      try {
+        saveOrderToDB(newOrder as Order).catch(() => {/* noop */});
+      } catch (_) { /* ignore */ }
+    }
   };
 
   const updateOrderStatus = (orderId: string, status: OrderStatus) => {
-    setOrders(prev => prev.map(order => 
-      order.id === orderId 
-        ? { ...order, status, updatedAt: new Date().toISOString() }
-        : order
-    ));
+    setOrders(prev => {
+      const updatedOrders = prev.map(order => {
+        if (order.id === orderId) {
+          const updatedOrder = { ...order, status, updatedAt: new Date().toISOString() };
+          
+          // Trigger notification callback
+          if (orderStatusChangeCallback) {
+            setTimeout(() => orderStatusChangeCallback(updatedOrder, status), 100);
+          }
+          
+          // Send WhatsApp link when order is ready
+          if (status === 'ready') {
+            const message = `🎉 *Seu pedido está pronto!*\n\nPedido #${order.orderNumber}\nCliente: ${order.customerName}\n\nSeu pedido está prontinho e te esperando! 🍕\n\n${order.deliveryAddress ? '🛵 Saiu para entrega!' : '📍 Pode retirar na loja!'}`;
+            const whatsappUrl = `https://wa.me/${order.customerPhone.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`;
+            
+            // Open WhatsApp in new tab
+            if (typeof window !== 'undefined') {
+              window.open(whatsappUrl, '_blank');
+            }
+          }
+          
+          return updatedOrder;
+        }
+        return order;
+      });
+
+      // Persist status update to Firestore (best-effort) only if connected
+      if (isFirebaseConnected) {
+        try {
+          updateOrderStatusInDB(orderId, status).catch(() => {/* noop */});
+        } catch (_) { /* ignore */ }
+      }
+
+      return updatedOrders;
+    });
   };
 
   const getOrdersByUser = (userId: string): Order[] => {
@@ -359,13 +529,26 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     if (existingFav) {
       // Remove favorite
       setFavorites(prev => prev.filter(f => !(f.userId === userId && f.pizzaId === pizzaId)));
+      // Sync to Firebase if connected
+      if (isFirebaseConnected) {
+        try {
+          removeFavoriteFromDB(userId, pizzaId).catch(() => {/* noop */});
+        } catch (_) { /* ignore */ }
+      }
     } else {
       // Add favorite
-      setFavorites(prev => [...prev, {
+      const newFav = {
         userId,
         pizzaId,
         addedAt: new Date().toISOString()
-      }]);
+      };
+      setFavorites(prev => [...prev, newFav]);
+      // Sync to Firebase if connected
+      if (isFirebaseConnected) {
+        try {
+          saveFavoriteToDB(newFav).catch(() => {/* noop */});
+        } catch (_) { /* ignore */ }
+      }
     }
   };
 
@@ -377,6 +560,10 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     return favorites
       .filter(f => f.userId === userId)
       .map(f => f.pizzaId);
+  };
+
+  const setOnOrderStatusChange = (callback: (order: Order, newStatus: OrderStatus) => void) => {
+    setOrderStatusChangeCallback(() => callback);
   };
 
   return (
@@ -392,6 +579,7 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       promotion,
       orders,
       favorites,
+      isFirebaseConnected,
       addPizza,
       updatePizza,
       deletePizza,
@@ -415,12 +603,14 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       updateOrderStatus,
       getOrdersByUser,
       getOrderById,
+      setOnOrderStatusChange,
       toggleFavorite,
       isFavorite,
       getUserFavorites,
       updateCashback,
       updateTheme,
-      validateCoupon
+      validateCoupon,
+      onOrderStatusChange: orderStatusChangeCallback
     }}>
       {children}
     </AdminContext.Provider>
