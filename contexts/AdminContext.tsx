@@ -107,7 +107,8 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     return saved ? JSON.parse(saved) : [
       { id: '1', name: 'Clássica' },
       { id: '2', name: 'Premium' },
-      { id: '3', name: 'Doce' }
+      { id: '3', name: 'Doce' },
+      { id: '4', name: 'Broto' }
     ];
   });
 

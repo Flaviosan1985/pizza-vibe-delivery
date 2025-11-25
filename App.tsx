@@ -27,8 +27,8 @@ const AppWrapper: React.FC = () => {
 };
 
 const App: React.FC = () => {
-  // Use Context for Data (Pizzas, Crusts, Addons)
-  const { pizzas, crusts, addons, theme } = useAdmin();
+  // Use Context for Data (Pizzas, Crusts, Addons, Categories)
+  const { pizzas, crusts, addons, theme, categories } = useAdmin();
 
   // Authentication State
   const [user, setUser] = useState<User | null>(null);
@@ -234,9 +234,24 @@ const App: React.FC = () => {
 
   const cartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
 
+  // Helper para buscar categoria por ID ou nome (compatibilidade com sistema antigo)
+  const getCategoryForPizza = (p: Pizza): Category | undefined => {
+    if (p.categoryId) {
+      return categories.find(c => c.id === p.categoryId);
+    }
+    // Fallback: buscar por nome exato ou similar
+    if (p.category) {
+      return categories.find(c => 
+        c.name.toLowerCase() === p.category.toLowerCase() ||
+        c.name.toLowerCase().includes(p.category.toLowerCase())
+      );
+    }
+    return undefined;
+  };
+
   // Helpers for filtering logic using dynamic pizza list
   const halfHalfProduct = pizzas.find(p => p.category === 'Meio a Meio');
-  const halfHalfProducts = pizzas.filter(p => !['Meio a Meio', 'Doce', 'Broto'].includes(p.category) && p.available !== false);
+  const halfHalfProducts = pizzas.filter(p => p.category !== 'Meio a Meio' && p.available !== false);
   
   // Combine dynamic extras for the Half/Half builder
   const halfHalfExtras = [
@@ -258,29 +273,35 @@ const App: React.FC = () => {
       );
     }
 
-    const categoriesInTab = Array.from(new Set(filteredPizzas.map(p => p.category)));
+    // Agrupar pizzas por categoryId usando as categorias dinâmicas
+    const categoriesInTab = categories
+      .filter(cat => filteredPizzas.some(p => p.categoryId === cat.id))
+      .sort((a, b) => a.name.localeCompare(b.name));
 
     return (
       <div className="space-y-8 md:space-y-12 animate-slide-up">
-        {categoriesInTab.map(category => (
-          <div key={category}>
-            <h4 className="font-display text-xl md:text-3xl font-bold mb-4 md:mb-6 text-white tracking-tight border-b border-white/10 pb-3 flex items-center gap-3">
-              <span className="w-1.5 h-6 md:h-8 bg-brand-orange rounded-full"></span>
-              {category}
-            </h4>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-6">
-              {filteredPizzas.filter(p => p.category === category).map(pizza => (
-                <div key={pizza.id} className="h-full">
-                  <PizzaCard 
-                    pizza={pizza} 
-                    onSelect={handleSelectPizza} 
-                    isRecommended={recommendedId === pizza.id}
-                  />
-                </div>
-              ))}
+        {categoriesInTab.map(category => {
+          const pizzasInCategory = filteredPizzas.filter(p => p.categoryId === category.id);
+          return (
+            <div key={category.id}>
+              <h4 className="font-display text-xl md:text-3xl font-bold mb-4 md:mb-6 text-white tracking-tight border-b border-white/10 pb-3 flex items-center gap-3">
+                <span className="w-1.5 h-6 md:h-8 bg-brand-orange rounded-full"></span>
+                {category.name}
+              </h4>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-6">
+                {pizzasInCategory.map(pizza => (
+                  <div key={pizza.id} className="h-full">
+                    <PizzaCard 
+                      pizza={pizza} 
+                      onSelect={handleSelectPizza} 
+                      isRecommended={recommendedId === pizza.id}
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     );
   };
@@ -301,28 +322,35 @@ const App: React.FC = () => {
         );
      }
 
-     const categoriesInResults = Array.from(new Set(allMatches.map(p => p.category)));
+     // Agrupar por categoryId usando categorias dinâmicas
+     const categoriesInResults = categories
+       .filter(cat => allMatches.some(p => p.categoryId === cat.id))
+       .sort((a, b) => a.name.localeCompare(b.name));
+     
      return (
         <div className="space-y-12 animate-slide-up">
            <div className="bg-brand-orange/10 border border-brand-orange/30 p-4 rounded-2xl mb-8 flex items-center justify-between backdrop-blur-md">
               <span className="text-brand-orange font-bold font-display">🔍 Resultados para "{searchQuery}"</span>
               <button onClick={() => setSearchQuery('')} className="text-sm text-gray-400 hover:text-white underline">Limpar</button>
            </div>
-           {categoriesInResults.map(category => (
-              <div key={category}>
-                 <h4 className="font-display text-2xl md:text-3xl font-bold mb-6 text-white tracking-tight flex items-center gap-3">
-                    <span className="w-1.5 h-6 md:h-8 bg-brand-orange rounded-full"></span>
-                    {category}
-                 </h4>
-                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-6">
-                    {allMatches.filter(p => p.category === category).map(pizza => (
-                       <div key={pizza.id} className="h-full">
-                          <PizzaCard pizza={pizza} onSelect={handleSelectPizza} isRecommended={recommendedId === pizza.id} />
-                       </div>
-                    ))}
-                 </div>
-              </div>
-           ))}
+           {categoriesInResults.map(category => {
+              const pizzasInCategory = allMatches.filter(p => p.categoryId === category.id);
+              return (
+                <div key={category.id}>
+                   <h4 className="font-display text-2xl md:text-3xl font-bold mb-6 text-white tracking-tight flex items-center gap-3">
+                      <span className="w-1.5 h-6 md:h-8 bg-brand-orange rounded-full"></span>
+                      {category.name}
+                   </h4>
+                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-6">
+                      {pizzasInCategory.map(pizza => (
+                         <div key={pizza.id} className="h-full">
+                            <PizzaCard pizza={pizza} onSelect={handleSelectPizza} isRecommended={recommendedId === pizza.id} />
+                         </div>
+                      ))}
+                   </div>
+                </div>
+              );
+           })}
         </div>
      );
   };
@@ -430,9 +458,25 @@ const App: React.FC = () => {
               <div className="min-h-[500px]">
                 {searchQuery ? renderGlobalSearchResults() : (
                   <>
-                    {activeMenuTab === 'traditional' && renderTabPizzaGrid(p => ['Classica', 'Especial', 'Vegana'].includes(p.category))}
-                    {activeMenuTab === 'broto' && renderTabPizzaGrid(p => p.category === 'Broto')}
-                    {activeMenuTab === 'sweet' && renderTabPizzaGrid(p => p.category === 'Doce')}
+                    {activeMenuTab === 'traditional' && renderTabPizzaGrid(p => {
+                      // Inclui pizzas das categorias tradicionais (sem Meio a Meio, Broto, Doce)
+                      if (p.category && ['Meio a Meio', 'Broto', 'Doce'].includes(p.category)) return false;
+                      if (!p.categoryId) return ['Classica', 'Especial', 'Vegana', 'Premium'].includes(p.category);
+                      const cat = categories.find(c => c.id === p.categoryId);
+                      return cat && !['Broto', 'Doce'].includes(cat.name);
+                    })}
+                    {activeMenuTab === 'broto' && renderTabPizzaGrid(p => {
+                      if (p.category === 'Broto') return true;
+                      if (!p.categoryId) return false;
+                      const cat = categories.find(c => c.id === p.categoryId);
+                      return cat?.name === 'Broto';
+                    })}
+                    {activeMenuTab === 'sweet' && renderTabPizzaGrid(p => {
+                      if (p.category === 'Doce') return true;
+                      if (!p.categoryId) return false;
+                      const cat = categories.find(c => c.id === p.categoryId);
+                      return cat?.name === 'Doce';
+                    })}
                     {activeMenuTab === 'half' && (
                       <div className="animate-slide-up flex flex-col items-center justify-center max-w-4xl mx-auto py-10">
                         <div className="w-full max-w-sm px-4">
@@ -505,7 +549,7 @@ const App: React.FC = () => {
                 <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => setIsHalfHalfOpen(false)}></div>
                 <div className="w-full max-w-4xl h-[90vh] max-h-[800px] relative z-10 animate-slide-up">
                     <PizzaMeioAMeio 
-                       products={halfHalfProducts.map(p => ({...p, categoryId: p.category}))} 
+                       products={halfHalfProducts} 
                        extras={halfHalfExtras} 
                        onAddToCart={handleAddHalfHalfToCart} 
                        onClose={() => setIsHalfHalfOpen(false)} 
