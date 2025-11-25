@@ -14,7 +14,7 @@ import AdminDashboard from './components/AdminDashboard';
 import CartPage from './components/CartPage';
 import { AdminProvider, useAdmin } from './contexts/AdminContext';
 // REMOVED static imports of CRUST_OPTIONS, ADDON_OPTIONS
-import { Pizza, CartItem, User } from './types';
+import { Pizza, CartItem, User, Category } from './types';
 import { Phone, MapPin, Instagram, Facebook, Search, X, CircleDashed } from 'lucide-react';
 
 // Wrapper component to provide context to the inner App logic
@@ -355,9 +355,23 @@ const App: React.FC = () => {
         );
      }
 
-     // Agrupar por categoryId usando categorias dinâmicas
+     // Helper to check if a pizza belongs to a category (supports both categoryId and legacy category string)
+     const pizzaBelongsToCategory = (pizza: Pizza, category: Category): boolean => {
+       if (pizza.categoryId) {
+         return pizza.categoryId === category.id;
+       }
+       // Fallback: match by category name (case-insensitive, includes partial match)
+       if (pizza.category) {
+         return category.name.toLowerCase() === pizza.category.toLowerCase() ||
+                category.name.toLowerCase().includes(pizza.category.toLowerCase()) ||
+                pizza.category.toLowerCase().includes(category.name.toLowerCase());
+       }
+       return false;
+     };
+
+     // Agrupar por categoryId ou category string usando categorias dinâmicas
      const categoriesInResults = categories
-       .filter(cat => allMatches.some(p => p.categoryId === cat.id))
+       .filter(cat => allMatches.some(p => pizzaBelongsToCategory(p, cat)))
        .sort((a, b) => a.name.localeCompare(b.name));
      
      return (
@@ -367,7 +381,7 @@ const App: React.FC = () => {
               <button onClick={() => setSearchQuery('')} className="text-sm text-gray-400 hover:text-white underline">Limpar</button>
            </div>
            {categoriesInResults.map(category => {
-              const pizzasInCategory = allMatches.filter(p => p.categoryId === category.id);
+              const pizzasInCategory = allMatches.filter(p => pizzaBelongsToCategory(p, category));
               return (
                 <div key={category.id}>
                    <h4 className="font-display text-2xl md:text-3xl font-bold mb-6 text-white tracking-tight flex items-center gap-3">
