@@ -17,6 +17,10 @@ import { AdminProvider, useAdmin } from './contexts/AdminContext';
 import { Pizza, CartItem, User, Category } from './types';
 import { Phone, MapPin, Instagram, Facebook, Search, X, CircleDashed } from 'lucide-react';
 
+// Utility function to normalize accents for string comparison (e.g., "Clássica" → "Classica")
+const normalizeAccents = (str: string): string => 
+  str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
 // Wrapper component to provide context to the inner App logic
 const AppWrapper: React.FC = () => {
   return (
@@ -266,10 +270,6 @@ const App: React.FC = () => {
   };
 
   const cartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
-
-  // Helper to normalize accents for string comparison (e.g., "Clássica" → "Classica")
-  const normalizeAccents = (str: string): string => 
-    str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
   // Helper para buscar categoria por ID ou nome (compatibilidade com sistema antigo)
   const getCategoryForPizza = (p: Pizza): Category | undefined => {
