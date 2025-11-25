@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ShoppingCart, Pizza, Moon, Sun } from 'lucide-react';
+import { ShoppingCart, Pizza, Moon, Sun, ClipboardList, Heart } from 'lucide-react';
 import UserMenu from './UserMenu';
 
 interface NavbarProps {

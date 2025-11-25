@@ -18,7 +18,7 @@ import MyAccountPage from './components/MyAccountPage';
 import Toast from './components/Toast';
 import { AdminProvider, useAdmin } from './contexts/AdminContext';
 // REMOVED static imports of CRUST_OPTIONS, ADDON_OPTIONS
-import { Pizza, CartItem, User, Order, OrderStatus } from './types';
+import { Pizza, CartItem, User, Order, OrderStatus, Category } from './types';
 import { Phone, MapPin, Instagram, Facebook, Search, X, CircleDashed } from 'lucide-react';
 
 // Wrapper component to provide context to the inner App logic
