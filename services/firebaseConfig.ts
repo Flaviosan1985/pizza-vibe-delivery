@@ -8,13 +8,13 @@ import { getStorage } from 'firebase/storage';
 // pelas suas do Console do Firebase: https://console.firebase.google.com/
 // Por enquanto, o app funciona 100% com localStorage (modo local)
 const firebaseConfig = {
-  apiKey: process.env.VITE_FIREBASE_API_KEY || "demo-mode",
-  authDomain: process.env.VITE_FIREBASE_AUTH_DOMAIN || "demo-mode.firebaseapp.com",
-  projectId: process.env.VITE_FIREBASE_PROJECT_ID || "demo-mode",
-  storageBucket: process.env.VITE_FIREBASE_STORAGE_BUCKET || "demo-mode.appspot.com",
-  messagingSenderId: process.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "000000000000",
-  appId: process.env.VITE_FIREBASE_APP_ID || "1:000000000000:web:demo",
-  measurementId: process.env.VITE_FIREBASE_MEASUREMENT_ID || "G-DEMO"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "demo-mode",
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "demo-mode.firebaseapp.com",
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "demo-mode",
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "demo-mode.appspot.com",
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "000000000000",
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:000000000000:web:demo",
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || "G-DEMO"
 };
 
 // Check if Firebase is configured (real credentials vs demo mode)

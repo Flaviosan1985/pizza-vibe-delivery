@@ -2,7 +2,7 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { Pizza, AIReply } from "../types";
 import { PIZZAS } from "../constants";
 
-const apiKey = process.env.API_KEY || '';
+const apiKey = import.meta.env.VITE_GEMINI_API_KEY || '';
 const ai = new GoogleGenAI({ apiKey });
 
 export const getPizzaRecommendation = async (userPreference: string): Promise<AIReply> => {
