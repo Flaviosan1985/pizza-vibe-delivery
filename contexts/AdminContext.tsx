@@ -193,6 +193,9 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   // Notification callback
   const [orderStatusChangeCallback, setOrderStatusChangeCallback] = useState<((order: Order, newStatus: OrderStatus) => void) | undefined>();
 
+  // Firebase connection state
+  const [isFirebaseConnected, setIsFirebaseConnected] = useState(false);
+
   // --- Persistence ---
   useEffect(() => { localStorage.setItem('pv_pizzas', JSON.stringify(pizzas)); }, [pizzas]);
   useEffect(() => { localStorage.setItem('pv_crusts', JSON.stringify(crusts)); }, [crusts]);
@@ -506,7 +509,9 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       // Persist status update to Firestore (best-effort) only if connected
       if (isFirebaseConnected) {
         try {
-          updateOrderStatusInDB(orderId, status).catch(() => {/* noop */});
+          updateOrderStatusInDB(orderId, status).catch((err) => {
+            console.warn('⚠️ Erro ao atualizar status no Firebase:', err);
+          });
         } catch (_) { /* ignore */ }
       }
 
