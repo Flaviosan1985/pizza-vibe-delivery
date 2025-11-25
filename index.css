@@ -12,6 +12,31 @@
   }
 }
 
+@layer utilities {
+  .bg-brand-dark { background-color: #09090b; }
+  .bg-brand-light { background-color: #F5F5F5; }
+  .bg-brand-orange { background-color: #D62828; }
+  .bg-brand-red { background-color: #B91C1C; }
+  .bg-brand-green { background-color: #009246; }
+  .bg-brand-yellow { background-color: #F4C430; }
+  .bg-brand-gray { background-color: #18181b; }
+  
+  .text-brand-dark { color: #09090b; }
+  .text-brand-light { color: #F5F5F5; }
+  .text-brand-orange { color: #D62828; }
+  .text-brand-red { color: #B91C1C; }
+  .text-brand-green { color: #009246; }
+  .text-brand-yellow { color: #F4C430; }
+  
+  .border-brand-orange { border-color: #D62828; }
+  .border-brand-red { border-color: #B91C1C; }
+  .border-brand-green { border-color: #009246; }
+  
+  .animate-float { animation: float 3s ease-in-out infinite; }
+  .animate-slide-up { animation: slideUp 0.5s ease-out forwards; }
+  .animate-fly-to-cart { animation: flyToCart 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+}
+
 @keyframes float {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-10px); }
