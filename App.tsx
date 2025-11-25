@@ -14,8 +14,21 @@ import AdminDashboard from './components/AdminDashboard';
 import CartPage from './components/CartPage';
 import { AdminProvider, useAdmin } from './contexts/AdminContext';
 // REMOVED static imports of CRUST_OPTIONS, ADDON_OPTIONS
-import { Pizza, CartItem, User } from './types';
+import { Pizza, CartItem, User, Category } from './types';
 import { Phone, MapPin, Instagram, Facebook, Search, X, CircleDashed } from 'lucide-react';
+
+// Utility function to normalize accents for string comparison (e.g., "Clássica" → "Classica")
+// Used internally by category matching functions; input strings should be non-null
+const normalizeAccents = (str: string): string => 
+  str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+// Utility function to check if two category names match (case-insensitive, handles accents)
+const categoryNamesMatch = (name1: string, name2: string): boolean => {
+  const name1Lower = name1.toLowerCase();
+  const name2Lower = name2.toLowerCase();
+  return name1Lower === name2Lower || 
+         normalizeAccents(name1Lower) === normalizeAccents(name2Lower);
+};
 
 // Wrapper component to provide context to the inner App logic
 const AppWrapper: React.FC = () => {
@@ -272,12 +285,9 @@ const App: React.FC = () => {
     if (p.categoryId) {
       return categories.find(c => c.id === p.categoryId);
     }
-    // Fallback: buscar por nome exato ou similar
+    // Fallback: buscar por nome exato com normalização de acentos
     if (p.category) {
-      return categories.find(c => 
-        c.name.toLowerCase() === p.category.toLowerCase() ||
-        c.name.toLowerCase().includes(p.category.toLowerCase())
-      );
+      return categories.find(c => categoryNamesMatch(c.name, p.category));
     }
     return undefined;
   };
@@ -291,6 +301,18 @@ const App: React.FC = () => {
     ...crusts.map(c => ({ ...c, type: 'crust' as const })),
     ...addons.map(a => ({ ...a, type: 'addon' as const }))
   ];
+
+  // Helper to check if a pizza belongs to a category (supports both categoryId and legacy category string)
+  const pizzaBelongsToCategory = (pizza: Pizza, category: Category): boolean => {
+    if (pizza.categoryId) {
+      return pizza.categoryId === category.id;
+    }
+    // Fallback: match by category name (case-insensitive, handles accent variations)
+    if (pizza.category) {
+      return categoryNamesMatch(category.name, pizza.category);
+    }
+    return false;
+  };
 
   const renderTabPizzaGrid = (filterFn: (p: Pizza) => boolean) => {
     const filteredPizzas = pizzas.filter(p => filterFn(p) && p.available !== false);
@@ -306,15 +328,15 @@ const App: React.FC = () => {
       );
     }
 
-    // Agrupar pizzas por categoryId usando as categorias dinâmicas
+    // Agrupar pizzas por categoryId ou category string usando as categorias dinâmicas
     const categoriesInTab = categories
-      .filter(cat => filteredPizzas.some(p => p.categoryId === cat.id))
+      .filter(cat => filteredPizzas.some(p => pizzaBelongsToCategory(p, cat)))
       .sort((a, b) => a.name.localeCompare(b.name));
 
     return (
       <div className="space-y-8 md:space-y-12 animate-slide-up">
         {categoriesInTab.map(category => {
-          const pizzasInCategory = filteredPizzas.filter(p => p.categoryId === category.id);
+          const pizzasInCategory = filteredPizzas.filter(p => pizzaBelongsToCategory(p, category));
           return (
             <div key={category.id}>
               <h4 className="font-display text-xl md:text-3xl font-bold mb-4 md:mb-6 text-white tracking-tight border-b border-white/10 pb-3 flex items-center gap-3">
@@ -355,9 +377,9 @@ const App: React.FC = () => {
         );
      }
 
-     // Agrupar por categoryId usando categorias dinâmicas
+     // Agrupar por categoryId ou category string usando categorias dinâmicas
      const categoriesInResults = categories
-       .filter(cat => allMatches.some(p => p.categoryId === cat.id))
+       .filter(cat => allMatches.some(p => pizzaBelongsToCategory(p, cat)))
        .sort((a, b) => a.name.localeCompare(b.name));
      
      return (
@@ -367,7 +389,7 @@ const App: React.FC = () => {
               <button onClick={() => setSearchQuery('')} className="text-sm text-gray-400 hover:text-white underline">Limpar</button>
            </div>
            {categoriesInResults.map(category => {
-              const pizzasInCategory = allMatches.filter(p => p.categoryId === category.id);
+              const pizzasInCategory = allMatches.filter(p => pizzaBelongsToCategory(p, category));
               return (
                 <div key={category.id}>
                    <h4 className="font-display text-2xl md:text-3xl font-bold mb-6 text-white tracking-tight flex items-center gap-3">
