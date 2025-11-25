@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { Pizza, Coupon, CashbackSettings, ThemeSettings, OptionItem, BannerItem, Category } from '../types';
+import { Pizza, Coupon, CashbackSettings, ThemeSettings, OptionItem, BannerItem, Category, Promotion, PromotionProduct } from '../types';
 import { PIZZAS as INITIAL_PIZZAS, CRUST_OPTIONS as INITIAL_CRUSTS, ADDON_OPTIONS as INITIAL_ADDONS } from '../constants';
 
 interface AdminContextData {
@@ -12,6 +12,7 @@ interface AdminContextData {
   theme: ThemeSettings;
   banners: BannerItem[];
   categories: Category[];
+  promotion: Promotion;
   
   // Pizza Actions
   addPizza: (pizza: Pizza) => void;
@@ -32,6 +33,12 @@ interface AdminContextData {
   // Banner Actions
   addBanner: (banner: BannerItem) => void;
   removeBanner: (id: string) => void;
+
+  // Promotion Actions
+  updatePromotion: (settings: Promotion) => void;
+  addPromotionProduct: (product: PromotionProduct) => void;
+  updatePromotionProduct: (product: PromotionProduct) => void;
+  removePromotionProduct: (id: string) => void;
 
   // Other Actions
   addCoupon: (coupon: Coupon) => void;
@@ -112,6 +119,18 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     ];
   });
 
+  // Promotion
+  const [promotion, setPromotion] = useState<Promotion>(() => {
+    const saved = localStorage.getItem('pv_promotion');
+    return saved ? JSON.parse(saved) : {
+      enabled: true,
+      minValue: 86.00,
+      products: [
+        { id: 'refri-1', name: 'Frutuba 2L', image: 'https://images.unsplash.com/photo-1581006852262-e4307cf6283a?w=400' }
+      ]
+    };
+  });
+
   // Cashback
   const [cashback, setCashback] = useState<CashbackSettings>(() => {
     const saved = localStorage.getItem('pv_cashback');
@@ -138,6 +157,7 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   useEffect(() => { localStorage.setItem('pv_coupons', JSON.stringify(coupons)); }, [coupons]);
   useEffect(() => { localStorage.setItem('pv_banners', JSON.stringify(banners)); }, [banners]);
   useEffect(() => { localStorage.setItem('pv_categories', JSON.stringify(categories)); }, [categories]);
+  useEffect(() => { localStorage.setItem('pv_promotion', JSON.stringify(promotion)); }, [promotion]);
   useEffect(() => { localStorage.setItem('pv_cashback', JSON.stringify(cashback)); }, [cashback]);
   useEffect(() => { localStorage.setItem('pv_theme', JSON.stringify(theme)); }, [theme]);
 
@@ -244,6 +264,32 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     }
   };
 
+  // --- Promotion Actions ---
+  const updatePromotion = (settings: Promotion) => {
+    setPromotion(settings);
+  };
+
+  const addPromotionProduct = (product: PromotionProduct) => {
+    setPromotion(prev => ({
+      ...prev,
+      products: [...prev.products, product]
+    }));
+  };
+
+  const updatePromotionProduct = (product: PromotionProduct) => {
+    setPromotion(prev => ({
+      ...prev,
+      products: prev.products.map(p => p.id === product.id ? product : p)
+    }));
+  };
+
+  const removePromotionProduct = (id: string) => {
+    setPromotion(prev => ({
+      ...prev,
+      products: prev.products.filter(p => p.id !== id)
+    }));
+  };
+
   return (
     <AdminContext.Provider value={{
       pizzas,
@@ -254,6 +300,7 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       theme,
       banners,
       categories,
+      promotion,
       addPizza,
       updatePizza,
       deletePizza,
@@ -269,6 +316,10 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       addCoupon,
       removeCoupon,
       toggleCoupon,
+      updatePromotion,
+      addPromotionProduct,
+      updatePromotionProduct,
+      removePromotionProduct,
       updateCashback,
       updateTheme,
       validateCoupon

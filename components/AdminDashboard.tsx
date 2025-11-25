@@ -16,10 +16,11 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
     coupons, addCoupon, removeCoupon, toggleCoupon, 
     cashback, updateCashback,
     theme, updateTheme,
-    banners, addBanner, removeBanner
+    banners, addBanner, removeBanner,
+    promotion, updatePromotion, addPromotionProduct, updatePromotionProduct, removePromotionProduct
   } = useAdmin();
 
-  const [activeTab, setActiveTab] = useState<'menu' | 'coupons' | 'cashback' | 'theme' | 'settings'>('menu');
+  const [activeTab, setActiveTab] = useState<'menu' | 'coupons' | 'cashback' | 'theme' | 'promotions' | 'settings'>('menu');
   const [subTabMenu, setSubTabMenu] = useState<'categorias' | 'pizzas' | 'extras'>('categorias');
   const [isMinimized, setIsMinimized] = useState(false);
   const dragControls = useDragControls();
@@ -68,6 +69,11 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
 
   // New Option State
   const [newOption, setNewOption] = useState<{name: string, price: number}>({ name: '', price: 0 });
+
+  // Promotion State
+  const [editingPromotionProduct, setEditingPromotionProduct] = useState<{id: string, name: string, image: string} | null>(null);
+  const [newPromotionProduct, setNewPromotionProduct] = useState<{name: string, image: string}>({ name: '', image: '' });
+  const promotionImageRef = useRef<HTMLInputElement>(null);
 
   // Prevent page scroll while dragging
   useEffect(() => {
@@ -744,6 +750,175 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
     </div>
   );
 
+  const renderPromotionsTab = () => {
+    const handlePromotionImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setNewPromotionProduct(prev => ({ ...prev, image: reader.result as string }));
+      };
+      reader.readAsDataURL(file);
+    };
+
+    const handleAddPromotionProduct = () => {
+      if (!newPromotionProduct.name || !newPromotionProduct.image) {
+        alert('Preencha nome e imagem do produto');
+        return;
+      }
+      addPromotionProduct({
+        id: Date.now().toString(),
+        name: newPromotionProduct.name,
+        image: newPromotionProduct.image
+      });
+      setNewPromotionProduct({ name: '', image: '' });
+      showSyncMessage();
+    };
+
+    const handleUpdatePromotionProduct = () => {
+      if (!editingPromotionProduct) return;
+      updatePromotionProduct(editingPromotionProduct);
+      setEditingPromotionProduct(null);
+      showSyncMessage();
+    };
+
+    return (
+      <div className="space-y-6 animate-slide-up">
+        <h3 className="text-xl font-bold text-white font-display">Gerenciar Promoções</h3>
+        
+        {/* Enable/Disable Promotion */}
+        <div className="bg-white/5 border border-white/10 rounded-xl p-6">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h4 className="text-lg font-bold text-white">Status da Promoção</h4>
+              <p className="text-xs text-gray-400">Ative ou pause a promoção de brinde</p>
+            </div>
+            <button 
+              onClick={() => { 
+                updatePromotion({...promotion, enabled: !promotion.enabled});
+                showSyncMessage();
+              }} 
+              className={`text-4xl transition-colors ${promotion.enabled ? 'text-green-500' : 'text-gray-600'}`}
+            >
+              {promotion.enabled ? <ToggleRight /> : <ToggleLeft />}
+            </button>
+          </div>
+
+          {/* Min Value */}
+          <div className="space-y-4">
+            <div>
+              <label className="block text-gray-400 mb-2 font-medium text-sm">Valor Mínimo para Ganhar Brinde (R$)</label>
+              <input 
+                type="number" 
+                step="0.01"
+                value={promotion.minValue} 
+                onChange={(e) => {
+                  updatePromotion({...promotion, minValue: parseFloat(e.target.value)});
+                  showSyncMessage();
+                }}
+                className="w-full bg-black/30 border border-gray-600 rounded-lg p-3 text-white"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Products List */}
+        <div className="bg-white/5 border border-white/10 rounded-xl p-6">
+          <h4 className="text-lg font-bold text-white mb-4">Produtos do Brinde</h4>
+          <div className="space-y-3 mb-4">
+            {promotion.products.map(product => (
+              <div key={product.id} className="flex items-center gap-4 bg-black/30 border border-white/10 rounded-lg p-4">
+                <img src={product.image} alt={product.name} className="w-16 h-16 object-cover rounded-lg" />
+                <div className="flex-1">
+                  {editingPromotionProduct?.id === product.id ? (
+                    <input 
+                      type="text"
+                      value={editingPromotionProduct.name}
+                      onChange={(e) => setEditingPromotionProduct({...editingPromotionProduct, name: e.target.value})}
+                      className="w-full bg-black/30 border border-gray-600 rounded-lg p-2 text-white text-sm"
+                    />
+                  ) : (
+                    <p className="text-white font-medium">{product.name}</p>
+                  )}
+                </div>
+                <div className="flex gap-2">
+                  {editingPromotionProduct?.id === product.id ? (
+                    <>
+                      <button onClick={handleUpdatePromotionProduct} className="p-2 bg-green-600 hover:bg-green-700 rounded-lg transition">
+                        <Check size={16} />
+                      </button>
+                      <button onClick={() => setEditingPromotionProduct(null)} className="p-2 bg-gray-600 hover:bg-gray-700 rounded-lg transition">
+                        <X size={16} />
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button 
+                        onClick={() => setEditingPromotionProduct(product)}
+                        className="p-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition"
+                      >
+                        <Settings size={16} />
+                      </button>
+                      <button 
+                        onClick={() => {
+                          removePromotionProduct(product.id);
+                          showSyncMessage();
+                        }}
+                        className="p-2 bg-red-600 hover:bg-red-700 rounded-lg transition"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Add New Product */}
+          <div className="bg-black/30 border border-white/20 rounded-lg p-4 space-y-3">
+            <h5 className="text-sm font-bold text-white">Adicionar Novo Produto</h5>
+            <input 
+              type="text"
+              placeholder="Nome do produto (ex: Frutuba 2L)"
+              value={newPromotionProduct.name}
+              onChange={(e) => setNewPromotionProduct({...newPromotionProduct, name: e.target.value})}
+              className="w-full bg-black/30 border border-gray-600 rounded-lg p-3 text-white text-sm"
+            />
+            <div className="flex items-center gap-3">
+              <button 
+                onClick={() => promotionImageRef.current?.click()}
+                className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition text-sm"
+              >
+                <Upload size={16} />
+                {newPromotionProduct.image ? 'Imagem Selecionada' : 'Upload Imagem'}
+              </button>
+              {newPromotionProduct.image && (
+                <img src={newPromotionProduct.image} alt="Preview" className="w-12 h-12 object-cover rounded-lg" />
+              )}
+            </div>
+            <button 
+              onClick={handleAddPromotionProduct}
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-brand-orange hover:bg-orange-600 rounded-lg transition font-bold"
+            >
+              <Plus size={16} />
+              Adicionar Produto
+            </button>
+            <input ref={promotionImageRef} type="file" accept="image/*" className="hidden" onChange={handlePromotionImageUpload} />
+          </div>
+        </div>
+
+        {promotion.enabled && (
+          <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-4 text-center">
+            <p className="text-green-400 font-bold text-sm">
+              🎉 Promoção Ativa: Compras acima de R$ {promotion.minValue.toFixed(2)} ganham {promotion.products[0]?.name || 'brinde'} grátis!
+            </p>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   const renderCashbackTab = () => (
     <div className="space-y-6 animate-slide-up">
       <h3 className="text-xl font-bold text-white font-display">Configurar Cashback</h3>
@@ -829,6 +1004,9 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
           <button onClick={() => setActiveTab('theme')} className={getTabClassV2('theme', 'border-blue-500')}>
             <Palette size={16} /> Tema
           </button>
+          <button onClick={() => setActiveTab('promotions')} className={getTabClassV2('promotions', 'border-pink-500')}>
+            <Tag size={16} /> Promoções
+          </button>
           <button onClick={() => setActiveTab('settings')} className={getTabClassV2('settings', 'border-purple-500')}>
             <Settings size={16} /> Configurações
           </button>
@@ -874,6 +1052,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
           {activeTab === 'coupons' && renderCouponsTab()}
           {activeTab === 'theme' && renderThemeTab()}
           {activeTab === 'cashback' && renderCashbackTab()}
+          {activeTab === 'promotions' && renderPromotionsTab()}
           {activeTab === 'settings' && (
             <div className="space-y-6 animate-slide-up">
               <h3 className="text-xl font-bold text-white font-display">Configurações da Conta</h3>

@@ -1,7 +1,8 @@
 import React from 'react';
-import { X, Plus, Minus, Trash2, Edit2, ShoppingBag } from 'lucide-react';
+import { X, Plus, Minus, Trash2, Edit2, ShoppingBag, Gift, Sparkles } from 'lucide-react';
 import { CartItem } from '../types';
 import Button from './Button';
+import { useAdmin } from '../contexts/AdminContext';
 
 interface CartSidebarProps {
   isOpen: boolean;
@@ -10,10 +11,15 @@ interface CartSidebarProps {
   onUpdateQuantity: (cartId: string, delta: number) => void;
   onRemove: (cartId: string) => void;
   onCheckout: () => void;
+  onNavigateToMenu?: () => void;
 }
 
-const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose, cart, onUpdateQuantity, onRemove, onCheckout }) => {
+const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose, cart, onUpdateQuantity, onRemove, onCheckout, onNavigateToMenu }) => {
+  const { promotion } = useAdmin();
   const total = cart.reduce((acc, item) => acc + (item.unitTotal * item.quantity), 0);
+  
+  const amountToPromotion = promotion.enabled ? Math.max(0, promotion.minValue - total) : 0;
+  const isEligibleForPromotion = promotion.enabled && total >= promotion.minValue;
 
   return (
     <>
@@ -45,14 +51,24 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose, cart, onUpda
               <Button variant="outline" onClick={onClose}>Ir para o Cardápio</Button>
             </div>
           ) : (
-            cart.map((item) => (
-              <div key={item.cartId} className="flex items-start gap-4 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors border border-transparent hover:border-gray-100 dark:hover:border-gray-700">
-                <img src={item.image} alt={item.name} className="w-16 h-16 rounded-lg object-cover bg-gray-100 dark:bg-gray-800 shrink-0" />
+            cart.map((item) => {
+              const isPromotionalItem = item.id === 99999;
+              return (
+              <div key={item.cartId} className={`flex items-start gap-4 p-3 rounded-xl transition-colors border ${isPromotionalItem ? 'bg-gradient-to-r from-green-500/10 to-emerald-500/10 border-green-500/30' : 'hover:bg-gray-50 dark:hover:bg-gray-800 border-transparent hover:border-gray-100 dark:hover:border-gray-700'}`}>
+                <div className="relative">
+                  <img src={item.image} alt={item.name} className="w-16 h-16 rounded-lg object-cover bg-gray-100 dark:bg-gray-800 shrink-0" />
+                  {isPromotionalItem && (
+                    <div className="absolute -top-2 -right-2 bg-green-500 text-white text-xs font-bold px-2 py-0.5 rounded-full animate-bounce">
+                      GRÁTIS
+                    </div>
+                  )}
+                </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between items-start">
                     <div>
-                      <h3 className="font-bold text-gray-800 dark:text-gray-100 line-clamp-1">
+                      <h3 className="font-bold text-gray-800 dark:text-gray-100 line-clamp-1 flex items-center gap-2">
                         {item.isHalfHalf ? 'Pizza Meio a Meio' : item.name}
+                        {isPromotionalItem && <Gift size={16} className="text-green-500" />}
                       </h3>
                       {item.isHalfHalf && item.secondFlavor && (
                         <div className="text-xs text-brand-orange font-medium mt-0.5">
@@ -60,9 +76,14 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose, cart, onUpda
                           ½ {item.secondFlavor.name}
                         </div>
                       )}
+                      {isPromotionalItem && (
+                        <div className="text-xs text-green-500 font-medium mt-0.5">
+                          🎁 Brinde promocional
+                        </div>
+                      )}
                     </div>
-                    <p className="text-brand-orange font-bold text-sm whitespace-nowrap ml-2">
-                      R$ {(item.unitTotal * item.quantity).toFixed(2).replace('.', ',')}
+                    <p className={`font-bold text-sm whitespace-nowrap ml-2 ${isPromotionalItem ? 'text-green-500' : 'text-brand-orange'}`}>
+                      {isPromotionalItem ? 'GRÁTIS' : `R$ ${(item.unitTotal * item.quantity).toFixed(2).replace('.', ',')}`}
                     </p>
                   </div>
 
@@ -80,36 +101,94 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose, cart, onUpda
                   </div>
                   
                   <div className="flex items-center justify-between mt-3">
-                     <div className="flex items-center border dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 shadow-sm">
-                        <button 
-                          onClick={() => onUpdateQuantity(item.cartId, -1)}
-                          className="p-1 px-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-l-lg transition-colors text-gray-600 dark:text-gray-300"
-                        >
-                          <Minus size={14} />
-                        </button>
-                        <span className="w-8 text-center text-xs font-bold text-gray-800 dark:text-gray-100">{item.quantity}</span>
-                        <button 
-                          onClick={() => onUpdateQuantity(item.cartId, 1)}
-                          className="p-1 px-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-r-lg transition-colors text-gray-600 dark:text-gray-300"
-                        >
-                          <Plus size={14} />
-                        </button>
-                     </div>
-                     <button 
-                       onClick={() => onRemove(item.cartId)}
-                       className="text-gray-400 hover:text-red-500 transition-colors p-1"
-                     >
-                       <Trash2 size={16} />
-                     </button>
+                     {!isPromotionalItem ? (
+                       <>
+                         <div className="flex items-center border dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 shadow-sm">
+                            <button 
+                              onClick={() => onUpdateQuantity(item.cartId, -1)}
+                              className="p-1 px-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-l-lg transition-colors text-gray-600 dark:text-gray-300"
+                            >
+                              <Minus size={14} />
+                            </button>
+                            <span className="w-8 text-center text-xs font-bold text-gray-800 dark:text-gray-100">{item.quantity}</span>
+                            <button 
+                              onClick={() => onUpdateQuantity(item.cartId, 1)}
+                              className="p-1 px-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-r-lg transition-colors text-gray-600 dark:text-gray-300"
+                            >
+                              <Plus size={14} />
+                            </button>
+                         </div>
+                         <button 
+                           onClick={() => onRemove(item.cartId)}
+                           className="text-gray-400 hover:text-red-500 transition-colors p-1"
+                         >
+                           <Trash2 size={16} />
+                         </button>
+                       </>
+                     ) : (
+                       <div className="text-xs text-green-500 font-medium flex items-center gap-1">
+                         <Sparkles size={12} />
+                         Brinde automático
+                       </div>
+                     )}
                   </div>
                 </div>
               </div>
-            ))
+            );
+            })
           )}
         </div>
 
         {cart.length > 0 && (
           <div className="p-6 border-t dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50 space-y-4">
+            {/* Promotion Banner */}
+            {promotion.enabled && !isEligibleForPromotion && amountToPromotion > 0 && (
+              <div 
+                onClick={() => {
+                  onNavigateToMenu?.();
+                  onClose();
+                }}
+                className="relative overflow-hidden bg-gradient-to-r from-pink-500/20 via-purple-500/20 to-brand-orange/20 border-2 border-brand-orange/50 rounded-xl p-4 cursor-pointer group hover:scale-[1.02] transition-transform duration-300 animate-pulse"
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-pink-500/10 via-purple-500/10 to-brand-orange/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="relative flex items-center gap-3">
+                  <div className="flex-shrink-0 w-12 h-12 bg-brand-orange rounded-full flex items-center justify-center animate-bounce">
+                    <Gift size={24} className="text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-white font-bold text-sm flex items-center gap-2">
+                      <Sparkles size={14} className="text-yellow-300 animate-pulse" />
+                      Falta só R$ {amountToPromotion.toFixed(2).replace('.', ',')} para ganhar!
+                    </p>
+                    <p className="text-gray-300 text-xs mt-0.5">
+                      {promotion.products[0]?.name || 'Brinde'} GRÁTIS 🎁
+                    </p>
+                  </div>
+                  <div className="flex-shrink-0 px-3 py-1.5 bg-white/20 backdrop-blur-sm rounded-full text-white text-xs font-bold group-hover:bg-white/30 transition-colors">
+                    Adicionar +
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {isEligibleForPromotion && (
+              <div className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 border-2 border-green-500/50 rounded-xl p-4 animate-slide-up">
+                <div className="flex items-center gap-3">
+                  <div className="flex-shrink-0 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
+                    <Gift size={24} className="text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-white font-bold text-sm flex items-center gap-2">
+                      🎉 Parabéns! Você ganhou um brinde!
+                    </p>
+                    <p className="text-gray-300 text-xs mt-0.5">
+                      {promotion.products[0]?.name || 'Brinde'} será adicionado automaticamente
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <div className="flex justify-between items-center text-gray-600 dark:text-gray-400 text-sm">
               <span>Subtotal</span>
               <span>R$ {total.toFixed(2).replace('.', ',')}</span>

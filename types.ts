@@ -87,3 +87,15 @@ export interface Category {
   id: string;
   name: string;
 }
+
+export interface PromotionProduct {
+  id: string;
+  name: string;
+  image: string;
+}
+
+export interface Promotion {
+  enabled: boolean;
+  minValue: number; // Valor mínimo para ganhar o brinde
+  products: PromotionProduct[]; // Refrigerantes disponíveis
+}

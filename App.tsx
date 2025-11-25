@@ -75,6 +75,39 @@ const App: React.FC = () => {
     }
   }, []);
 
+  // Auto-add promotional item when threshold is reached
+  useEffect(() => {
+    if (!promotion.enabled || promotion.products.length === 0) return;
+    
+    const subtotal = cart.reduce((acc, item) => acc + (item.unitTotal * item.quantity), 0);
+    const hasPromotionalItem = cart.some(item => item.id === 99999);
+    
+    if (subtotal >= promotion.minValue && !hasPromotionalItem) {
+      // Add promotional item automatically
+      const promoProduct = promotion.products[0];
+      const promotionalItem: CartItem = {
+        id: 99999,
+        name: promoProduct.name,
+        description: '🎁 Brinde promocional - GRÁTIS',
+        price: 0,
+        image: promoProduct.image,
+        category: 'Bebida',
+        rating: 5,
+        cartId: 'promo-gift',
+        quantity: 1,
+        selectedCrust: null,
+        selectedAddons: [],
+        observation: '',
+        unitTotal: 0,
+        available: true
+      };
+      setCart(prev => [...prev, promotionalItem]);
+    } else if (subtotal < promotion.minValue && hasPromotionalItem) {
+      // Remove promotional item if user reduces cart below threshold
+      setCart(prev => prev.filter(item => item.id !== 99999));
+    }
+  }, [cart, promotion]);
+
   const handleLogin = (newUser: User) => {
     setUser(newUser);
     localStorage.setItem('pizzaVibeUser', JSON.stringify(newUser));
@@ -539,6 +572,7 @@ const App: React.FC = () => {
               onUpdateQuantity={updateQuantity}
               onRemove={removeFromCart}
               onCheckout={handleCheckout}
+              onNavigateToMenu={scrollToMenu}
             />
 
             <AISommelier isOpen={isAIOpen} onClose={() => setIsAIOpen(false)} onRecommendation={handleAIRecommendation} />
