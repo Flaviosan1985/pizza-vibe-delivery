@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { Pizza, Coupon, CashbackSettings, ThemeSettings, OptionItem, BannerItem } from '../types';
+import { Pizza, Coupon, CashbackSettings, ThemeSettings, OptionItem, BannerItem, Category } from '../types';
 import { PIZZAS as INITIAL_PIZZAS, CRUST_OPTIONS as INITIAL_CRUSTS, ADDON_OPTIONS as INITIAL_ADDONS } from '../constants';
 
 interface AdminContextData {
@@ -11,6 +11,7 @@ interface AdminContextData {
   cashback: CashbackSettings;
   theme: ThemeSettings;
   banners: BannerItem[];
+  categories: Category[];
   
   // Pizza Actions
   addPizza: (pizza: Pizza) => void;
@@ -22,6 +23,11 @@ interface AdminContextData {
   addOption: (type: 'crust' | 'addon', option: OptionItem) => void;
   updateOption: (type: 'crust' | 'addon', option: OptionItem) => void;
   removeOption: (type: 'crust' | 'addon', id: string) => void;
+
+  // Category Actions
+  addCategory: (category: Category) => void;
+  updateCategory: (id: string, name: string) => void;
+  removeCategory: (id: string) => void;
 
   // Banner Actions
   addBanner: (banner: BannerItem) => void;
@@ -95,6 +101,16 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     return saved ? JSON.parse(saved) : INITIAL_BANNERS;
   });
 
+  // Categories
+  const [categories, setCategories] = useState<Category[]>(() => {
+    const saved = localStorage.getItem('pv_categories');
+    return saved ? JSON.parse(saved) : [
+      { id: '1', name: 'Clássica' },
+      { id: '2', name: 'Premium' },
+      { id: '3', name: 'Doce' }
+    ];
+  });
+
   // Cashback
   const [cashback, setCashback] = useState<CashbackSettings>(() => {
     const saved = localStorage.getItem('pv_cashback');
@@ -120,6 +136,7 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   useEffect(() => { localStorage.setItem('pv_addons', JSON.stringify(addons)); }, [addons]);
   useEffect(() => { localStorage.setItem('pv_coupons', JSON.stringify(coupons)); }, [coupons]);
   useEffect(() => { localStorage.setItem('pv_banners', JSON.stringify(banners)); }, [banners]);
+  useEffect(() => { localStorage.setItem('pv_categories', JSON.stringify(categories)); }, [categories]);
   useEffect(() => { localStorage.setItem('pv_cashback', JSON.stringify(cashback)); }, [cashback]);
   useEffect(() => { localStorage.setItem('pv_theme', JSON.stringify(theme)); }, [theme]);
 
@@ -162,6 +179,18 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   const removeOption = (type: 'crust' | 'addon', id: string) => {
     if (type === 'crust') setCrusts(prev => prev.filter(o => o.id !== id));
     else setAddons(prev => prev.filter(o => o.id !== id));
+  };
+
+  const addCategory = (category: Category) => {
+    setCategories(prev => [...prev, category]);
+  };
+
+  const updateCategory = (id: string, name: string) => {
+    setCategories(prev => prev.map(c => c.id === id ? { ...c, name } : c));
+  };
+
+  const removeCategory = (id: string) => {
+    setCategories(prev => prev.filter(c => c.id !== id));
   };
 
   const addBanner = (banner: BannerItem) => {
@@ -223,6 +252,7 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       cashback,
       theme,
       banners,
+      categories,
       addPizza,
       updatePizza,
       deletePizza,
@@ -230,6 +260,9 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       addOption,
       updateOption,
       removeOption,
+      addCategory,
+      updateCategory,
+      removeCategory,
       addBanner,
       removeBanner,
       addCoupon,

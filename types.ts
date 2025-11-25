@@ -5,7 +5,8 @@ export interface Pizza {
   description: string;
   price: number;
   image: string;
-  category: 'Classica' | 'Especial' | 'Doce' | 'Vegana' | 'Meio a Meio' | 'Broto';
+  category: 'Pizza grande 8 pedaços' | 'Pizza broto 4 pedaços' | 'Doce' | 'Vegana' | 'Meio a Meio' | 'Bebida';
+  categoryId?: string; // Reference to Category
   rating: number;
   available?: boolean; // New field for pausing/unpausing
 }
@@ -80,4 +81,9 @@ export interface BannerItem {
   subtitle: string;
   image: string; // Base64
   colorTheme: 'orange' | 'green' | 'red';
+}
+
+export interface Category {
+  id: string;
+  name: string;
 }

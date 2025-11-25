@@ -1,9 +1,8 @@
-
 import React, { useState, useRef, useEffect } from 'react';
-import { useAdmin } from '../contexts/AdminContext';
-import { Pizza, Coupon, OptionItem, BannerItem, Category } from '../types';
-import { Save, Plus, Trash2, ToggleLeft, ToggleRight, Pizza as PizzaIcon, Tag, DollarSign, Palette, LogOut, X, Check, Calendar, Upload, Image as ImageIcon, Settings, List, Layout, Move, Minimize2, Maximize2 } from 'lucide-react';
 import { motion, useDragControls } from 'framer-motion';
+import { Save, Plus, Trash2, ToggleLeft, ToggleRight, Pizza as PizzaIcon, Tag, DollarSign, Palette, LogOut, X, Check, Calendar, Upload, Image as ImageIcon, Settings, List, Layout, Move, Minimize2, Maximize2 } from 'lucide-react';
+import { useAdmin } from '../contexts/AdminContext';
+import { Pizza, Coupon, OptionItem, BannerItem, CartItem, User } from '../types';
 
 interface AdminDashboardProps {
   onLogout: () => void;
@@ -34,7 +33,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
     name: '',
     description: '',
     price: 0,
-    category: 'Classica',
+    category: 'Pizza grande 8 pedaços',
     image: '',
     rating: 5
   });
@@ -127,11 +126,12 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
         image: newPizza.image || 'https://picsum.photos/600/400', // Fallback
         category: newPizza.category as any,
         categoryId: addingPizzaToCategory!, // Assign category ID
+        rating: newPizza.rating || 5,
         available: true
       };
       addPizza(pizza);
       setAddingPizzaToCategory(null);
-      setNewPizza({ name: '', description: '', price: 0, category: 'Classica', image: '', rating: 5 });
+      setNewPizza({ name: '', description: '', price: 0, category: 'Pizza grande 8 pedaços', image: '', rating: 5 });
     }
   };
 
