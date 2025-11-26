@@ -207,18 +207,15 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   const [orderStatusChangeCallback, setOrderStatusChangeCallback] = useState<((order: Order, newStatus: OrderStatus) => void) | undefined>();
 
   // --- Persistence ---
-  useEffect(() => { localStorage.setItem('pv_pizzas', JSON.stringify(pizzas)); }, [pizzas]);
+  // Note: pizzas, orders, coupons and favorites are now persisted by Firebase listeners to avoid loops
   useEffect(() => { localStorage.setItem('pv_crusts', JSON.stringify(crusts)); }, [crusts]);
   useEffect(() => { localStorage.setItem('pv_addons', JSON.stringify(addons)); }, [addons]);
-  useEffect(() => { localStorage.setItem('pv_coupons', JSON.stringify(coupons)); }, [coupons]);
   useEffect(() => { localStorage.setItem('pv_banners', JSON.stringify(banners)); }, [banners]);
   useEffect(() => { localStorage.setItem('pv_categories', JSON.stringify(categories)); }, [categories]);
   useEffect(() => { localStorage.setItem('pv_promotion', JSON.stringify(promotion)); }, [promotion]);
   useEffect(() => { localStorage.setItem('pv_cashback', JSON.stringify(cashback)); }, [cashback]);
   useEffect(() => { localStorage.setItem('pv_theme', JSON.stringify(theme)); }, [theme]);
-  useEffect(() => { localStorage.setItem('pv_orders', JSON.stringify(orders)); }, [orders]);
   useEffect(() => { localStorage.setItem('pv_orderCounter', orderCounter.toString()); }, [orderCounter]);
-  useEffect(() => { localStorage.setItem('pv_favorites', JSON.stringify(favorites)); }, [favorites]);
 
   // Try to hydrate and subscribe to orders from Firestore on startup (if configured)
   useEffect(() => {
@@ -240,9 +237,15 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         unsubscribeOrders = onSnapshot(ordersQuery, 
           (snap) => {
             const remoteOrders = snap.docs.map(doc => doc.data() as Order);
-            setOrders(remoteOrders);
-            const maxOrderNumber = remoteOrders.reduce((max, o) => Math.max(max, Number(o.orderNumber || 0)), 0);
-            setOrderCounter(isFinite(maxOrderNumber) && maxOrderNumber > 0 ? maxOrderNumber + 1 : 1);
+            const currentData = localStorage.getItem('pv_orders');
+            const newData = JSON.stringify(remoteOrders);
+            
+            if (currentData !== newData) {
+              setOrders(remoteOrders);
+              localStorage.setItem('pv_orders', newData);
+              const maxOrderNumber = remoteOrders.reduce((max, o) => Math.max(max, Number(o.orderNumber || 0)), 0);
+              setOrderCounter(isFinite(maxOrderNumber) && maxOrderNumber > 0 ? maxOrderNumber + 1 : 1);
+            }
             setIsFirebaseConnected(true);
           },
           (error) => {
@@ -255,16 +258,36 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         const pizzasQuery = query(collection(db, 'pizzas'));
         unsubscribePizzas = onSnapshot(pizzasQuery,
           (snap) => {
+            console.log('[SYNC] 📡 Listener de pizzas recebeu atualização:', {
+              empty: snap.empty,
+              size: snap.size,
+              docs: snap.docs.length
+            });
             if (!snap.empty) {
-              const remotePizzas = snap.docs.map(doc => doc.data() as Pizza);
-              // Update state and localStorage
-              setPizzas(remotePizzas);
-              localStorage.setItem('pv_pizzas', JSON.stringify(remotePizzas));
-              console.log('[SYNC] Pizzas sincronizadas do Firebase:', remotePizzas.length);
+              const remotePizzas = snap.docs.map(doc => {
+                const data = doc.data() as Pizza;
+                console.log('[SYNC] Pizza recebida:', doc.id, data.name);
+                return data;
+              });
+              
+              // Only update if data actually changed
+              const currentData = localStorage.getItem('pv_pizzas');
+              const newData = JSON.stringify(remotePizzas);
+              
+              if (currentData !== newData) {
+                console.log('[SYNC] Dados diferentes, atualizando...');
+                setPizzas(remotePizzas);
+                localStorage.setItem('pv_pizzas', newData);
+                console.log('[SYNC] ✅ Pizzas sincronizadas do Firebase:', remotePizzas.length);
+              } else {
+                console.log('[SYNC] Dados idênticos, ignorando atualização');
+              }
+            } else {
+              console.log('[SYNC] ⚠️ Nenhuma pizza no Firestore');
             }
           },
           (error) => {
-            console.warn('[PDV] Erro no listener de pizzas:', error);
+            console.error('[SYNC] ❌ Erro no listener de pizzas:', error);
           }
         );
 
@@ -274,7 +297,13 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
           (snap) => {
             if (!snap.empty) {
               const remoteCoupons = snap.docs.map(doc => doc.data() as Coupon);
-              setCoupons(remoteCoupons);
+              const currentData = localStorage.getItem('pv_coupons');
+              const newData = JSON.stringify(remoteCoupons);
+              
+              if (currentData !== newData) {
+                setCoupons(remoteCoupons);
+                localStorage.setItem('pv_coupons', newData);
+              }
             }
           },
           (error) => {
@@ -288,7 +317,13 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
           (snap) => {
             if (!snap.empty) {
               const remoteFavorites = snap.docs.map(doc => doc.data() as FavoritePizza);
-              setFavorites(remoteFavorites);
+              const currentData = localStorage.getItem('pv_favorites');
+              const newData = JSON.stringify(remoteFavorites);
+              
+              if (currentData !== newData) {
+                setFavorites(remoteFavorites);
+                localStorage.setItem('pv_favorites', newData);
+              }
             }
           },
           (error) => {
@@ -324,49 +359,75 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   // --- Actions ---
 
   const addPizza = (pizza: Pizza) => {
+    console.log('[SYNC] Adicionando pizza:', pizza.id, pizza.name);
     setPizzas(prev => {
       const updated = [pizza, ...prev];
       // Save to localStorage immediately
       localStorage.setItem('pv_pizzas', JSON.stringify(updated));
+      console.log('[SYNC] Pizza salva no localStorage');
       return updated;
     });
     // Sync to Firebase if connected
     if (isFirebaseConnected) {
+      console.log('[SYNC] Firebase conectado, enviando para Firestore...');
       try {
-        savePizzaToDB(pizza).catch((error) => {
-          console.warn('Erro ao salvar pizza no Firebase:', error);
-        });
+        savePizzaToDB(pizza)
+          .then(() => {
+            console.log('[SYNC] ✅ Pizza salva no Firestore com sucesso:', pizza.id);
+          })
+          .catch((error) => {
+            console.error('[SYNC] ❌ Erro ao salvar pizza no Firebase:', error);
+          });
       } catch (error) {
-        console.warn('Erro ao sincronizar pizza:', error);
+        console.error('[SYNC] ❌ Erro ao sincronizar pizza:', error);
       }
+    } else {
+      console.warn('[SYNC] Firebase não conectado, salvando apenas localmente');
     }
   };
 
   const updatePizza = (updatedPizza: Pizza) => {
+    console.log('[SYNC] Atualizando pizza:', updatedPizza.id, updatedPizza.name);
     setPizzas(prev => {
       const updated = prev.map(p => p.id === updatedPizza.id ? updatedPizza : p);
       // Save to localStorage immediately
       localStorage.setItem('pv_pizzas', JSON.stringify(updated));
+      console.log('[SYNC] Pizza atualizada no localStorage');
       return updated;
     });
     // Sync to Firebase if connected
     if (isFirebaseConnected) {
+      console.log('[SYNC] Firebase conectado, enviando atualização para Firestore...');
       try {
-        savePizzaToDB(updatedPizza).catch((error) => {
-          console.warn('Erro ao atualizar pizza no Firebase:', error);
-        });
+        savePizzaToDB(updatedPizza)
+          .then(() => {
+            console.log('[SYNC] ✅ Pizza atualizada no Firestore com sucesso:', updatedPizza.id);
+          })
+          .catch((error) => {
+            console.error('[SYNC] ❌ Erro ao atualizar pizza no Firebase:', error);
+          });
       } catch (error) {
-        console.warn('Erro ao sincronizar pizza:', error);
+        console.error('[SYNC] ❌ Erro ao sincronizar pizza:', error);
       }
+    } else {
+      console.warn('[SYNC] Firebase não conectado, atualizando apenas localmente');
     }
   };
 
   const deletePizza = (id: number) => {
-    setPizzas(prev => prev.filter(p => p.id !== id));
+    setPizzas(prev => {
+      const updated = prev.filter(p => p.id !== id);
+      localStorage.setItem('pv_pizzas', JSON.stringify(updated));
+      return updated;
+    });
   };
 
   const togglePizzaAvailability = (id: number) => {
-    setPizzas(prev => prev.map(p => p.id === id ? { ...p, available: !p.available } : p));
+    setPizzas(prev => {
+      const updated = prev.map(p => p.id === id ? { ...p, available: !p.available } : p);
+      localStorage.setItem('pv_pizzas', JSON.stringify(updated));
+      return updated;
+    });
   };
 
   const addOption = (type: 'crust' | 'addon', option: OptionItem) => {
@@ -405,7 +466,11 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   };
 
   const addCoupon = (coupon: Coupon) => {
-    setCoupons(prev => [...prev, coupon]);
+    setCoupons(prev => {
+      const updated = [...prev, coupon];
+      localStorage.setItem('pv_coupons', JSON.stringify(updated));
+      return updated;
+    });
     // Sync to Firebase if connected
     if (isFirebaseConnected) {
       try {
@@ -415,12 +480,17 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   };
 
   const removeCoupon = (id: string) => {
-    setCoupons(prev => prev.filter(c => c.id !== id));
+    setCoupons(prev => {
+      const updated = prev.filter(c => c.id !== id);
+      localStorage.setItem('pv_coupons', JSON.stringify(updated));
+      return updated;
+    });
   };
 
   const toggleCoupon = (id: string) => {
     setCoupons(prev => {
       const updated = prev.map(c => c.id === id ? { ...c, active: !c.active } : c);
+      localStorage.setItem('pv_coupons', JSON.stringify(updated));
       // Sync to Firebase if connected
       if (isFirebaseConnected) {
         const updatedCoupon = updated.find(c => c.id === id);
@@ -499,7 +569,11 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
-    setOrders(prev => [newOrder, ...prev]);
+    setOrders(prev => {
+      const updated = [newOrder, ...prev];
+      localStorage.setItem('pv_orders', JSON.stringify(updated));
+      return updated;
+    });
     setOrderCounter(prev => prev + 1);
 
     // Write-through to Firestore (best-effort) only if connected
@@ -537,6 +611,9 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         return order;
       });
 
+      // Save to localStorage
+      localStorage.setItem('pv_orders', JSON.stringify(updatedOrders));
+
       // Persist status update to Firestore (best-effort) only if connected
       if (isFirebaseConnected) {
         try {
@@ -564,7 +641,11 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     
     if (existingFav) {
       // Remove favorite
-      setFavorites(prev => prev.filter(f => !(f.userId === userId && f.pizzaId === pizzaId)));
+      setFavorites(prev => {
+        const updated = prev.filter(f => !(f.userId === userId && f.pizzaId === pizzaId));
+        localStorage.setItem('pv_favorites', JSON.stringify(updated));
+        return updated;
+      });
       // Sync to Firebase if connected
       if (isFirebaseConnected) {
         try {
@@ -578,7 +659,11 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         pizzaId,
         addedAt: new Date().toISOString()
       };
-      setFavorites(prev => [...prev, newFav]);
+      setFavorites(prev => {
+        const updated = [...prev, newFav];
+        localStorage.setItem('pv_favorites', JSON.stringify(updated));
+        return updated;
+      });
       // Sync to Firebase if connected
       if (isFirebaseConnected) {
         try {

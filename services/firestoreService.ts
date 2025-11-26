@@ -82,10 +82,16 @@ export const updateOrderStatus = async (orderId: string, status: string): Promis
 
 export const savePizza = async (pizza: Pizza): Promise<void> => {
   try {
+    console.log('[FIRESTORE] Salvando pizza no Firestore:', {
+      id: pizza.id,
+      name: pizza.name,
+      collection: PIZZAS_COLLECTION
+    });
     const pizzaRef = doc(db, PIZZAS_COLLECTION, pizza.id.toString());
     await setDoc(pizzaRef, pizza);
+    console.log('[FIRESTORE] ✅ Pizza salva com sucesso no Firestore:', pizza.id);
   } catch (error) {
-    console.error('Error saving pizza:', error);
+    console.error('[FIRESTORE] ❌ Error saving pizza:', error);
     throw error;
   }
 };
