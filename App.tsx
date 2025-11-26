@@ -614,8 +614,8 @@ const App: React.FC = () => {
             <TopBar 
               phone="(13) 99651-1793"
               hours={theme.businessHours ? `${theme.businessHours.weekdays}` : 'Seg-Dom: 18:00 - 23:00'}
-              facebook="https://facebook.com"
-              instagram="https://instagram.com"
+              facebook={theme.facebookUrl}
+              instagram={theme.instagramUrl}
               userName={user?.name.split(' ')[0] || 'Usuário'}
               onUserClick={() => setCurrentView('myAccount')}
               onLogout={handleLogout}

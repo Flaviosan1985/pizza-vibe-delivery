@@ -177,7 +177,10 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       operatingDays: 'Segunda a Domingo',
       paymentMethods: ['Dinheiro', 'Cartão de Débito/Crédito', 'PIX', 'Vale Refeição'],
       halfPizzaPolicy: 'Será cobrado pelo maior valor entre os sabores escolhidos',
-      priceDisclaimer: 'Preços sujeitos a alteração sem aviso prévio'
+      priceDisclaimer: 'Preços sujeitos a alteração sem aviso prévio',
+      facebookUrl: '',
+      instagramUrl: '',
+      whatsappNumber: ''
     };
   });
 

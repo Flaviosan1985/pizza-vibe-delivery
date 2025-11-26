@@ -977,6 +977,47 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
           />
         </div>
 
+        {/* Redes Sociais */}
+        <div className="pt-6 border-t border-white/10">
+          <h5 className="text-base font-bold text-white mb-4">Redes Sociais</h5>
+          
+          <div className="space-y-4">
+            <div>
+              <label className="block text-gray-400 mb-2 font-medium">Facebook (URL completa)</label>
+              <input 
+                type="url"
+                value={theme.facebookUrl || ''}
+                onChange={(e) => updateTheme({...theme, facebookUrl: e.target.value})}
+                className="w-full bg-black/30 border border-gray-600 rounded-lg p-3 text-white focus:border-brand-orange outline-none"
+                placeholder="Ex: https://facebook.com/suapizzaria"
+              />
+            </div>
+
+            <div>
+              <label className="block text-gray-400 mb-2 font-medium">Instagram (URL completa)</label>
+              <input 
+                type="url"
+                value={theme.instagramUrl || ''}
+                onChange={(e) => updateTheme({...theme, instagramUrl: e.target.value})}
+                className="w-full bg-black/30 border border-gray-600 rounded-lg p-3 text-white focus:border-brand-orange outline-none"
+                placeholder="Ex: https://instagram.com/suapizzaria"
+              />
+            </div>
+
+            <div>
+              <label className="block text-gray-400 mb-2 font-medium">WhatsApp (apenas números)</label>
+              <input 
+                type="tel"
+                value={theme.whatsappNumber || ''}
+                onChange={(e) => updateTheme({...theme, whatsappNumber: e.target.value.replace(/\D/g, '')})}
+                className="w-full bg-black/30 border border-gray-600 rounded-lg p-3 text-white focus:border-brand-orange outline-none"
+                placeholder="Ex: 5513996511793"
+              />
+              <p className="text-xs text-gray-500 mt-1">Formato: Código do país + DDD + número (sem espaços ou caracteres especiais)</p>
+            </div>
+          </div>
+        </div>
+
         <div className="pt-4 border-t border-white/10">
           <button 
             onClick={() => showSyncMessage()}

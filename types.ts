@@ -85,6 +85,9 @@ export interface ThemeSettings {
   paymentMethods?: string[]; // Ex: ["Dinheiro", "Cartão", "PIX", "Vale Refeição"]
   halfPizzaPolicy?: string; // Ex: "Será cobrado pelo maior valor"
   priceDisclaimer?: string; // Ex: "Preços sujeitos a alteração sem aviso prévio"
+  facebookUrl?: string; // Link do Facebook
+  instagramUrl?: string; // Link do Instagram
+  whatsappNumber?: string; // Número do WhatsApp
 }
 
 export interface BannerItem {
