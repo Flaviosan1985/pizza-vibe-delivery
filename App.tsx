@@ -504,7 +504,7 @@ const App: React.FC = () => {
                   {category.name}
                 </h4>
               </div>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+              <div className="grid grid-cols-2 gap-3 md:gap-4">
                 {pizzasInCategory.map(pizza => (
                   <div key={pizza.id} className="h-full">
                     <PizzaCard 
@@ -559,7 +559,7 @@ const App: React.FC = () => {
                          {category.name}
                       </h4>
                    </div>
-                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+                   <div className="grid grid-cols-2 gap-3 md:gap-4">
                       {pizzasInCategory.map(pizza => (
                          <div key={pizza.id} className="h-full">
                             <PizzaCard pizza={pizza} onSelect={handleSelectPizza} isRecommended={recommendedId === pizza.id} userId={user?.phone} />
