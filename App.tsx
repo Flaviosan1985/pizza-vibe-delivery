@@ -613,6 +613,7 @@ const App: React.FC = () => {
               instagram="https://instagram.com"
               userName={user?.name.split(' ')[0] || 'Usuário'}
               onUserClick={() => setCurrentView('myAccount')}
+              onLogout={handleLogout}
             />
             
             <FloatingCartButton cartCount={cartCount} onClick={() => setIsCartOpen(true)} />

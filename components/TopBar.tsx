@@ -8,6 +8,7 @@ interface TopBarProps {
   instagram?: string;
   userName?: string;
   onUserClick?: () => void;
+  onLogout?: () => void;
 }
 
 const TopBar: React.FC<TopBarProps> = ({ 
@@ -16,7 +17,8 @@ const TopBar: React.FC<TopBarProps> = ({
   facebook,
   instagram,
   userName,
-  onUserClick
+  onUserClick,
+  onLogout
 }) => {
   return (
     <div className="bg-brand-red border-b border-white/10">
@@ -34,7 +36,7 @@ const TopBar: React.FC<TopBarProps> = ({
             </div>
           </div>
 
-          {/* Right: Social Media + User */}
+          {/* Right: Social Media + User + Logout */}
           <div className="flex items-center gap-4">
             <span className="text-xs text-white/70 hidden md:inline">Siga-nos:</span>
             <div className="flex items-center gap-3">
@@ -69,6 +71,12 @@ const TopBar: React.FC<TopBarProps> = ({
                 {userName && (
                   <span className="hidden md:inline font-semibold">{userName}</span>
                 )}
+              </button>
+              <button
+                onClick={onLogout}
+                className="ml-2 px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded-md font-semibold transition-colors text-xs"
+              >
+                Sair
               </button>
             </div>
           </div>
