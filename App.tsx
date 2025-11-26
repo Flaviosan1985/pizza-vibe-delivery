@@ -248,7 +248,12 @@ const App: React.FC = () => {
       observation: item.observation,
       unitTotal: item.totalPrice,
       isHalfHalf: true,
-      secondFlavor: secondaryFlavor ? { ...secondaryFlavor, category: 'Classica', rating: 0, available: true } : undefined,
+      secondFlavor: secondaryFlavor ? { 
+        ...secondaryFlavor, 
+        rating: 0,
+        category: 'Pizza grande 8 pedaços' as const,
+        available: true
+      } : undefined,
       available: true
     };
     startAddToCartAnimation(newCartItem);
@@ -679,7 +684,7 @@ const App: React.FC = () => {
                       return cat && !['Broto', 'Doce'].includes(cat.name);
                     })}
                     {activeMenuTab === 'broto' && renderTabPizzaGrid(p => {
-                      if (p.category === 'Broto') return true;
+                      if (p.category === 'Pizza broto 4 pedaços') return true;
                       if (!p.categoryId) return false;
                       const cat = categories.find(c => c.id === p.categoryId);
                       return cat?.name === 'Broto';
