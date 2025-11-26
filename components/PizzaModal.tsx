@@ -103,16 +103,16 @@ const PizzaModal: React.FC<PizzaModalProps> = ({ pizza, isOpen, onClose, onAddTo
                 <div 
                   key={crust.id}
                   onClick={() => setSelectedCrust(crust)}
-                  className={`cursor-pointer border-2 rounded-xl p-3 flex justify-between items-center transition-all ${selectedCrust?.id === crust.id ? 'border-brand-orange bg-orange-50 dark:bg-orange-900/20' : 'border-gray-100 dark:border-neutral-800 hover:border-gray-300 dark:hover:border-neutral-600'}`}
+                  className={`cursor-pointer border-2 rounded-xl p-4 flex justify-between items-center transition-all hover:scale-[1.02] active:scale-[0.98] ${selectedCrust?.id === crust.id ? 'border-[#009246] bg-green-50 dark:bg-green-900/20 shadow-md' : 'border-gray-200 dark:border-neutral-800 hover:border-[#009246] dark:hover:border-[#009246]'}`}
                 >
                   <div className="flex items-center">
-                    <div className={`w-5 h-5 rounded-full border-2 mr-3 flex items-center justify-center ${selectedCrust?.id === crust.id ? 'border-brand-orange' : 'border-gray-300 dark:border-gray-600'}`}>
-                      {selectedCrust?.id === crust.id && <div className="w-2.5 h-2.5 bg-brand-orange rounded-full" />}
+                    <div className={`w-5 h-5 rounded-full border-2 mr-3 flex items-center justify-center transition-all ${selectedCrust?.id === crust.id ? 'border-[#009246] bg-[#009246]' : 'border-gray-300 dark:border-gray-600'}`}>
+                      {selectedCrust?.id === crust.id && <div className="w-2.5 h-2.5 bg-white rounded-full" />}
                     </div>
-                    <span className="font-medium text-gray-700 dark:text-gray-200">{crust.name}</span>
+                    <span className="font-black text-gray-900 dark:text-gray-100">{crust.name}</span>
                   </div>
-                  <span className="text-sm font-semibold text-gray-500 dark:text-gray-400">
-                    {crust.price === 0 ? 'Grátis' : `+ R$ ${crust.price.toFixed(2).replace('.', ',')}`}
+                  <span className="text-sm font-black text-[#009246]">
+                    {crust.price === 0 ? 'Grátis' : `+R$${crust.price.toFixed(2).replace('.', ',')}`}
                   </span>
                 </div>
               ))}
@@ -131,16 +131,16 @@ const PizzaModal: React.FC<PizzaModalProps> = ({ pizza, isOpen, onClose, onAddTo
                   <div 
                     key={addon.id}
                     onClick={() => toggleAddon(addon)}
-                    className={`cursor-pointer border-2 rounded-xl p-3 flex justify-between items-center transition-all ${isSelected ? 'border-brand-green-500 bg-green-50 dark:bg-green-900/20' : 'border-gray-100 dark:border-neutral-800 hover:border-gray-300 dark:hover:border-neutral-600'}`}
+                    className={`cursor-pointer border-2 rounded-xl p-4 flex justify-between items-center transition-all hover:scale-[1.02] active:scale-[0.98] ${isSelected ? 'border-[#009246] bg-green-50 dark:bg-green-900/20 shadow-md' : 'border-gray-200 dark:border-neutral-800 hover:border-[#009246] dark:hover:border-[#009246]'}`}
                   >
                     <div className="flex items-center">
-                      <div className={`w-5 h-5 rounded mr-3 flex items-center justify-center border-2 ${isSelected ? 'bg-green-500 border-green-500' : 'border-gray-300 dark:border-gray-600'}`}>
-                        {isSelected && <Check size={14} className="text-white" />}
+                      <div className={`w-5 h-5 rounded mr-3 flex items-center justify-center border-2 transition-all ${isSelected ? 'bg-[#009246] border-[#009246]' : 'border-gray-300 dark:border-gray-600'}`}>
+                        {isSelected && <Check size={14} className="text-white" strokeWidth={3} />}
                       </div>
-                      <span className="font-medium text-gray-700 dark:text-gray-200">{addon.name}</span>
+                      <span className="font-black text-gray-900 dark:text-gray-100">{addon.name}</span>
                     </div>
-                    <span className="text-sm font-semibold text-gray-500 dark:text-gray-400">
-                      + R$ {addon.price.toFixed(2).replace('.', ',')}
+                    <span className="text-sm font-black text-[#009246]">
+                      +R${addon.price.toFixed(2).replace('.', ',')}
                     </span>
                   </div>
                 );
@@ -178,17 +178,16 @@ const PizzaModal: React.FC<PizzaModalProps> = ({ pizza, isOpen, onClose, onAddTo
                 </button>
            </div>
 
-           <Button 
+           <button
              onClick={handleConfirm}
-             className="flex-1 flex justify-between items-center shadow-lg shadow-brand-orange/20"
-             size="md"
+             className="flex-1 flex justify-between items-center bg-gradient-to-r from-[#009246] to-green-700 hover:from-green-700 hover:to-[#009246] text-white font-bold px-6 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all hover:scale-[1.02] active:scale-[0.98] touch-manipulation"
            >
              <div className="flex items-center gap-2">
-                <ShoppingCart size={18} />
-                <span>Carrinho</span>
+                <ShoppingCart size={20} className="animate-wiggle" />
+                <span className="text-base">Adicionar</span>
              </div>
-             <span>R$ {calculateTotal().toFixed(2).replace('.', ',')}</span>
-           </Button>
+             <span className="text-lg font-black">R${calculateTotal().toFixed(2).replace('.', ',')}</span>
+           </button>
         </div>
       </div>
     </div>
