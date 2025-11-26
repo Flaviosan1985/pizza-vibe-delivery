@@ -95,7 +95,7 @@ const PizzaModal: React.FC<PizzaModalProps> = ({ pizza, isOpen, onClose, onAddTo
           
           {/* Bordas */}
           <section>
-            <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-3 flex items-center">
+            <h3 className="text-lg font-bold text-black mb-3 flex items-center" style={{opacity: 1}}>
               1. Escolha a Borda <span className="ml-2 text-xs font-normal text-brand-orange bg-brand-orange/10 px-2 py-0.5 rounded-full">Recomendado</span>
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -121,8 +121,8 @@ const PizzaModal: React.FC<PizzaModalProps> = ({ pizza, isOpen, onClose, onAddTo
 
           {/* Adicionais */}
           <section>
-            <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-3">
-              2. Adicionais <span className="ml-2 text-xs font-normal text-gray-400 bg-gray-100 dark:bg-brand-dark dark:text-gray-400 px-2 py-0.5 rounded-full">Opcional</span>
+            <h3 className="text-lg font-bold text-black mb-3" style={{opacity: 1}}>
+              2. Adicionais <span className="ml-2 text-xs font-normal text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">Opcional</span>
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {addons.map((addon) => {
@@ -150,7 +150,7 @@ const PizzaModal: React.FC<PizzaModalProps> = ({ pizza, isOpen, onClose, onAddTo
 
           {/* Observações */}
           <section>
-            <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-3">3. Observações</h3>
+            <h3 className="text-lg font-bold text-black mb-3" style={{opacity: 1}}>3. Observações</h3>
             <textarea
               value={observation}
               onChange={(e) => setObservation(e.target.value)}
