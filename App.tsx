@@ -627,12 +627,6 @@ const App: React.FC = () => {
             <Hero onCtaClick={scrollToMenu} />
 
             <main className="container mx-auto px-2 md:px-4 py-8 md:py-12" ref={menuRef}>
-              <div className="text-center mb-6 md:mb-8">
-                <h2 className="font-display text-brand-orange font-bold uppercase tracking-[0.2em] mb-1 text-xs md:text-base animate-pulse">
-                  Olá, {user.name}!
-                </h2>
-              </div>
-
               {/* Search Bar */}
               <div className="max-w-xl mx-auto mb-8 md:mb-10 relative animate-slide-up px-2">
                 <div className="relative group">
