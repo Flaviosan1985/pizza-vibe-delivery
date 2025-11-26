@@ -1,16 +1,17 @@
 
 import React, { useState } from 'react';
 import { Pizza, ArrowRight, Phone, User as UserIcon, Lock } from 'lucide-react';
-import { User } from '../types';
+import { User, ThemeSettings } from '../types';
 
 interface LoginScreenProps {
   onLogin: (user: User) => void;
   logo?: string;
   storeName?: string;
   backgroundImage?: string;
+  theme?: ThemeSettings;
 }
 
-const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, logo, storeName, backgroundImage }) => {
+const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, logo, storeName, backgroundImage, theme }) => {
   const [isAdminMode, setIsAdminMode] = useState(false);
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
@@ -177,11 +178,11 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, logo, storeName, bac
                 <div className="text-xs text-gray-300 space-y-1">
                   <p className="flex justify-between">
                     <span>Segunda a Quinta:</span>
-                    <span className="font-bold text-white">18:00 - 23:00</span>
+                    <span className="font-bold text-white">{theme?.businessHours?.weekdays || '18:00 - 23:00'}</span>
                   </p>
                   <p className="flex justify-between">
                     <span>Sexta a Domingo:</span>
-                    <span className="font-bold text-white">18:00 - 00:00</span>
+                    <span className="font-bold text-white">{theme?.businessHours?.weekends || '18:00 - 00:00'}</span>
                   </p>
                 </div>
               </div>
@@ -192,7 +193,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, logo, storeName, bac
                   📅 Dias de Funcionamento
                 </h3>
                 <p className="text-xs text-gray-300">
-                  <span className="font-bold text-white">Segunda a Domingo</span>
+                  <span className="font-bold text-white">{theme?.operatingDays || 'Segunda a Domingo'}</span>
                   <span className="block text-[10px] text-gray-500 mt-1">Aberto todos os dias da semana</span>
                 </p>
               </div>
@@ -203,10 +204,9 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, logo, storeName, bac
                   💳 Métodos de Pagamento
                 </h3>
                 <div className="text-xs text-gray-300 space-y-1">
-                  <p>✓ Dinheiro</p>
-                  <p>✓ Cartão de Débito/Crédito</p>
-                  <p>✓ PIX</p>
-                  <p>✓ Vale Refeição</p>
+                  {(theme?.paymentMethods || ['Dinheiro', 'Cartão de Débito/Crédito', 'PIX', 'Vale Refeição']).map((method, idx) => (
+                    <p key={idx}>✓ {method}</p>
+                  ))}
                 </div>
               </div>
 
@@ -216,14 +216,18 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, logo, storeName, bac
                   ⚠️ Informações Importantes
                 </h3>
                 <div className="text-xs text-gray-300 space-y-2">
-                  <p className="flex items-start gap-2">
-                    <span className="text-yellow-500 font-bold">•</span>
-                    <span><span className="font-bold text-white">Pizza Meio a Meio:</span> Será cobrado pelo maior valor entre os sabores escolhidos</span>
-                  </p>
-                  <p className="flex items-start gap-2">
-                    <span className="text-yellow-500 font-bold">•</span>
-                    <span className="font-bold text-yellow-400">Preços sujeitos a alteração sem aviso prévio</span>
-                  </p>
+                  {theme?.halfPizzaPolicy && (
+                    <p className="flex items-start gap-2">
+                      <span className="text-yellow-500 font-bold">•</span>
+                      <span><span className="font-bold text-white">Pizza Meio a Meio:</span> {theme.halfPizzaPolicy}</span>
+                    </p>
+                  )}
+                  {theme?.priceDisclaimer && (
+                    <p className="flex items-start gap-2">
+                      <span className="text-yellow-500 font-bold">•</span>
+                      <span className="font-bold text-yellow-400">{theme.priceDisclaimer}</span>
+                    </p>
+                  )}
                 </div>
               </div>
             </div>

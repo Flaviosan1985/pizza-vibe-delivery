@@ -68,6 +68,11 @@ export interface CashbackSettings {
   campaignEndDate?: string; // Date when the program ends
 }
 
+export interface BusinessHours {
+  weekdays: string; // Ex: "18:00 - 23:00"
+  weekends: string; // Ex: "18:00 - 00:00"
+}
+
 export interface ThemeSettings {
   primaryColor: string; // brand-orange
   secondaryColor: string; // brand-green
@@ -75,6 +80,11 @@ export interface ThemeSettings {
   storeName?: string;
   logo?: string; // Base64 image string
   backgroundImage?: string; // Base64 image string for site background
+  businessHours?: BusinessHours;
+  operatingDays?: string; // Ex: "Segunda a Domingo"
+  paymentMethods?: string[]; // Ex: ["Dinheiro", "Cartão", "PIX", "Vale Refeição"]
+  halfPizzaPolicy?: string; // Ex: "Será cobrado pelo maior valor"
+  priceDisclaimer?: string; // Ex: "Preços sujeitos a alteração sem aviso prévio"
 }
 
 export interface BannerItem {

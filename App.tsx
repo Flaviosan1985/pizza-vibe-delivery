@@ -203,7 +203,7 @@ const App: React.FC = () => {
   };
 
   if (!user) {
-    return <LoginScreen onLogin={handleLogin} logo={theme.logo} storeName={theme.storeName} backgroundImage={theme.backgroundImage} />;
+    return <LoginScreen onLogin={handleLogin} logo={theme.logo} storeName={theme.storeName} backgroundImage={theme.backgroundImage} theme={theme} />;
   }
 
   // --- ADMIN VIEW ---

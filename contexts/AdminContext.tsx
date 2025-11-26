@@ -169,7 +169,15 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       accentColor: '#F4C430',
       storeName: 'PizzaVibe',
       logo: '',
-      backgroundImage: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=2070&auto=format&fit=crop'
+      backgroundImage: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=2070&auto=format&fit=crop',
+      businessHours: {
+        weekdays: '18:00 - 23:00',
+        weekends: '18:00 - 00:00'
+      },
+      operatingDays: 'Segunda a Domingo',
+      paymentMethods: ['Dinheiro', 'Cartão de Débito/Crédito', 'PIX', 'Vale Refeição'],
+      halfPizzaPolicy: 'Será cobrado pelo maior valor entre os sabores escolhidos',
+      priceDisclaimer: 'Preços sujeitos a alteração sem aviso prévio'
     };
   });
 

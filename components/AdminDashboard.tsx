@@ -881,6 +881,111 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
           </div>
         </div>
       </div>
+
+      {/* Business Information Settings */}
+      <h4 className="text-lg font-bold text-white mt-8 font-display">Informações de Negócio</h4>
+      <div className="bg-white/5 border border-white/10 rounded-xl p-6 space-y-6">
+        <p className="text-xs text-gray-400 mb-4">
+          Essas informações serão exibidas na página de login para os clientes
+        </p>
+
+        {/* Horários */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-gray-400 mb-2 font-medium">Horário (Segunda a Quinta)</label>
+            <input 
+              type="text"
+              value={theme.businessHours?.weekdays || ''}
+              onChange={(e) => updateTheme({
+                ...theme, 
+                businessHours: { 
+                  weekdays: e.target.value, 
+                  weekends: theme.businessHours?.weekends || '18:00 - 00:00' 
+                }
+              })}
+              className="w-full bg-black/30 border border-gray-600 rounded-lg p-3 text-white focus:border-brand-orange outline-none"
+              placeholder="Ex: 18:00 - 23:00"
+            />
+          </div>
+          <div>
+            <label className="block text-gray-400 mb-2 font-medium">Horário (Sexta a Domingo)</label>
+            <input 
+              type="text"
+              value={theme.businessHours?.weekends || ''}
+              onChange={(e) => updateTheme({
+                ...theme, 
+                businessHours: { 
+                  weekdays: theme.businessHours?.weekdays || '18:00 - 23:00', 
+                  weekends: e.target.value 
+                }
+              })}
+              className="w-full bg-black/30 border border-gray-600 rounded-lg p-3 text-white focus:border-brand-orange outline-none"
+              placeholder="Ex: 18:00 - 00:00"
+            />
+          </div>
+        </div>
+
+        {/* Dias de Funcionamento */}
+        <div>
+          <label className="block text-gray-400 mb-2 font-medium">Dias de Funcionamento</label>
+          <input 
+            type="text"
+            value={theme.operatingDays || ''}
+            onChange={(e) => updateTheme({...theme, operatingDays: e.target.value})}
+            className="w-full bg-black/30 border border-gray-600 rounded-lg p-3 text-white focus:border-brand-orange outline-none"
+            placeholder="Ex: Segunda a Domingo"
+          />
+        </div>
+
+        {/* Métodos de Pagamento */}
+        <div>
+          <label className="block text-gray-400 mb-2 font-medium">Métodos de Pagamento</label>
+          <p className="text-xs text-gray-500 mb-2">Digite os métodos separados por vírgula</p>
+          <input 
+            type="text"
+            value={theme.paymentMethods?.join(', ') || ''}
+            onChange={(e) => updateTheme({
+              ...theme, 
+              paymentMethods: e.target.value.split(',').map(m => m.trim()).filter(m => m)
+            })}
+            className="w-full bg-black/30 border border-gray-600 rounded-lg p-3 text-white focus:border-brand-orange outline-none"
+            placeholder="Ex: Dinheiro, Cartão, PIX, Vale Refeição"
+          />
+        </div>
+
+        {/* Política Pizza Meio a Meio */}
+        <div>
+          <label className="block text-gray-400 mb-2 font-medium">Política Pizza Meio a Meio</label>
+          <input 
+            type="text"
+            value={theme.halfPizzaPolicy || ''}
+            onChange={(e) => updateTheme({...theme, halfPizzaPolicy: e.target.value})}
+            className="w-full bg-black/30 border border-gray-600 rounded-lg p-3 text-white focus:border-brand-orange outline-none"
+            placeholder="Ex: Será cobrado pelo maior valor entre os sabores"
+          />
+        </div>
+
+        {/* Aviso de Preços */}
+        <div>
+          <label className="block text-gray-400 mb-2 font-medium">Aviso sobre Preços</label>
+          <input 
+            type="text"
+            value={theme.priceDisclaimer || ''}
+            onChange={(e) => updateTheme({...theme, priceDisclaimer: e.target.value})}
+            className="w-full bg-black/30 border border-gray-600 rounded-lg p-3 text-white focus:border-brand-orange outline-none"
+            placeholder="Ex: Preços sujeitos a alteração sem aviso prévio"
+          />
+        </div>
+
+        <div className="pt-4 border-t border-white/10">
+          <button 
+            onClick={() => showSyncMessage()}
+            className="w-full bg-brand-green hover:bg-green-600 text-white font-bold py-3 rounded-lg transition"
+          >
+            💾 Salvar Informações
+          </button>
+        </div>
+      </div>
     </div>
   );
 
