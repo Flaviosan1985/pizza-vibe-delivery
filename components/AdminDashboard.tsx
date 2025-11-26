@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, useDragControls } from 'framer-motion';
-import { Save, Plus, Trash2, ToggleLeft, ToggleRight, Pizza as PizzaIcon, Tag, DollarSign, Palette, LogOut, X, Check, Calendar, Upload, Image as ImageIcon, Settings, List, Layout, Move, Minimize2, Maximize2, Lock, ShoppingCart, Clock, CheckCircle, Truck, XCircle, Eye, AlertCircle, Facebook, Instagram, Youtube, Twitter } from 'lucide-react';
+import { Save, Plus, Trash2, ToggleLeft, ToggleRight, Pizza as PizzaIcon, Tag, DollarSign, Palette, LogOut, X, Check, Calendar, Upload, Image as ImageIcon, Settings, List, Layout, Move, Minimize2, Maximize2, Lock, ShoppingCart, Clock, CheckCircle, Truck, XCircle, Eye, AlertCircle, Facebook, Instagram, Youtube, Twitter, Edit2, Printer, Pause, Play } from 'lucide-react';
 import { useAdmin } from '../contexts/AdminContext';
 import { Pizza, Coupon, OptionItem, BannerItem, CartItem, User, Order, OrderStatus } from '../types';
 
@@ -361,6 +361,97 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
     setTimeout(() => setShowSyncNotification(false), 3000);
   };
 
+  const handlePrintOrder = (order: Order) => {
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      alert('Por favor, permita pop-ups para imprimir o pedido');
+      return;
+    }
+
+    const printContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Pedido #${order.orderNumber}</title>
+        <style>
+          * { margin: 0; padding: 0; box-sizing: border-box; }
+          body { font-family: Arial, sans-serif; padding: 20px; max-width: 300px; }
+          .header { text-align: center; border-bottom: 2px dashed #000; padding-bottom: 10px; margin-bottom: 15px; }
+          .header h1 { font-size: 20px; margin-bottom: 5px; }
+          .header p { font-size: 12px; }
+          .order-info { margin-bottom: 15px; font-size: 13px; }
+          .order-info div { margin-bottom: 5px; }
+          .order-info strong { display: inline-block; width: 80px; }
+          .items { border-top: 1px solid #000; border-bottom: 1px solid #000; padding: 10px 0; margin-bottom: 15px; }
+          .item { margin-bottom: 10px; font-size: 12px; }
+          .item-header { display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 3px; }
+          .item-details { font-size: 11px; color: #666; margin-left: 5px; }
+          .totals { font-size: 13px; }
+          .totals div { display: flex; justify-content: space-between; margin-bottom: 5px; }
+          .totals .total { font-size: 16px; font-weight: bold; border-top: 2px solid #000; padding-top: 8px; margin-top: 8px; }
+          .footer { text-align: center; margin-top: 20px; font-size: 11px; border-top: 2px dashed #000; padding-top: 10px; }
+          @media print {
+            body { padding: 0; }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <h1>${theme.storeName || 'Pizzaria'}</h1>
+          <p>PEDIDO #${order.orderNumber}</p>
+          <p>${new Date(order.createdAt).toLocaleString('pt-BR')}</p>
+        </div>
+        
+        <div class="order-info">
+          <div><strong>Cliente:</strong> ${order.customerName}</div>
+          <div><strong>Telefone:</strong> ${order.customerPhone}</div>
+          ${order.deliveryAddress ? `<div><strong>Endereço:</strong> ${order.deliveryAddress}</div>` : '<div><strong>Tipo:</strong> Retirada no Local</div>'}
+          <div><strong>Pagamento:</strong> ${order.paymentMethod}</div>
+        </div>
+        
+        <div class="items">
+          ${order.items.map(item => `
+            <div class="item">
+              <div class="item-header">
+                <span>${item.quantity}x ${item.pizzaName}${item.isHalfHalf && item.secondFlavorName ? ` + ${item.secondFlavorName}` : ''}</span>
+                <span>R$ ${item.total.toFixed(2).replace('.', ',')}</span>
+              </div>
+              ${item.crust || (item.addons && item.addons.length > 0) ? `
+                <div class="item-details">
+                  ${item.crust ? `+ ${item.crust}` : ''}
+                  ${item.addons && item.addons.length > 0 ? ` + ${item.addons.join(', ')}` : ''}
+                </div>
+              ` : ''}
+              ${item.observation ? `<div class="item-details">Obs: ${item.observation}</div>` : ''}
+            </div>
+          `).join('')}
+        </div>
+        
+        <div class="totals">
+          <div><span>Subtotal:</span><span>R$ ${order.subtotal.toFixed(2).replace('.', ',')}</span></div>
+          <div><span>Taxa de Entrega:</span><span>R$ ${order.deliveryFee.toFixed(2).replace('.', ',')}</span></div>
+          ${order.discount > 0 ? `<div><span>Desconto:</span><span>- R$ ${order.discount.toFixed(2).replace('.', ',')}</span></div>` : ''}
+          <div class="total"><span>TOTAL:</span><span>R$ ${order.total.toFixed(2).replace('.', ',')}</span></div>
+        </div>
+        
+        <div class="footer">
+          <p>Obrigado pela preferência!</p>
+        </div>
+        
+        <script>
+          window.onload = function() {
+            window.print();
+            setTimeout(() => window.close(), 100);
+          }
+        </script>
+      </body>
+      </html>
+    `;
+
+    printWindow.document.write(printContent);
+    printWindow.document.close();
+  };
+
   const handleChangePassword = () => {
     const storedPassword = localStorage.getItem('adminPassword') || 'admin123';
     
@@ -486,32 +577,69 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
               <p className="text-xs text-gray-400">{categories.find(c => c.id === pizza.categoryId)?.name || 'Sem Categoria'}</p>
             </div>
 
-            <div className="flex items-center gap-4">
-              {/* Price Editor */}
+            <div className="flex flex-wrap items-center gap-2 md:gap-3">
+              {/* Price Display/Editor */}
               {editingPrice?.id === pizza.id ? (
                 <div className="flex items-center gap-2">
                   <input 
                     type="number" 
                     value={editingPrice.price}
                     onChange={(e) => setEditingPrice({ ...editingPrice, price: e.target.value })}
-                    className="w-20 bg-black/50 border border-brand-orange rounded px-2 py-1 text-white text-sm"
+                    className="w-24 bg-black/50 border border-brand-orange rounded-lg px-3 py-1.5 text-white text-sm font-bold"
                     autoFocus
                   />
-                  <button onClick={() => { updatePizza({ ...pizza, price: parseFloat(editingPrice.price) }); setEditingPrice(null); }} className="p-1 bg-green-600 rounded"><Check size={14}/></button>
-                  <button onClick={() => setEditingPrice(null)} className="p-1 bg-gray-600 rounded"><X size={14}/></button>
+                  <button onClick={() => { updatePizza({ ...pizza, price: parseFloat(editingPrice.price) }); setEditingPrice(null); showSyncMessage(); }} className="p-2 bg-green-600 hover:bg-green-700 rounded-lg transition-colors"><Check size={14}/></button>
+                  <button onClick={() => setEditingPrice(null)} className="p-2 bg-gray-600 hover:bg-gray-700 rounded-lg transition-colors"><X size={14}/></button>
                 </div>
               ) : (
-                <div onClick={() => setEditingPrice({ id: pizza.id, price: pizza.price.toString() })} className="text-brand-yellow font-bold cursor-pointer hover:underline border border-transparent hover:border-white/20 px-2 py-1 rounded font-display">
-                  R$ {pizza.price.toFixed(2)}
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-black/30 rounded-lg border border-gray-700">
+                  <span className="text-brand-yellow font-bold font-display text-sm">R$ {pizza.price.toFixed(2)}</span>
+                  <button 
+                    onClick={() => setEditingPrice({ id: pizza.id, price: pizza.price.toString() })} 
+                    className="text-gray-400 hover:text-white transition-colors"
+                    title="Editar preço"
+                  >
+                    <Edit2 size={14} />
+                  </button>
                 </div>
               )}
 
-              {/* Availability */}
-              <button onClick={() => togglePizzaAvailability(pizza.id)} className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold transition-colors ${pizza.available !== false ? 'bg-green-500/20 text-green-500 hover:bg-green-500/30' : 'bg-red-500/20 text-red-500 hover:bg-red-500/30'}`}>
-                {pizza.available !== false ? 'Ativo' : 'Pausado'}
-              </button>
-              
-              <button onClick={() => deletePizza(pizza.id)} className="text-gray-500 hover:text-red-500 p-2"><Trash2 size={16} /></button>
+              {/* Action Buttons */}
+              <div className="flex items-center gap-2">
+                {/* Edit Button */}
+                <button 
+                  onClick={() => setEditingName({ id: pizza.id.toString(), name: pizza.name })} 
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold transition-colors"
+                  title="Editar pizza"
+                >
+                  <Edit2 size={14} />
+                  <span className="hidden md:inline">Editar</span>
+                </button>
+
+                {/* Pause/Play Button */}
+                <button 
+                  onClick={() => { togglePizzaAvailability(pizza.id); showSyncMessage(); }} 
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
+                    pizza.available !== false 
+                      ? 'bg-green-600 hover:bg-green-700 text-white' 
+                      : 'bg-orange-600 hover:bg-orange-700 text-white'
+                  }`}
+                  title={pizza.available !== false ? 'Pausar venda' : 'Ativar venda'}
+                >
+                  {pizza.available !== false ? <Pause size={14} /> : <Play size={14} />}
+                  <span className="hidden md:inline">{pizza.available !== false ? 'Pausar' : 'Ativar'}</span>
+                </button>
+                
+                {/* Delete Button */}
+                <button 
+                  onClick={() => { if(window.confirm(`Tem certeza que deseja excluir "${pizza.name}"?`)) { deletePizza(pizza.id); showSyncMessage(); } }} 
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold transition-colors"
+                  title="Excluir pizza"
+                >
+                  <Trash2 size={14} />
+                  <span className="hidden md:inline">Excluir</span>
+                </button>
+              </div>
             </div>
           </div>
         ))}
@@ -1254,7 +1382,17 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex gap-2 border-t border-white/10 pt-3">
+                <div className="flex flex-wrap gap-2 border-t border-white/10 pt-3">
+                  {/* Print Button - Always visible */}
+                  <button
+                    onClick={() => handlePrintOrder(order)}
+                    className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition font-bold text-sm"
+                    title="Imprimir pedido"
+                  >
+                    <Printer size={16} />
+                    <span className="hidden md:inline">Imprimir</span>
+                  </button>
+
                   {order.status === 'pending' && (
                     <>
                       <button
