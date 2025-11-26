@@ -168,7 +168,7 @@ const CartPage: React.FC<CartPageProps> = ({
                 {!showCouponInput && appliedDiscount === 0 ? (
                   <button 
                     onClick={() => setShowCouponInput(true)}
-                    className="w-full bg-gradient-to-r from-[#009246] to-green-700 hover:from-green-700 hover:to-[#009246] text-white font-black py-5 rounded-xl shadow-[0_0_20px_rgba(0,146,70,0.6)] flex items-center justify-center gap-3 transition-all transform hover:scale-105 active:scale-95 border-4 border-green-300"
+                    className="w-full bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white font-black py-5 rounded-xl shadow-[0_0_20px_rgba(59,130,246,0.6)] flex items-center justify-center gap-3 transition-all transform hover:scale-105 active:scale-95 border-4 border-blue-300"
                   >
                     <Tag size={24} className="animate-wiggle" />
                     <span className="font-display tracking-wide uppercase text-lg" style={{fontWeight: 900, opacity: 1}}>Tem Cupom de Desconto?</span>
