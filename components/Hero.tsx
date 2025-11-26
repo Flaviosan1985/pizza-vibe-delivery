@@ -22,7 +22,7 @@ const Hero: React.FC<{ onCtaClick: () => void }> = ({ onCtaClick }) => {
       <div className="container mx-auto px-4">
         {/* Banner Carousel Compacto */}
         {banners.length > 0 && (
-          <div className="relative h-[150px] md:h-[200px] overflow-hidden">
+          <div className="relative h-[120px] md:h-[160px] overflow-hidden rounded-xl mt-2">
             <AnimatePresence mode='wait'>
               {currentItem && (
                 <motion.div

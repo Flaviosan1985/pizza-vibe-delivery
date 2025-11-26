@@ -17,6 +17,23 @@ export default defineConfig(({ mode }) => {
         alias: {
           '@': path.resolve(__dirname, '.'),
         }
+      },
+      build: {
+        rollupOptions: {
+          output: {
+            manualChunks: {
+              'vendor': ['react', 'react-dom'],
+              'firebase': ['firebase/app', 'firebase/firestore', 'firebase/auth', 'firebase/storage'],
+              'framer': ['framer-motion'],
+            }
+          }
+        },
+        chunkSizeWarningLimit: 1000,
+        sourcemap: false,
+        minify: 'esbuild',
+      },
+      optimizeDeps: {
+        include: ['react', 'react-dom', 'framer-motion']
       }
     };
 });

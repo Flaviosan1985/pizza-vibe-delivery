@@ -1,0 +1,42 @@
+{
+  "name": "Pizza Vibe Delivery - Otimizado",
+  "short_name": "PizzaVibe",
+  "description": "Delivery de pizzas artesanais com sistema completo de pedidos",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#B91C1C",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["food", "delivery", "shopping"],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Ver Cardápio",
+      "short_name": "Cardápio",
+      "description": "Ver todas as pizzas disponíveis",
+      "url": "/#menu",
+      "icons": [{ "src": "/icon-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Meus Pedidos",
+      "short_name": "Pedidos",
+      "description": "Acompanhar meus pedidos",
+      "url": "/#orders",
+      "icons": [{ "src": "/icon-192x192.png", "sizes": "192x192" }]
+    }
+  ]
+}

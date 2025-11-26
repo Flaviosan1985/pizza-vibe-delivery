@@ -1,5 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import TopBar from './components/TopBar';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
@@ -651,26 +652,36 @@ const App: React.FC = () => {
                 </div>
               </div>
 
-              {/* Menu Tabs */}
+              {/* Menu Tabs - Animadas */}
               {!searchQuery && (
-                <div className="flex justify-start md:justify-center gap-2 md:gap-4 mb-8 md:mb-10 overflow-x-auto pb-4 px-2 no-scrollbar">
+                <div className="flex justify-start md:justify-center gap-3 md:gap-4 mb-8 md:mb-10 overflow-x-auto pb-4 px-2 scrollbar-hide">
                   {[
-                    { id: 'traditional', label: 'Pizzas Tradicionais' },
-                    { id: 'broto', label: 'Pizzas Broto' },
-                    { id: 'sweet', label: 'Pizzas Doces' },
-                    { id: 'half', label: 'Meio a Meio' }
+                    { id: 'traditional', label: '🍕 Pizzas Tradicionais', color: 'from-[#B91C1C] to-red-700' },
+                    { id: 'broto', label: '🍕 Pizzas Broto', color: 'from-orange-600 to-orange-700' },
+                    { id: 'sweet', label: '🍰 Pizzas Doces', color: 'from-pink-600 to-pink-700' },
+                    { id: 'half', label: '🎯 Meio a Meio', color: 'from-[#009246] to-green-700' }
                   ].map(tab => (
-                    <button
+                    <motion.button
                       key={tab.id}
                       onClick={() => setActiveMenuTab(tab.id as any)}
-                      className={`flex-shrink-0 px-6 py-3 rounded-lg font-display font-bold text-sm md:text-base transition-all duration-200 whitespace-nowrap border-2 ${
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className={`relative flex-shrink-0 px-6 py-3.5 rounded-xl font-display font-bold text-sm md:text-base transition-all duration-300 whitespace-nowrap overflow-hidden ${
                         activeMenuTab === tab.id
-                          ? 'bg-brand-red text-white shadow-lg border-brand-red'
-                          : 'bg-white text-gray-700 hover:bg-gray-50 border-gray-300 hover:border-brand-orange'
+                          ? 'text-white shadow-2xl'
+                          : 'bg-white text-gray-700 hover:bg-gray-50 shadow-md hover:shadow-lg'
                       }`}
                     >
-                      {tab.label}
-                    </button>
+                      {activeMenuTab === tab.id && (
+                        <motion.div
+                          layoutId="activeTab"
+                          className={`absolute inset-0 bg-gradient-to-r ${tab.color}`}
+                          initial={false}
+                          transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                        />
+                      )}
+                      <span className="relative z-10">{tab.label}</span>
+                    </motion.button>
                   ))}
                 </div>
               )}

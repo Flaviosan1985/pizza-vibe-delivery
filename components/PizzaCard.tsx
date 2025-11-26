@@ -22,27 +22,31 @@ const PizzaCard: React.FC<PizzaCardProps> = ({ pizza, onSelect, isRecommended, u
     }
   };
   return (
-    <div 
-      className={`group flex flex-col h-full bg-white rounded-lg transition-all duration-300 hover:shadow-2xl cursor-pointer relative overflow-hidden border-2 border-gray-200 hover:border-brand-orange ${isRecommended ? 'ring-2 ring-brand-green' : ''}`}
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      className={`group flex flex-col h-full bg-white rounded-2xl transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 cursor-pointer relative overflow-hidden border border-gray-100 ${isRecommended ? 'ring-2 ring-[#009246]' : ''}`}
       onClick={() => onSelect(pizza)}
     >
       {/* Recommended Badge */}
       {isRecommended && (
-        <div className="absolute top-3 left-3 bg-brand-green text-white text-[10px] uppercase font-display font-black tracking-wide px-3 py-1 rounded shadow-md z-10">
-          Recomendado
+        <div className="absolute top-2 left-2 bg-gradient-to-r from-[#009246] to-green-600 text-white text-[10px] uppercase font-bold tracking-wide px-3 py-1.5 rounded-full shadow-lg z-10 flex items-center gap-1">
+          <Star size={12} className="fill-current" />
+          <span>IA Recomenda</span>
         </div>
       )}
 
       {/* Favorite Button */}
       {userId && (
         <motion.button
-          whileHover={{ scale: 1.1 }}
+          whileHover={{ scale: 1.15 }}
           whileTap={{ scale: 0.9 }}
           onClick={handleFavoriteClick}
-          className={`absolute top-3 right-3 w-9 h-9 rounded-full shadow-lg flex items-center justify-center z-10 transition-colors ${
+          className={`absolute top-2 right-2 w-10 h-10 rounded-full shadow-xl flex items-center justify-center z-10 transition-all backdrop-blur-sm ${
             isFav 
-              ? 'bg-red-500 text-white' 
-              : 'bg-white/90 text-gray-600 hover:bg-red-500 hover:text-white'
+              ? 'bg-red-500 text-white scale-110' 
+              : 'bg-white/95 text-gray-600 hover:bg-red-500 hover:text-white'
           }`}
           aria-label={isFav ? "Remover dos favoritos" : "Adicionar aos favoritos"}
         >
@@ -50,47 +54,48 @@ const PizzaCard: React.FC<PizzaCardProps> = ({ pizza, onSelect, isRecommended, u
         </motion.button>
       )}
 
-      {/* Image Content */}
-      <div className="relative w-full aspect-square overflow-hidden bg-gray-100">
+      {/* Image Content with Gradient Overlay */}
+      <div className="relative w-full aspect-square overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
         <img 
           src={pizza.image} 
           alt={pizza.name} 
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
         />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
       </div>
 
       {/* Text Content */}
-      <div className="p-4 flex flex-col flex-1 bg-white">
-        <h3 className="font-display text-base md:text-lg font-bold text-gray-900 mb-2 leading-tight">
+      <div className="p-5 flex flex-col flex-1 bg-white">
+        <h3 className="font-display text-lg md:text-xl font-bold text-gray-900 mb-2 leading-tight group-hover:text-[#B91C1C] transition-colors">
           {pizza.name}
         </h3>
-        <p className="text-xs md:text-sm text-gray-600 leading-relaxed line-clamp-2 mb-3 flex-1">
+        <p className="text-sm text-gray-600 leading-relaxed line-clamp-2 mb-4 flex-1">
           {pizza.description}
         </p>
         
         {/* Price and Action */}
-        <div className="flex items-center justify-between pt-3 border-t border-gray-200">
+        <div className="flex items-center justify-between pt-4 border-t border-gray-100">
           <div className="flex flex-col">
-            <span className="text-xs text-gray-500 uppercase font-semibold">A partir de</span>
-            <span className="font-display text-xl md:text-2xl font-bold text-brand-red">
+            <span className="text-[10px] text-gray-500 uppercase font-bold tracking-wide">A partir de</span>
+            <span className="font-display text-2xl md:text-3xl font-black text-[#B91C1C]">
               R$ {pizza.price.toFixed(2).replace('.', ',')}
             </span>
           </div>
           <motion.button
-            whileHover={{ scale: 1.05 }}
+            whileHover={{ scale: 1.08 }}
             whileTap={{ scale: 0.95 }}
             onClick={(e) => {
               e.stopPropagation();
               onSelect(pizza);
             }}
-            className="bg-brand-orange hover:bg-brand-red text-white font-bold px-4 py-2 rounded-lg flex items-center gap-2 transition-colors shadow-md"
+            className="bg-gradient-to-r from-[#B91C1C] to-red-700 hover:from-red-700 hover:to-[#B91C1C] text-white font-bold px-5 py-3 rounded-xl flex items-center gap-2 transition-all shadow-lg hover:shadow-xl"
           >
-            <ShoppingCart size={18} />
-            <span className="hidden md:inline text-sm">Pedir</span>
+            <ShoppingCart size={20} />
+            <span className="text-sm font-bold">Pedir</span>
           </motion.button>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
