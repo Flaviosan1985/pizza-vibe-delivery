@@ -109,9 +109,9 @@ const PizzaModal: React.FC<PizzaModalProps> = ({ pizza, isOpen, onClose, onAddTo
                     <div className={`w-5 h-5 rounded-full border-2 mr-3 flex items-center justify-center transition-all ${selectedCrust?.id === crust.id ? 'border-[#009246] bg-[#009246]' : 'border-gray-300 dark:border-gray-600'}`}>
                       {selectedCrust?.id === crust.id && <div className="w-2.5 h-2.5 bg-white rounded-full" />}
                     </div>
-                    <span className="text-sm md:text-base font-black text-gray-900 dark:text-gray-100" style={{fontWeight: 900}}>{crust.name}</span>
+                    <span className="text-sm md:text-base font-black text-black" style={{fontWeight: 900, opacity: 1}}>{crust.name}</span>
                   </div>
-                  <span className="text-sm md:text-base font-black text-[#009246]" style={{fontWeight: 900}}>
+                  <span className="text-sm md:text-base font-black text-[#009246]" style={{fontWeight: 900, opacity: 1}}>
                     {crust.price === 0 ? 'Grátis' : `+R$${crust.price.toFixed(2).replace('.', ',')}`}
                   </span>
                 </div>
@@ -137,9 +137,9 @@ const PizzaModal: React.FC<PizzaModalProps> = ({ pizza, isOpen, onClose, onAddTo
                       <div className={`w-5 h-5 rounded mr-3 flex items-center justify-center border-2 transition-all ${isSelected ? 'bg-[#009246] border-[#009246]' : 'border-gray-300 dark:border-gray-600'}`}>
                         {isSelected && <Check size={14} className="text-white" strokeWidth={3} />}
                       </div>
-                      <span className="text-sm md:text-base font-black text-gray-900 dark:text-gray-100" style={{fontWeight: 900}}>{addon.name}</span>
+                      <span className="text-sm md:text-base font-black text-black" style={{fontWeight: 900, opacity: 1}}>{addon.name}</span>
                     </div>
-                    <span className="text-sm md:text-base font-black text-[#009246]" style={{fontWeight: 900}}>
+                    <span className="text-sm md:text-base font-black text-[#009246]" style={{fontWeight: 900, opacity: 1}}>
                       +R${addon.price.toFixed(2).replace('.', ',')}
                     </span>
                   </div>
