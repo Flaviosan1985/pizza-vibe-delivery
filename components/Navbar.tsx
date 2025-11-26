@@ -72,37 +72,45 @@ const Navbar: React.FC<NavbarProps> = ({ cartCount, onOpenCart, onOpenAI, isDark
   return (
     <nav className={`fixed w-full z-50 transition-all duration-300 ${navBackground}`}>
       <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center">
+        <div className="grid grid-cols-3 items-center gap-4">
           
-          {/* LEFT: Logo + Store Name */}
-          <div className="flex items-center space-x-2 md:space-x-3">
-            {logo ? (
-              <img src={logo} alt="Logo" className="w-12 h-12 md:w-16 md:h-16 rounded-xl object-cover shadow-lg" />
-            ) : (
-              <div className="bg-white p-2.5 md:p-3 rounded-xl text-[#B91C1C] shadow-lg">
-                <Pizza className="w-6 h-6 md:w-9 md:h-9" />
+          {/* LEFT: TELEFONE */}
+          <div className="flex items-center justify-start">
+            <a 
+              href="tel:+5513996511793" 
+              className="flex items-center gap-2 text-white hover:text-white/80 transition-colors"
+            >
+              <div className="bg-white/20 p-2 rounded-full">
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 md:w-5 md:h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                </svg>
               </div>
-            )}
-            <div className="flex flex-col">
-              <span className="font-display text-base md:text-2xl font-bold text-white uppercase tracking-wide leading-tight">
-                {name}
-              </span>
-              {/* Status Badge */}
-              <div className="flex items-center gap-1 md:gap-2 mt-1">
-                <div className="flex items-center gap-1 md:gap-1.5 bg-white/20 rounded-full px-2 md:px-2.5 py-0.5">
-                  <div className={`w-1.5 h-1.5 md:w-2 md:h-2 rounded-full ${isOpen ? 'bg-green-400 animate-pulse' : 'bg-red-400'}`}></div>
-                  <span className="text-[10px] md:text-xs font-medium text-white">
-                    {isOpen ? 'ABERTO' : `ABRE ÀS ${openTime}`}
-                  </span>
-                </div>
-              </div>
-            </div>
+              <span className="hidden md:block font-bold text-sm">(13) 99651-1793</span>
+            </a>
           </div>
 
-          {/* RIGHT: Cart + User Menu */}
-          <div className="flex items-center space-x-2 md:space-x-4">
-            
-            {/* Cart Button - Touch optimized */}
+          {/* CENTER: LOGO (MAIOR e em DESTAQUE) */}
+          <div className="flex items-center justify-center">
+            {logo ? (
+              <img 
+                src={logo} 
+                alt="Logo" 
+                className="w-24 h-24 md:w-32 md:h-32 rounded-full object-cover shadow-2xl relative -mt-6 md:-mt-8 border-4 border-white" 
+                style={{boxShadow: '0 20px 60px rgba(0, 0, 0, 0.5)'}}
+              />
+            ) : (
+              <div 
+                className="bg-white p-6 md:p-8 rounded-full text-[#B91C1C] shadow-2xl relative -mt-6 md:-mt-8 border-4 border-white" 
+                style={{boxShadow: '0 20px 60px rgba(0, 0, 0, 0.5)'}}
+              >
+                <Pizza className="w-12 h-12 md:w-16 md:h-16" />
+              </div>
+            )}
+          </div>
+
+          {/* RIGHT: PERFIL (Cart + User Menu) */}
+          <div className="flex items-center justify-end space-x-2 md:space-x-3">
+            {/* Cart Button */}
             <button
               onClick={onOpenCart}
               className={`relative bg-white text-[#B91C1C] p-2.5 md:p-3 rounded-full shadow-lg hover:scale-110 active:scale-95 transition-transform touch-manipulation ${isBumping ? 'animate-bounce' : ''}`}
@@ -125,7 +133,6 @@ const Navbar: React.FC<NavbarProps> = ({ cartCount, onOpenCart, onOpenAI, isDark
               onMyFavorites={onMyFavorites}
               onLogout={onLogout}
             />
-            
           </div>
         </div>
       </div>
