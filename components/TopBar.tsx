@@ -25,7 +25,7 @@ const TopBar: React.FC<TopBarProps> = ({
   storeName
 }) => {
   return (
-    <div className="bg-brand-red/70 backdrop-blur-md border-b border-white/10">
+    <div className="bg-brand-red border-b border-white/10">
       <div className="container mx-auto px-4 py-2.5">
         <div className="flex items-center justify-between text-white">
           {/* Left: Logo Only */}
