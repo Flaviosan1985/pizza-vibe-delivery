@@ -1,8 +1,9 @@
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import TopBar from './components/TopBar';
 import Navbar from './components/Navbar';
+import { useAutoRevalidate, useRevalidateOnFocus, useRevalidateOnOnline } from './hooks/useAutoRevalidate';
 import Hero from './components/Hero';
 import PizzaCard from './components/PizzaCard';
 import CartSidebar from './components/CartSidebar';
@@ -69,6 +70,27 @@ const App: React.FC = () => {
   const [recommendedId, setRecommendedId] = useState<number | null>(null);
   
   const menuRef = useRef<HTMLDivElement>(null);
+
+  // Função de revalidação dos dados
+  const revalidateData = useCallback(() => {
+    // Força reload do localStorage para sincronizar com possíveis mudanças
+    const event = new Event('storage');
+    window.dispatchEvent(event);
+    console.log('🔄 Dados revalidados');
+  }, []);
+
+  // Auto-revalidação a cada 60 segundos (similar ao ISR)
+  useAutoRevalidate({
+    enabled: true,
+    interval: 60000, // 60 segundos
+    onRevalidate: revalidateData
+  });
+
+  // Revalidar quando o usuário volta para a aba
+  useRevalidateOnFocus(revalidateData);
+
+  // Revalidar quando a conexão é restaurada
+  useRevalidateOnOnline(revalidateData);
 
   // Initialize Logic
   useEffect(() => {
