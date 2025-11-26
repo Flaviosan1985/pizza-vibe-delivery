@@ -114,7 +114,7 @@ const CartPage: React.FC<CartPageProps> = ({
   }
 
   return (
-    <div className="min-h-screen bg-neutral-900 text-white font-sans pb-44 lg:pb-0 relative">
+    <div className="min-h-screen bg-gradient-to-b from-black via-black via-50% to-[#8B0000] text-white font-sans pb-44 lg:pb-0 relative">
       <div className="max-w-7xl mx-auto p-4 md:p-8">
         <div className="flex items-center gap-4 mb-6 md:mb-8">
           <button onClick={onBackToMenu} className="p-2 hover:bg-neutral-800 rounded-full transition-colors">
@@ -161,17 +161,18 @@ const CartPage: React.FC<CartPageProps> = ({
           {/* Sidebar */}
           <div className="hidden lg:block lg:col-span-1">
             <div className="bg-neutral-800 rounded-2xl p-6 border border-neutral-700 sticky top-24 shadow-xl">
-              <h2 className="font-display text-2xl font-bold mb-6 flex items-center gap-2"><ShoppingBag className="text-brand-orange" /> Resumo</h2>
+              <h2 className="font-display text-2xl font-black mb-6 flex items-center gap-2" style={{opacity: 1, color: '#000'}}><ShoppingBag className="text-brand-orange" /> Resumo</h2>
               
               {/* --- Animated Coupon Section --- */}
               <div className="mb-6">
                 {!showCouponInput && appliedDiscount === 0 ? (
                   <button 
                     onClick={() => setShowCouponInput(true)}
-                    className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-green-900/30 flex items-center justify-center gap-2 animate-pulse hover:animate-none transition-all transform hover:scale-[1.02] border border-green-500/30"
+                    className="w-full bg-gradient-to-r from-[#009246] to-green-700 hover:from-green-700 hover:to-[#009246] text-white font-black py-4 rounded-xl shadow-lg shadow-green-900/50 flex items-center justify-center gap-2 transition-all transform hover:scale-[1.02] active:scale-[0.98] border-2 border-green-400"
+                    style={{opacity: 1}}
                   >
-                    <Tag size={18} className="animate-bounce" />
-                    <span className="font-display tracking-wide uppercase">Tem Cupom de Desconto?</span>
+                    <Tag size={20} className="animate-wiggle" />
+                    <span className="font-display tracking-wide uppercase text-base" style={{fontWeight: 900}}>Tem Cupom de Desconto?</span>
                   </button>
                 ) : (
                   <div className="animate-slide-up bg-neutral-900 p-4 rounded-xl border border-neutral-700 shadow-inner">
@@ -293,13 +294,18 @@ const CartPage: React.FC<CartPageProps> = ({
               </div>
 
               <div className="flex justify-between items-end mb-6">
-                 <span className="text-lg font-medium text-gray-400 font-display">Total</span>
-                 <span className="text-4xl font-black text-brand-orange font-display tracking-tight drop-shadow-lg">{formatCurrency(total)}</span>
+                 <span className="text-lg font-black text-black font-display" style={{opacity: 1}}>Total Estimado</span>
+                 <span className="text-4xl font-black text-[#B91C1C] font-display tracking-tight drop-shadow-lg" style={{opacity: 1}}>{formatCurrency(total)}</span>
               </div>
               
-              <button onClick={proceedToCheckout} className="w-full bg-brand-orange hover:bg-orange-600 text-white font-extrabold text-lg py-4 rounded-xl shadow-lg shadow-orange-500/20 transition-all flex items-center justify-center gap-2 font-display uppercase tracking-wider group">
+              <button onClick={proceedToCheckout} className="w-full bg-gradient-to-r from-[#B91C1C] to-red-700 hover:from-red-700 hover:to-[#B91C1C] text-white font-black text-base md:text-lg py-4 rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 font-display uppercase tracking-wider group hover:scale-[1.02] active:scale-[0.98]" style={{fontWeight: 900}}>
                  Finalizar Pedido 
                  <ArrowRight size={22} className="group-hover:translate-x-1 transition-transform" />
+              </button>
+              
+              <button onClick={onBackToMenu} className="w-full mt-3 bg-transparent border-2 border-white hover:bg-white hover:text-black text-white font-black text-sm md:text-base py-3 rounded-xl transition-all flex items-center justify-center gap-2 font-display uppercase tracking-wider hover:scale-[1.02] active:scale-[0.98]" style={{fontWeight: 900, opacity: 1}}>
+                 <ChevronLeft size={20} />
+                 Continuar Comprando
               </button>
             </div>
           </div>
