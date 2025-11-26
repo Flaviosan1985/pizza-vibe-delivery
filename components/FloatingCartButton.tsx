@@ -38,22 +38,39 @@ const FloatingCartButton: React.FC<FloatingCartButtonProps> = ({ cartCount, onCl
       {isVisible && (
         <motion.button
           initial={{ opacity: 0, scale: 0.5, y: 50 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
+          animate={{ 
+            opacity: 1, 
+            scale: isBumping ? 1.15 : 1, 
+            y: 0,
+            rotate: isBumping ? [0, -10, 10, -10, 0] : 0
+          }}
           exit={{ opacity: 0, scale: 0.5, y: 50 }}
+          transition={{ 
+            type: "spring", 
+            stiffness: 260, 
+            damping: 20,
+            rotate: { duration: 0.5 }
+          }}
           onClick={onClick}
-          className={`fixed bottom-6 right-6 z-40 p-4 rounded-full shadow-2xl flex items-center justify-center transition-transform duration-200 border-2 border-white/20 backdrop-blur-sm bg-brand-orange text-white hover:bg-red-700 ${
-             isBumping ? 'scale-110' : 'hover:scale-105 active:scale-95'
-          }`}
+          className="fixed bottom-6 right-6 z-40 p-4 rounded-full shadow-2xl flex items-center justify-center border-2 border-white/20 backdrop-blur-sm bg-gradient-to-br from-[#B91C1C] to-red-700 text-white hover:from-red-700 hover:to-[#B91C1C] hover:scale-105 active:scale-95 touch-manipulation"
           aria-label="Ver Carrinho"
         >
-          <div className="relative">
+          <motion.div 
+            className="relative"
+            animate={cartCount > 0 ? { scale: [1, 1.2, 1] } : {}}
+            transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+          >
             <ShoppingCart size={28} className="fill-current" />
             {cartCount > 0 && (
-              <span className="absolute -top-3 -right-3 bg-brand-yellow text-brand-dark text-xs font-bold w-6 h-6 flex items-center justify-center rounded-full border-2 border-brand-orange shadow-sm animate-slide-up">
+              <motion.span 
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                className="absolute -top-3 -right-3 bg-gradient-to-r from-yellow-400 to-yellow-500 text-gray-900 text-xs font-black w-6 h-6 flex items-center justify-center rounded-full border-2 border-white shadow-lg animate-pulse"
+              >
                 {cartCount}
-              </span>
+              </motion.span>
             )}
-          </div>
+          </motion.div>
         </motion.button>
       )}
     </AnimatePresence>

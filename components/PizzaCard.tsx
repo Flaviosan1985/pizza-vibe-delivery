@@ -65,19 +65,19 @@ const PizzaCard: React.FC<PizzaCardProps> = ({ pizza, onSelect, isRecommended, u
       </div>
 
       {/* Text Content */}
-      <div className="p-5 flex flex-col flex-1 bg-white">
-        <h3 className="font-display text-lg md:text-xl font-bold text-gray-900 mb-2 leading-tight group-hover:text-[#B91C1C] transition-colors">
+      <div className="p-4 md:p-5 flex flex-col flex-1 bg-white">
+        <h3 className="font-display text-base md:text-xl font-bold text-gray-900 mb-2 leading-tight group-hover:text-[#B91C1C] transition-colors text-center md:text-left">
           {pizza.name}
         </h3>
-        <p className="text-sm text-gray-600 leading-relaxed line-clamp-2 mb-4 flex-1">
+        <p className="text-xs md:text-sm text-gray-600 leading-relaxed line-clamp-2 mb-3 md:mb-4 flex-1 text-center md:text-left">
           {pizza.description}
         </p>
         
         {/* Price and Action */}
-        <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-          <div className="flex flex-col">
-            <span className="text-[10px] text-gray-500 uppercase font-bold tracking-wide">A partir de</span>
-            <span className="font-display text-2xl md:text-3xl font-black text-[#B91C1C]">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-3 pt-3 md:pt-4 border-t border-gray-100">
+          <div className="flex flex-col items-center md:items-start">
+            <span className="text-[9px] md:text-[10px] text-gray-500 uppercase font-bold tracking-wide">A partir de</span>
+            <span className="font-display text-xl md:text-3xl font-black text-[#B91C1C]">
               R$ {pizza.price.toFixed(2).replace('.', ',')}
             </span>
           </div>
@@ -88,7 +88,7 @@ const PizzaCard: React.FC<PizzaCardProps> = ({ pizza, onSelect, isRecommended, u
               e.stopPropagation();
               onSelect(pizza);
             }}
-            className="bg-gradient-to-r from-[#B91C1C] to-red-700 hover:from-red-700 hover:to-[#B91C1C] text-white font-bold px-5 py-3 rounded-xl flex items-center gap-2 transition-all shadow-lg hover:shadow-xl"
+            className="w-full md:w-auto bg-gradient-to-r from-[#B91C1C] to-red-700 hover:from-red-700 hover:to-[#B91C1C] text-white font-bold px-6 py-3 md:px-5 md:py-3 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg hover:shadow-xl touch-manipulation"
           >
             <ShoppingCart size={20} />
             <span className="text-sm font-bold">Pedir</span>
