@@ -160,33 +160,35 @@ const PizzaModal: React.FC<PizzaModalProps> = ({ pizza, isOpen, onClose, onAddTo
           </section>
         </div>
 
-        {/* Footer Actions */}
-        <div className="p-4 border-t border-gray-100 dark:border-neutral-800 bg-gray-50 dark:bg-brand-dark/50 flex items-center justify-between gap-4">
-           <div className="flex items-center bg-white dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 rounded-lg shadow-sm">
+        {/* Footer Actions - Mobile Optimized */}
+        <div className="p-3 md:p-4 border-t border-gray-100 dark:border-neutral-800 bg-gray-50 dark:bg-brand-dark/50 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+           {/* Contador de quantidade */}
+           <div className="flex items-center justify-center bg-white dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 rounded-lg shadow-sm">
                 <button 
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="px-3 py-2 hover:bg-gray-100 dark:hover:bg-neutral-700 text-gray-600 dark:text-white font-bold text-lg"
+                  className="px-4 py-3 hover:bg-gray-100 dark:hover:bg-neutral-700 text-gray-600 dark:text-white font-bold text-xl active:scale-95 transition-transform"
                 >
                   -
                 </button>
-                <span className="w-8 text-center font-bold text-gray-800 dark:text-white">{quantity}</span>
+                <span className="w-12 text-center font-bold text-gray-800 dark:text-white text-lg">{quantity}</span>
                 <button 
                   onClick={() => setQuantity(quantity + 1)}
-                  className="px-3 py-2 hover:bg-gray-100 dark:hover:bg-neutral-700 text-gray-600 dark:text-white font-bold text-lg"
+                  className="px-4 py-3 hover:bg-gray-100 dark:hover:bg-neutral-700 text-gray-600 dark:text-white font-bold text-xl active:scale-95 transition-transform"
                 >
                   +
                 </button>
            </div>
 
+           {/* Botão Adicionar */}
            <button
              onClick={handleConfirm}
-             className="flex-1 flex justify-between items-center bg-gradient-to-r from-[#009246] to-green-700 hover:from-green-700 hover:to-[#009246] text-white font-bold px-6 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all hover:scale-[1.02] active:scale-[0.98] touch-manipulation"
+             className="flex-1 flex justify-between items-center bg-gradient-to-r from-[#009246] to-green-700 hover:from-green-700 hover:to-[#009246] text-white font-bold px-4 md:px-6 py-3 md:py-4 rounded-xl shadow-lg hover:shadow-xl transition-all hover:scale-[1.02] active:scale-[0.98] touch-manipulation"
            >
              <div className="flex items-center gap-2">
-                <ShoppingCart size={20} className="animate-wiggle" />
-                <span className="text-base">Adicionar</span>
+                <ShoppingCart size={18} className="animate-wiggle" />
+                <span className="text-sm md:text-base">Adicionar</span>
              </div>
-             <span className="text-lg font-black">R${calculateTotal().toFixed(2).replace('.', ',')}</span>
+             <span className="text-base md:text-lg font-black">R${calculateTotal().toFixed(2).replace('.', ',')}</span>
            </button>
         </div>
       </div>
