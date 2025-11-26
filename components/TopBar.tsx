@@ -9,6 +9,8 @@ interface TopBarProps {
   userName?: string;
   onUserClick?: () => void;
   onLogout?: () => void;
+  logo?: string;
+  storeName?: string;
 }
 
 const TopBar: React.FC<TopBarProps> = ({ 
@@ -18,36 +20,47 @@ const TopBar: React.FC<TopBarProps> = ({
   instagram,
   userName,
   onUserClick,
-  onLogout
+  onLogout,
+  logo,
+  storeName
 }) => {
   return (
     <div className="bg-brand-red border-b border-white/10">
-      <div className="container mx-auto px-4 py-3">
-        <div className="flex flex-wrap items-center justify-between text-xs md:text-sm text-white">
-          {/* Left: Contact Info */}
-          <div className="flex items-center gap-4 md:gap-6">
-            <div className="flex items-center gap-2">
-              <Phone size={16} />
+      <div className="container mx-auto px-4 py-2.5">
+        <div className="flex items-center justify-between text-white">
+          {/* Left: Logo + Store Name */}
+          <div className="flex items-center gap-3">
+            {logo ? (
+              <img src={logo} alt="Logo" className="w-10 h-10 md:w-12 md:h-12 rounded-full object-cover shadow-md" />
+            ) : (
+              <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-brand-green flex items-center justify-center shadow-md">
+                <User size={20} className="text-white md:w-6 md:h-6" />
+              </div>
+            )}
+            <span className="font-display text-xl md:text-2xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-brand-green via-white to-brand-red">
+              {storeName || 'PizzaVibe'}
+            </span>
+          </div>
+
+          {/* Center: Contact Info */}
+          <div className="hidden md:flex items-center gap-4 text-xs">
+            <div className="flex items-center gap-1.5">
+              <Phone size={14} />
               <span className="font-medium">{phone}</span>
-            </div>
-            <div className="hidden md:flex items-center gap-2">
-              <Clock size={16} />
-              <span>{hours}</span>
             </div>
           </div>
 
           {/* Right: Social Media + User + Logout */}
-          <div className="flex items-center gap-4">
-            <span className="text-xs text-white/70 hidden md:inline">Siga-nos:</span>
-            <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 md:gap-3">
+            <div className="hidden md:flex items-center gap-2">
               {facebook && (
                 <a 
                   href={facebook} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="hover:text-brand-orange transition-colors p-1"
+                  className="hover:text-brand-orange transition-colors"
                 >
-                  <Facebook size={18} />
+                  <Facebook size={16} />
                 </a>
               )}
               {instagram && (
@@ -55,30 +68,30 @@ const TopBar: React.FC<TopBarProps> = ({
                   href={instagram} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="hover:text-brand-orange transition-colors p-1"
+                  className="hover:text-brand-orange transition-colors"
                 >
-                  <Instagram size={18} />
+                  <Instagram size={16} />
                 </a>
               )}
-              <div className="border-l border-white/30 h-6 mx-2"></div>
-              <button 
-                onClick={onUserClick}
-                className="flex items-center gap-2 hover:text-brand-orange transition-colors"
-              >
-                <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center">
-                  <User size={18} className="text-brand-red" strokeWidth={2.5} />
-                </div>
-                {userName && (
-                  <span className="hidden md:inline font-semibold">{userName}</span>
-                )}
-              </button>
-              <button
-                onClick={onLogout}
-                className="ml-2 px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded-md font-semibold transition-colors text-xs"
-              >
-                Sair
-              </button>
+              <div className="border-l border-white/30 h-5 mx-1"></div>
             </div>
+            <button 
+              onClick={onUserClick}
+              className="flex items-center gap-1.5 hover:text-brand-orange transition-colors"
+            >
+              <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-white flex items-center justify-center">
+                <User size={16} className="text-brand-red md:w-[18px] md:h-[18px]" strokeWidth={2.5} />
+              </div>
+              {userName && (
+                <span className="hidden md:inline font-semibold text-xs">{userName}</span>
+              )}
+            </button>
+            <button
+              onClick={onLogout}
+              className="px-2.5 py-1 md:px-3 md:py-1.5 bg-white/10 hover:bg-white/20 rounded-md font-semibold transition-colors text-[10px] md:text-xs"
+            >
+              Sair
+            </button>
           </div>
         </div>
       </div>

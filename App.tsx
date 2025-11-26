@@ -619,6 +619,8 @@ const App: React.FC = () => {
               userName={user?.name.split(' ')[0] || 'Usuário'}
               onUserClick={() => setCurrentView('myAccount')}
               onLogout={handleLogout}
+              logo={theme.logo}
+              storeName={theme.storeName}
             />
             
             <FloatingCartButton cartCount={cartCount} onClick={() => setIsCartOpen(true)} />
