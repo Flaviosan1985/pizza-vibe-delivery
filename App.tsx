@@ -602,26 +602,17 @@ const App: React.FC = () => {
           />
         ) : (
           <>
+            {/* Banner animado no topo */}
+            <Hero onCtaClick={scrollToMenu} />
+            
+            {/* TopBar com telefone, redes sociais e usuário */}
             <TopBar 
-              phone={theme.businessHours?.weekdays ? `${theme.operatingDays}` : '(11) 99999-9999'}
+              phone="(13) 99651-1793"
               hours={theme.businessHours ? `${theme.businessHours.weekdays}` : 'Seg-Dom: 18:00 - 23:00'}
               facebook="https://facebook.com"
               instagram="https://instagram.com"
-            />
-            <Navbar 
-              cartCount={cartCount} 
-              onOpenCart={() => setIsCartOpen(true)} 
-              onOpenAI={() => setIsAIOpen(true)}
-              isDarkMode={isDarkMode}
-              toggleTheme={toggleTheme}
-              onLogout={handleLogout}
-              onMyAccount={() => setCurrentView('myAccount')}
-              onMyOrders={() => setCurrentView('myOrders')}
-              onMyFavorites={() => setCurrentView('myFavorites')}
-              userName={user?.name || 'Usuário'}
-              userAvatar={user?.avatar}
-              logo={theme.logo}
-              storeName={theme.storeName}
+              userName={user?.name.split(' ')[0] || 'Usuário'}
+              onUserClick={() => setCurrentView('myAccount')}
             />
             
             <FloatingCartButton cartCount={cartCount} onClick={() => setIsCartOpen(true)} />
@@ -631,8 +622,6 @@ const App: React.FC = () => {
                 <img src={animatingItem.image} alt="Pizza" className="w-full h-full object-cover" />
               </div>
             )}
-
-            <Hero onCtaClick={scrollToMenu} />
 
             <main className="container mx-auto px-2 md:px-4 py-8 md:py-12" ref={menuRef}>
               {/* Search Bar */}

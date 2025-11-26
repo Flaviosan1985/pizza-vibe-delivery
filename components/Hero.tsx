@@ -18,30 +18,11 @@ const Hero: React.FC<{ onCtaClick: () => void }> = ({ onCtaClick }) => {
   const currentItem = banners[currentIndex];
 
   return (
-    <div className="relative bg-gradient-to-b from-black/60 to-transparent pt-[90px] md:pt-[100px]">
-      <div className="container mx-auto px-4 py-8 md:py-12">
-        {/* Promoção em Destaque */}
-        {promotion && (
-          <div className="bg-brand-red border-2 border-brand-orange rounded-2xl p-6 md:p-8 mb-6 shadow-2xl">
-            <div className="flex items-center gap-4">
-              <div className="bg-brand-orange rounded-full p-4">
-                <Percent size={32} className="text-white" />
-              </div>
-              <div className="text-white">
-                <h2 className="font-display text-2xl md:text-4xl font-extrabold mb-1">
-                  {promotion.title}
-                </h2>
-                <p className="text-white/90 text-sm md:text-base">
-                  {promotion.description}
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Banner Carousel */}
+    <div className="relative bg-black">
+      <div className="container mx-auto px-4">
+        {/* Banner Carousel Compacto */}
         {banners.length > 0 && (
-          <div className="relative h-[200px] md:h-[300px] rounded-xl overflow-hidden shadow-xl">
+          <div className="relative h-[150px] md:h-[200px] overflow-hidden">
             <AnimatePresence mode='wait'>
               {currentItem && (
                 <motion.div
@@ -60,7 +41,7 @@ const Hero: React.FC<{ onCtaClick: () => void }> = ({ onCtaClick }) => {
                   <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent"></div>
                   
                   <div className="absolute inset-0 flex items-center">
-                    <div className="container mx-auto px-8">
+                    <div className="px-8">
                       <motion.h3 
                         initial={{ x: -50, opacity: 0 }}
                         animate={{ x: 0, opacity: 1 }}
