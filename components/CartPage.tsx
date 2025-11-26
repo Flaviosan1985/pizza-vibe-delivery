@@ -101,7 +101,7 @@ const CartPage: React.FC<CartPageProps> = ({
 
   if (cartItems.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-black via-black via-50% to-[#8B0000] text-white flex flex-col items-center justify-center p-4 font-sans">
+      <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-4 font-sans">
         <div className="bg-neutral-800 p-8 rounded-full mb-6 animate-pulse">
           <ShoppingBag size={64} className="text-neutral-500" />
         </div>
@@ -161,7 +161,7 @@ const CartPage: React.FC<CartPageProps> = ({
           {/* Sidebar */}
           <div className="hidden lg:block lg:col-span-1">
             <div className="bg-neutral-800 rounded-2xl p-6 border border-neutral-700 sticky top-24 shadow-xl">
-              <h2 className="font-display text-2xl font-black mb-6 flex items-center gap-2" style={{opacity: 1, color: '#000'}}><ShoppingBag className="text-brand-orange" /> Resumo</h2>
+              <h2 className="font-display text-2xl font-black mb-6 flex items-center gap-2" style={{opacity: 1, color: '#FFF'}}><ShoppingBag className="text-brand-orange" /> Resumo</h2>
               
               {/* --- Animated Coupon Section --- */}
               <div className="mb-6">
