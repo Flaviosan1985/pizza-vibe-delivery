@@ -25,11 +25,11 @@ const TopBar: React.FC<TopBarProps> = ({
   storeName
 }) => {
   return (
-    <div className="bg-brand-red border-b border-white/10">
+    <div className="bg-brand-red/70 backdrop-blur-md border-b border-white/10">
       <div className="container mx-auto px-4 py-2.5">
         <div className="flex items-center justify-between text-white">
-          {/* Left: Logo + Store Name */}
-          <div className="flex items-center gap-3">
+          {/* Left: Logo Only */}
+          <div className="flex items-center">
             {logo ? (
               <img src={logo} alt="Logo" className="w-10 h-10 md:w-12 md:h-12 rounded-full object-cover shadow-md" />
             ) : (
@@ -37,9 +37,6 @@ const TopBar: React.FC<TopBarProps> = ({
                 <User size={20} className="text-white md:w-6 md:h-6" />
               </div>
             )}
-            <span className="font-display text-xl md:text-2xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-brand-green via-white to-brand-red">
-              {storeName || 'PizzaVibe'}
-            </span>
           </div>
 
           {/* Center: Contact Info */}
