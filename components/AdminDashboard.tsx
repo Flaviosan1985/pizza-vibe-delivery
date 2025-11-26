@@ -221,47 +221,118 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
 
   // --- Helper Functions ---
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const compressImage = (file: File, maxWidth: number = 800, maxHeight: number = 600, quality: number = 0.8): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+
+          // Calculate new dimensions
+          if (width > height) {
+            if (width > maxWidth) {
+              height = height * (maxWidth / width);
+              width = maxWidth;
+            }
+          } else {
+            if (height > maxHeight) {
+              width = width * (maxHeight / height);
+              height = maxHeight;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0, width, height);
+
+          // Convert to base64 with compression
+          const compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+          resolve(compressedDataUrl);
+        };
+        img.onerror = reject;
+        img.src = e.target?.result as string;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setNewPizza(prev => ({ ...prev, image: reader.result as string }));
-      };
-      reader.readAsDataURL(file);
+      try {
+        // Check file size (limit to 5MB)
+        if (file.size > 5 * 1024 * 1024) {
+          alert('Imagem muito grande! Por favor, escolha uma imagem menor que 5MB.');
+          return;
+        }
+        
+        // Show loading state
+        setNewPizza(prev => ({ ...prev, image: 'loading' }));
+        
+        // Compress image
+        const compressedImage = await compressImage(file);
+        setNewPizza(prev => ({ ...prev, image: compressedImage }));
+      } catch (error) {
+        console.error('Erro ao processar imagem:', error);
+        alert('Erro ao carregar imagem. Tente novamente.');
+        setNewPizza(prev => ({ ...prev, image: '' }));
+      }
     }
   };
 
-  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        updateTheme({ ...theme, logo: reader.result as string });
-      };
-      reader.readAsDataURL(file);
+      try {
+        if (file.size > 2 * 1024 * 1024) {
+          alert('Logo muito grande! Por favor, escolha uma imagem menor que 2MB.');
+          return;
+        }
+        const compressedImage = await compressImage(file, 200, 200, 0.9);
+        updateTheme({ ...theme, logo: compressedImage });
+      } catch (error) {
+        console.error('Erro ao processar logo:', error);
+        alert('Erro ao carregar logo. Tente novamente.');
+      }
     }
   };
 
-  const handleBackgroundUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleBackgroundUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        updateTheme({ ...theme, backgroundImage: reader.result as string });
-      };
-      reader.readAsDataURL(file);
+      try {
+        if (file.size > 3 * 1024 * 1024) {
+          alert('Imagem de fundo muito grande! Por favor, escolha uma imagem menor que 3MB.');
+          return;
+        }
+        const compressedImage = await compressImage(file, 1200, 800, 0.85);
+        updateTheme({ ...theme, backgroundImage: compressedImage });
+      } catch (error) {
+        console.error('Erro ao processar imagem de fundo:', error);
+        alert('Erro ao carregar imagem de fundo. Tente novamente.');
+      }
     }
   };
 
-  const handleBannerUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleBannerUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setNewBanner(prev => ({ ...prev, image: reader.result as string }));
-      };
-      reader.readAsDataURL(file);
+      try {
+        if (file.size > 5 * 1024 * 1024) {
+          alert('Banner muito grande! Por favor, escolha uma imagem menor que 5MB.');
+          return;
+        }
+        const compressedImage = await compressImage(file, 1200, 600, 0.85);
+        setNewBanner(prev => ({ ...prev, image: compressedImage }));
+      } catch (error) {
+        console.error('Erro ao processar banner:', error);
+        alert('Erro ao carregar banner. Tente novamente.');
+      }
     }
   };
 
@@ -334,7 +405,12 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
             className="relative aspect-video bg-black/40 rounded-xl border-2 border-dashed border-gray-600 flex flex-col items-center justify-center cursor-pointer hover:border-brand-orange overflow-hidden"
             onClick={() => fileInputRef.current?.click()}
           >
-             {newPizza.image ? (
+             {newPizza.image === 'loading' ? (
+               <div className="text-gray-400 flex flex-col items-center">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-orange mb-2"></div>
+                  <span className="text-sm">Processando imagem...</span>
+               </div>
+             ) : newPizza.image ? (
                <>
                  <img src={newPizza.image} alt="Preview" className="w-full h-full object-cover" />
                  <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
@@ -386,10 +462,10 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
        <div className="flex justify-end mt-6 pt-6 border-t border-white/10">
           <button 
             onClick={handleAddPizza}
-            disabled={!newPizza.name || !newPizza.price}
-            className="bg-brand-orange hover:bg-orange-600 text-white font-bold py-3 px-8 rounded-xl flex items-center gap-2 disabled:opacity-50"
+            disabled={!newPizza.name || !newPizza.price || newPizza.image === 'loading'}
+            className="bg-brand-orange hover:bg-orange-600 text-white font-bold py-3 px-8 rounded-xl flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
           >
-            <Save size={18} /> Salvar Pizza
+            <Save size={18} /> {newPizza.image === 'loading' ? 'Processando...' : 'Salvar Pizza'}
           </button>
        </div>
     </div>

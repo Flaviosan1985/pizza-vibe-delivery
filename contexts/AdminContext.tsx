@@ -257,7 +257,10 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
           (snap) => {
             if (!snap.empty) {
               const remotePizzas = snap.docs.map(doc => doc.data() as Pizza);
+              // Update state and localStorage
               setPizzas(remotePizzas);
+              localStorage.setItem('pv_pizzas', JSON.stringify(remotePizzas));
+              console.log('[SYNC] Pizzas sincronizadas do Firebase:', remotePizzas.length);
             }
           },
           (error) => {
@@ -321,22 +324,40 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   // --- Actions ---
 
   const addPizza = (pizza: Pizza) => {
-    setPizzas(prev => [pizza, ...prev]);
+    setPizzas(prev => {
+      const updated = [pizza, ...prev];
+      // Save to localStorage immediately
+      localStorage.setItem('pv_pizzas', JSON.stringify(updated));
+      return updated;
+    });
     // Sync to Firebase if connected
     if (isFirebaseConnected) {
       try {
-        savePizzaToDB(pizza).catch(() => {/* noop */});
-      } catch (_) { /* ignore */ }
+        savePizzaToDB(pizza).catch((error) => {
+          console.warn('Erro ao salvar pizza no Firebase:', error);
+        });
+      } catch (error) {
+        console.warn('Erro ao sincronizar pizza:', error);
+      }
     }
   };
 
   const updatePizza = (updatedPizza: Pizza) => {
-    setPizzas(prev => prev.map(p => p.id === updatedPizza.id ? updatedPizza : p));
+    setPizzas(prev => {
+      const updated = prev.map(p => p.id === updatedPizza.id ? updatedPizza : p);
+      // Save to localStorage immediately
+      localStorage.setItem('pv_pizzas', JSON.stringify(updated));
+      return updated;
+    });
     // Sync to Firebase if connected
     if (isFirebaseConnected) {
       try {
-        savePizzaToDB(updatedPizza).catch(() => {/* noop */});
-      } catch (_) { /* ignore */ }
+        savePizzaToDB(updatedPizza).catch((error) => {
+          console.warn('Erro ao atualizar pizza no Firebase:', error);
+        });
+      } catch (error) {
+        console.warn('Erro ao sincronizar pizza:', error);
+      }
     }
   };
 
