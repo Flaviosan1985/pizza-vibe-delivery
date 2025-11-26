@@ -16,6 +16,21 @@ dist-ssr
 .env
 .env.local
 .env.production
+.env.development
+.env.test
+
+# Permitir templates
+!.env.example
+!.env.template
+
+# Firebase
+.firebase/
+firebase-debug.log
+.firebaserc
+
+# Vercel
+.vercel
+.vercel/
 
 # Editor directories and files
 .vscode/*
