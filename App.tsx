@@ -499,7 +499,7 @@ const App: React.FC = () => {
           const pizzasInCategory = filteredPizzas.filter(p => p.categoryId === category.id);
           return (
             <div key={category.id} className="mb-12">
-              <div className="bg-brand-red rounded-lg p-4 mb-6 border-l-4 border-brand-orange shadow-lg">
+              <div className="mb-6">
                 <h4 className="font-display text-2xl md:text-3xl font-bold text-white tracking-tight uppercase">
                   {category.name}
                 </h4>
@@ -554,7 +554,7 @@ const App: React.FC = () => {
               const pizzasInCategory = allMatches.filter(p => p.categoryId === category.id);
               return (
                 <div key={category.id} className="mb-12">
-                   <div className="bg-brand-red rounded-lg p-4 mb-6 border-l-4 border-brand-orange shadow-lg">
+                   <div className="mb-6">
                       <h4 className="font-display text-2xl md:text-3xl font-bold text-white tracking-tight uppercase">
                          {category.name}
                       </h4>
