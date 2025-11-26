@@ -194,7 +194,6 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, logo, storeName, bac
                 </h3>
                 <p className="text-xs text-gray-300">
                   <span className="font-bold text-white">{theme?.operatingDays || 'Segunda a Domingo'}</span>
-                  <span className="block text-[10px] text-gray-500 mt-1">Aberto todos os dias da semana</span>
                 </p>
               </div>
 
@@ -203,10 +202,22 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, logo, storeName, bac
                 <h3 className="text-sm font-bold text-brand-orange uppercase tracking-wider mb-2 flex items-center gap-2">
                   💳 Métodos de Pagamento
                 </h3>
-                <div className="text-xs text-gray-300 space-y-1">
-                  {(theme?.paymentMethods || ['Dinheiro', 'Cartão de Débito/Crédito', 'PIX', 'Vale Refeição']).map((method, idx) => (
-                    <p key={idx}>✓ {method}</p>
-                  ))}
+                <div className="text-xs text-gray-300 space-y-1.5">
+                  {(theme?.paymentMethods || ['Dinheiro', 'Cartão de Débito/Crédito', 'PIX', 'Vale Refeição']).map((method, idx) => {
+                    let icon = '💵';
+                    const methodLower = method.toLowerCase();
+                    if (methodLower.includes('cartão') || methodLower.includes('cartao') || methodLower.includes('crédito') || methodLower.includes('credito') || methodLower.includes('débito') || methodLower.includes('debito')) icon = '💳';
+                    else if (methodLower.includes('pix')) icon = '📱';
+                    else if (methodLower.includes('vale') || methodLower.includes('refeição') || methodLower.includes('refeicao')) icon = '🎫';
+                    else if (methodLower.includes('dinheiro')) icon = '💵';
+                    
+                    return (
+                      <p key={idx} className="flex items-center gap-2">
+                        <span className="text-base">{icon}</span>
+                        <span>{method}</span>
+                      </p>
+                    );
+                  })}
                 </div>
               </div>
 
