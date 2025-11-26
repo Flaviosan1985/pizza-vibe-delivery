@@ -57,17 +57,18 @@ const UserMenu: React.FC<UserMenuProps> = ({
       {/* User Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center space-x-2 px-3 py-2 rounded-full hover:bg-white/10 transition-all text-white"
+        className="flex items-center space-x-2 px-3 py-2 rounded-full hover:bg-white/10 transition-all text-white group"
       >
         {userAvatar ? (
           <img
             src={userAvatar}
             alt={userName}
-            className="w-9 h-9 rounded-full object-cover border-2 border-brand-orange"
+            className="w-10 h-10 rounded-full object-cover border-2 border-white/30 shadow-lg group-hover:border-brand-orange transition-all"
           />
         ) : (
-          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-brand-orange to-brand-green flex items-center justify-center font-display font-bold text-white text-sm border-2 border-white/20">
-            {getInitials(userName)}
+          <div className="relative w-10 h-10 rounded-full bg-gradient-to-br from-brand-green via-white to-brand-red flex items-center justify-center font-display font-bold text-gray-900 text-sm shadow-lg border-2 border-white/30 group-hover:scale-110 transition-transform">
+            <div className="absolute inset-0 rounded-full bg-black/10"></div>
+            <span className="relative z-10">{getInitials(userName)}</span>
           </div>
         )}
         <span className="hidden md:block font-display font-semibold text-sm max-w-[100px] truncate">

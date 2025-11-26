@@ -54,13 +54,8 @@ const Navbar: React.FC<NavbarProps> = ({ cartCount, onOpenCart, onOpenAI, isDark
   return (
     <nav className={`fixed w-full z-50 transition-all duration-300 ${navBackground}`}>
       <div className="container mx-auto px-4 flex justify-between items-center">
-        {/* Left: Welcome Message (Desktop Only) */}
-        <div className="hidden md:flex items-center">
-          <div className="text-white/90">
-            <p className="text-sm font-light">Bem-vindo(a), <span className="font-display font-bold text-brand-orange">{userName}</span></p>
-            <p className="text-xs text-white/70">As melhores pizzas da região 🍕</p>
-          </div>
-        </div>
+        {/* Left: Empty Space for Balance */}
+        <div className="flex-1"></div>
 
         {/* Center: Logo */}
         <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center space-x-3">
@@ -71,23 +66,15 @@ const Navbar: React.FC<NavbarProps> = ({ cartCount, onOpenCart, onOpenAI, isDark
               <Pizza className="w-6 h-6 md:w-8 md:h-8" />
             </div>
           )}
-          {/* Gradient Text for Logo with Display Font */}
-          <span className="font-display text-2xl md:text-4xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-brand-green via-white to-brand-orange drop-shadow-sm leading-none">
+          {/* Gradient Text for Logo with Italian Flag Colors */}
+          <span className="font-display text-2xl md:text-4xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-brand-green via-white to-brand-red drop-shadow-[0_2px_8px_rgba(255,255,255,0.3)] leading-none">
             {name}
           </span>
         </div>
 
         {/* Right: Actions */}
-        <div className="flex items-center space-x-2 md:space-x-4">
+        <div className="flex items-center space-x-2 md:space-x-4 flex-1 justify-end">
           
-          {/* AI Sommelier - Visible on all screens */}
-          <button 
-            onClick={onOpenAI}
-            className={`px-3 py-2 md:px-5 md:py-2.5 rounded-full border border-brand-orange text-brand-orange hover:bg-brand-orange hover:text-white transition-all font-display font-bold text-[10px] md:text-sm uppercase tracking-wider bg-black/20 backdrop-blur-sm shadow-lg`}
-          >
-            ✨ IA
-          </button>
-
           {/* My Orders - Mobile Icon Only */}
           <button
             onClick={onMyOrders}
@@ -104,20 +91,6 @@ const Navbar: React.FC<NavbarProps> = ({ cartCount, onOpenCart, onOpenAI, isDark
             title="Meus Favoritos"
           >
             <Heart size={22} />
-          </button>
-
-          {/* Cart */}
-          <button 
-            onClick={onOpenCart}
-            className={`relative p-2.5 rounded-full transition-transform duration-200 ${isBumping ? 'scale-125 text-brand-orange' : ''} hover:bg-white/10 ${iconColor}`}
-            title="Abrir Carrinho"
-          >
-            <ShoppingCart size={24} />
-            {cartCount > 0 && (
-              <span className="font-display absolute -top-1 -right-1 bg-brand-green text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full shadow-md">
-                {cartCount}
-              </span>
-            )}
           </button>
 
           {/* User Menu */}

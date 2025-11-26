@@ -100,10 +100,6 @@ const Hero: React.FC<{ onCtaClick: () => void }> = ({ onCtaClick }) => {
              ))}
            </div>
         </div>
-
-        <p className="text-sm md:text-lg text-gray-200 mt-6 md:mt-8 max-w-xl mx-auto font-light hidden sm:block drop-shadow-md opacity-90 leading-relaxed">
-          Ingredientes selecionados, massa artesanal e um forno a lenha esperando pelo seu pedido.
-        </p>
       </div>
     </div>
   );
