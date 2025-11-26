@@ -597,7 +597,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
 
   const renderCouponsTab = () => (
     <div className="space-y-6 animate-slide-up">
-      <h3 className="text-xl font-bold text-white font-display">Cupons de Desconto</h3>
+      <h3 className="text-lg md:text-xl font-bold text-white font-display">Cupons de Desconto</h3>
       <div className="bg-white/5 border border-white/10 rounded-xl p-4 flex flex-col items-end gap-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 w-full">
           <div>
@@ -691,10 +691,10 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
 
   const renderThemeTab = () => (
     <div className="space-y-6 animate-slide-up">
-      <h3 className="text-xl font-bold text-white font-display">Identidade Visual & Banners</h3>
+      <h3 className="text-lg md:text-xl font-bold text-white font-display">Identidade Visual & Banners</h3>
       
       {/* Banner Management */}
-      <h4 className="text-lg font-bold text-white mt-4 flex items-center gap-2">
+      <h4 className="text-base md:text-lg font-bold text-white mt-4 flex items-center gap-2">
          <Layout size={20} className="text-brand-orange" /> Banners Promocionais
       </h4>
       
@@ -1079,7 +1079,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
       <div className="space-y-6 animate-slide-up">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <h3 className="text-xl font-bold text-white font-display">Gerenciar Pedidos (PDV)</h3>
+            <h3 className="text-lg md:text-xl font-bold text-white font-display">Gerenciar Pedidos (PDV)</h3>
             {playingAlert && (
               <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-red-500/20 border border-red-500/30 animate-pulse">
                 <div className="w-2 h-2 rounded-full bg-red-500" />
@@ -1262,7 +1262,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
 
     return (
       <div className="space-y-6 animate-slide-up">
-        <h3 className="text-xl font-bold text-white font-display">Gerenciar Promoções</h3>
+        <h3 className="text-lg md:text-xl font-bold text-white font-display">Gerenciar Promoções</h3>
         
         {/* Enable/Disable Promotion */}
         <div className="bg-white/5 border border-white/10 rounded-xl p-6">
@@ -1399,7 +1399,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
 
   const renderCashbackTab = () => (
     <div className="space-y-6 animate-slide-up">
-      <h3 className="text-xl font-bold text-white font-display">Configurar Cashback</h3>
+      <h3 className="text-lg md:text-xl font-bold text-white font-display">Configurar Cashback</h3>
       <div className="bg-white/5 border border-white/10 rounded-xl p-6 space-y-6">
         <div className="flex items-center justify-between">
           <span className="text-white font-medium">Habilitar Cashback</span>
@@ -1433,7 +1433,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
 
   const getTabClassV2 = (tabName: string, colorClass: string) => {
     const isActive = activeTab === tabName;
-    return `flex-1 flex items-center justify-center gap-2 px-3 py-3 text-sm font-bold transition-all border-b-4 ${isActive ? `${colorClass} text-white` : 'text-gray-400 border-transparent hover:bg-white/5'}`;
+    return `flex-shrink-0 flex items-center justify-center gap-1.5 md:gap-2 px-2 md:px-4 py-2.5 md:py-3 text-xs md:text-sm font-bold transition-all border-b-4 whitespace-nowrap ${isActive ? `${colorClass} text-white` : 'text-gray-400 border-transparent hover:bg-white/5'}`;
   };
 
   return (
@@ -1443,18 +1443,18 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
       dragListener={false}
       dragControls={dragControls}
       dragMomentum={false}
-      className="fixed bottom-10 right-10 z-[100] w-[90vw] max-w-4xl h-[70vh] bg-neutral-900/80 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl flex flex-col overflow-hidden font-sans text-white"
-      animate={{ height: isMinimized ? '64px' : '70vh' }}
+      className="fixed inset-0 md:bottom-4 md:right-4 md:top-auto md:left-auto z-[100] w-full md:w-[95vw] md:max-w-6xl h-full md:h-[85vh] bg-neutral-900/95 md:bg-neutral-900/80 backdrop-blur-xl border-0 md:border md:border-white/10 md:rounded-2xl shadow-2xl flex flex-col overflow-hidden font-sans text-white"
+      animate={{ height: isMinimized ? '64px' : 'auto' }}
       transition={{ type: 'spring', stiffness: 300, damping: 30 }}
     >
       {/* Header / Drag Handle */}
       <div 
         onPointerDown={(e) => dragControls.start(e)}
-        className="p-4 bg-black/40 border-b border-white/10 flex justify-between items-center cursor-grab active:cursor-grabbing"
+        className="p-3 md:p-4 bg-black/40 border-b border-white/10 flex justify-between items-center cursor-grab active:cursor-grabbing flex-shrink-0"
       >
-        <div className="flex items-center gap-3">
-          <Move size={16} className="text-gray-500" />
-          <h1 className="text-lg font-bold text-white font-display">Painel <span className="text-brand-orange">Admin</span></h1>
+        <div className="flex items-center gap-2 md:gap-3">
+          <Move size={16} className="text-gray-500 hidden md:block" />
+          <h1 className="text-base md:text-lg font-bold text-white font-display">Painel <span className="text-brand-orange">Admin</span></h1>
           {/* Firebase Connection Indicator */}
           <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${
             isFirebaseConnected 
@@ -1478,7 +1478,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
       {/* Main Content Area */}
       <div className={`flex flex-col flex-1 min-h-0 transition-opacity ${isMinimized ? 'opacity-0' : 'opacity-100'}`}>
         {/* Tab Navigation */}
-        <nav className="flex-shrink-0 flex border-b border-white/10 bg-black/20">
+        <nav className="flex-shrink-0 flex overflow-x-auto border-b border-white/10 bg-black/20 scrollbar-hide">
           <button onClick={() => setActiveTab('menu')} className={getTabClassV2('menu', 'border-orange-500')}>
             <PizzaIcon size={16} /> Cardápio
           </button>
@@ -1514,7 +1514,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
         )}
 
         {/* Tab Content */}
-        <main className="flex-1 p-6 overflow-y-auto custom-scrollbar">
+        <main className="flex-1 p-3 md:p-6 overflow-y-auto custom-scrollbar">
           {activeTab === 'menu' && (
             <div className="animate-slide-up">
               {/* Sub Tabs */}
@@ -1548,11 +1548,11 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
           {activeTab === 'cashback' && renderCashbackTab()}
           {activeTab === 'promotions' && renderPromotionsTab()}
           {activeTab === 'social' && (
-            <div className="animate-slide-up space-y-6">
-              <h2 className="text-2xl font-bold text-white mb-6 font-display">Redes Sociais</h2>
+            <div className="animate-slide-up space-y-4 md:space-y-6">
+              <h2 className="text-xl md:text-2xl font-bold text-white mb-4 md:mb-6 font-display">Redes Sociais</h2>
               
-              <div className="bg-white/5 border border-white/10 rounded-xl p-6 space-y-6">
-                <p className="text-sm text-gray-400 mb-4">
+              <div className="bg-white/5 border border-white/10 rounded-xl p-4 md:p-6 space-y-4 md:space-y-6">
+                <p className="text-xs md:text-sm text-gray-400 mb-2 md:mb-4">
                   Configure os links das suas redes sociais. Eles aparecerão no topo da página com animações ao passar o mouse.
                 </p>
 
