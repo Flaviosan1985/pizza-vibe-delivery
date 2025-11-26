@@ -5,7 +5,7 @@ export interface Pizza {
   description: string;
   price: number;
   image: string;
-  category: 'Pizza grande 8 pedaços' | 'Pizza broto 4 pedaços' | 'Doce' | 'Vegana' | 'Meio a Meio' | 'Bebida';
+  category: 'Pizza grande 8 pedaços' | 'Pizza broto 4 pedaços' | 'Doce' | 'Vegana' | 'Meio a Meio' | 'Bebida' | 'Classica' | 'Especial' | 'Broto';
   categoryId?: string; // Reference to Category
   rating: number;
   available?: boolean; // New field for pausing/unpausing
