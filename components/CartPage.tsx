@@ -1,8 +1,11 @@
 
 import React, { useState, useEffect } from 'react';
-import { Trash2, Minus, Plus, Tag, ArrowRight, ShoppingBag, ChevronLeft, Coins, Check, AlertCircle } from 'lucide-react';
+import { Trash2, Minus, Plus, Tag, ArrowRight, ShoppingBag, Coins, Check, AlertCircle, ChevronLeft } from 'lucide-react';
 import { useAdmin } from '../contexts/AdminContext';
 import { User } from '../types';
+import PageContainer from './containers/PageContainer';
+import BackButton from './containers/BackButton';
+import EmptyState from './containers/EmptyState';
 
 interface CartItem {
   cartId: string;

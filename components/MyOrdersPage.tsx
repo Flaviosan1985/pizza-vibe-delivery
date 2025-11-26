@@ -1,8 +1,13 @@
 import React from 'react';
 import { useAdmin } from '../contexts/AdminContext';
-import { User, Order, OrderStatus } from '../types';
-import { ArrowLeft, Clock, CheckCircle, Truck, Package, XCircle, ShoppingBag, RefreshCw } from 'lucide-react';
-import Button from './Button';
+import { User, Order } from '../types';
+import { ShoppingBag, RefreshCw } from 'lucide-react';
+import PageContainer from './containers/PageContainer';
+import BackButton from './containers/BackButton';
+import PageHeader from './containers/PageHeader';
+import EmptyState from './containers/EmptyState';
+import StatusBadge from './containers/StatusBadge';
+import OrderStatusMessage from './containers/OrderStatusMessage';
 
 interface MyOrdersPageProps {
   user: User;
@@ -16,76 +21,25 @@ const MyOrdersPage: React.FC<MyOrdersPageProps> = ({ user, onBack, onReorder }) 
     new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   );
 
-  const getStatusColor = (status: OrderStatus) => {
-    switch (status) {
-      case 'pending': return 'text-yellow-500 bg-yellow-500/10 border-yellow-500/30';
-      case 'preparing': return 'text-blue-500 bg-blue-500/10 border-blue-500/30';
-      case 'ready': return 'text-green-500 bg-green-500/10 border-green-500/30';
-      case 'delivered': return 'text-gray-500 bg-gray-500/10 border-gray-500/30';
-      case 'cancelled': return 'text-red-500 bg-red-500/10 border-red-500/30';
-    }
-  };
-
-  const getStatusIcon = (status: OrderStatus) => {
-    switch (status) {
-      case 'pending': return <Clock size={16} />;
-      case 'preparing': return <Package size={16} />;
-      case 'ready': return <CheckCircle size={16} />;
-      case 'delivered': return <Truck size={16} />;
-      case 'cancelled': return <XCircle size={16} />;
-    }
-  };
-
-  const getStatusLabel = (status: OrderStatus) => {
-    switch (status) {
-      case 'pending': return 'Aguardando Confirmação';
-      case 'preparing': return '👨‍🍳 Em Preparo';
-      case 'ready': return '✅ SEU PEDIDO ESTÁ PRONTO!';
-      case 'delivered': return '🚚 Saiu para Entrega';
-      case 'cancelled': return 'Cancelado';
-    }
-  };
-
-  const getStatusMessage = (status: OrderStatus) => {
-    switch (status) {
-      case 'pending': return 'Seu pedido foi recebido! Aguarde enquanto confirmamos.';
-      case 'preparing': return 'Nosso chef está preparando sua pizza com muito carinho! 🍕🔥';
-      case 'ready': return '🎉 PRONTO! Seu pedido está quentinho e pode ser retirado na loja!';
-      case 'delivered': return '🚚 Pedido saiu para entrega! Em breve estará aí!';
-      case 'cancelled': return 'Este pedido foi cancelado. Entre em contato se tiver dúvidas.';
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-black text-white">
-      {/* Header */}
-      <div className="container mx-auto px-4 py-6">
-        <button
-          onClick={onBack}
-          className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors mb-6"
-        >
-          <ArrowLeft size={20} />
-          Voltar
-        </button>
+    <PageContainer>
+      <BackButton onClick={onBack} />
+      
+      <PageHeader 
+        title="Meus Pedidos"
+        subtitle="Acompanhe todos os seus pedidos em tempo real"
+      />
 
-        <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold font-display text-white mb-2">
-            Meus Pedidos
-          </h1>
-          <p className="text-gray-400">
-            Acompanhe todos os seus pedidos em tempo real
-          </p>
-        </div>
-
-        {/* Orders List */}
-        {userOrders.length === 0 ? (
-          <div className="text-center py-16 bg-white/5 rounded-2xl border border-white/10">
-            <ShoppingBag size={64} className="mx-auto text-gray-600 mb-4" />
-            <h3 className="text-xl font-bold text-white mb-2">Nenhum pedido ainda</h3>
-            <p className="text-gray-400 mb-6">Faça seu primeiro pedido e ele aparecerá aqui!</p>
-            <Button onClick={onBack}>Ver Cardápio</Button>
-          </div>
-        ) : (
+      {/* Orders List */}
+      {userOrders.length === 0 ? (
+        <EmptyState
+          icon={ShoppingBag}
+          title="Nenhum pedido ainda"
+          description="Faça seu primeiro pedido e ele aparecerá aqui!"
+          actionLabel="Ver Cardápio"
+          onAction={onBack}
+        />
+      ) : (
           <div className="space-y-6">
             {userOrders.map((order) => (
               <div
@@ -100,10 +54,7 @@ const MyOrdersPage: React.FC<MyOrdersPageProps> = ({ user, onBack, onReorder }) 
                         <span className="text-2xl font-bold text-white font-display">
                           Pedido #{order.orderNumber}
                         </span>
-                        <span className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${getStatusColor(order.status)}`}>
-                          {getStatusIcon(order.status)}
-                          {getStatusLabel(order.status)}
-                        </span>
+                        <StatusBadge status={order.status} />
                       </div>
                       <p className="text-sm text-gray-400">
                         {new Date(order.createdAt).toLocaleDateString('pt-BR', {
@@ -123,33 +74,7 @@ const MyOrdersPage: React.FC<MyOrdersPageProps> = ({ user, onBack, onReorder }) 
                   </div>
 
                   {/* Status Message */}
-                  {order.status !== 'cancelled' && (
-                    <div className={`p-4 rounded-xl border ${
-                      order.status === 'ready' 
-                        ? 'bg-green-500/20 border-green-500 animate-pulse' 
-                        : order.status === 'delivered'
-                        ? 'bg-blue-500/20 border-blue-500 animate-pulse'
-                        : getStatusColor(order.status)
-                    }`}>
-                      <p className={`font-bold ${
-                        order.status === 'ready' || order.status === 'delivered' 
-                          ? 'text-base md:text-lg' 
-                          : 'text-sm'
-                      }`}>
-                        {getStatusMessage(order.status)}
-                      </p>
-                      {order.status === 'ready' && (
-                        <p className="text-xs text-green-300 mt-2">
-                          📍 Venha retirar na loja o mais rápido possível para garantir que sua pizza esteja quentinha!
-                        </p>
-                      )}
-                      {order.status === 'delivered' && (
-                        <p className="text-xs text-blue-300 mt-2">
-                          ⏱️ Tempo estimado de entrega: 30-45 minutos
-                        </p>
-                      )}
-                    </div>
-                  )}
+                  <OrderStatusMessage status={order.status} />
                 </div>
 
                 {/* Order Items */}
@@ -222,8 +147,7 @@ const MyOrdersPage: React.FC<MyOrdersPageProps> = ({ user, onBack, onReorder }) 
             ))}
           </div>
         )}
-      </div>
-    </div>
+    </PageContainer>
   );
 };
 
