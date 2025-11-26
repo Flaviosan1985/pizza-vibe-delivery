@@ -546,9 +546,11 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen font-sans text-gray-900 relative selection:bg-brand-orange selection:text-white bg-gray-50">
+    <div className="min-h-screen font-sans text-gray-900 relative selection:bg-brand-orange selection:text-white">
       {/* Global Background */}
-      <div className="fixed inset-0 z-[-1] bg-gray-50">
+      <div className="fixed inset-0 z-[-1]">
+        <div className="absolute inset-0 bg-cover bg-center opacity-20" style={{ backgroundImage: `url("${theme.backgroundImage || 'https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=2070&auto=format&fit=crop'}")` }}></div>
+        <div className="absolute inset-0 bg-black"></div>
       </div>
 
       {/* Toast Notification */}

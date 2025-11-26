@@ -23,26 +23,18 @@ const Hero: React.FC<{ onCtaClick: () => void }> = ({ onCtaClick }) => {
         {/* Promoção em Destaque */}
         {promotion && (
           <div className="bg-brand-red border-2 border-brand-orange rounded-2xl p-6 md:p-8 mb-6 shadow-2xl">
-            <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-              <div className="flex items-center gap-4">
-                <div className="bg-brand-orange rounded-full p-4">
-                  <Percent size={32} className="text-white" />
-                </div>
-                <div className="text-white text-center md:text-left">
-                  <h2 className="font-display text-2xl md:text-4xl font-extrabold mb-1">
-                    {promotion.title}
-                  </h2>
-                  <p className="text-white/90 text-sm md:text-base">
-                    {promotion.description}
-                  </p>
-                </div>
+            <div className="flex items-center gap-4">
+              <div className="bg-brand-orange rounded-full p-4">
+                <Percent size={32} className="text-white" />
               </div>
-              <button 
-                onClick={onCtaClick}
-                className="bg-brand-orange hover:bg-orange-600 text-white font-display font-bold px-8 py-4 rounded-full text-lg uppercase tracking-wider shadow-lg transition-all transform hover:scale-105 whitespace-nowrap"
-              >
-                Peça Agora
-              </button>
+              <div className="text-white">
+                <h2 className="font-display text-2xl md:text-4xl font-extrabold mb-1">
+                  {promotion.title}
+                </h2>
+                <p className="text-white/90 text-sm md:text-base">
+                  {promotion.description}
+                </p>
+              </div>
             </div>
           </div>
         )}
