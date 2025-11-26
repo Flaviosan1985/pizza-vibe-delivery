@@ -26,15 +26,15 @@ const TopBar: React.FC<TopBarProps> = ({
 }) => {
   return (
     <div className="bg-brand-red border-b border-white/10">
-      <div className="container mx-auto px-4 py-2.5">
+      <div className="container mx-auto px-4 py-1.5">
         <div className="flex items-center justify-between text-white">
           {/* Left: Logo Only */}
           <div className="flex items-center">
             {logo ? (
-              <img src={logo} alt="Logo" className="w-10 h-10 md:w-12 md:h-12 rounded-full object-cover shadow-md" />
+              <img src={logo} alt="Logo" className="w-8 h-8 md:w-10 md:h-10 rounded-full object-cover shadow-md" />
             ) : (
-              <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-brand-green flex items-center justify-center shadow-md">
-                <User size={20} className="text-white md:w-6 md:h-6" />
+              <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-brand-green flex items-center justify-center shadow-md">
+                <User size={16} className="text-white md:w-5 md:h-5" />
               </div>
             )}
           </div>
@@ -55,7 +55,7 @@ const TopBar: React.FC<TopBarProps> = ({
                   href={facebook} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="hover:text-brand-orange transition-colors"
+                  className="hover:text-brand-orange transition-all hover:scale-110 hover:rotate-6 active:scale-95"
                 >
                   <Facebook size={16} />
                 </a>
@@ -65,7 +65,7 @@ const TopBar: React.FC<TopBarProps> = ({
                   href={instagram} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="hover:text-brand-orange transition-colors"
+                  className="hover:text-brand-orange transition-all hover:scale-110 hover:-rotate-6 active:scale-95"
                 >
                   <Instagram size={16} />
                 </a>
@@ -74,18 +74,18 @@ const TopBar: React.FC<TopBarProps> = ({
             </div>
             <button 
               onClick={onUserClick}
-              className="flex items-center gap-1.5 hover:text-brand-orange transition-colors"
+              className="flex items-center gap-1 hover:text-brand-orange transition-colors"
             >
-              <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-white flex items-center justify-center">
-                <User size={16} className="text-brand-red md:w-[18px] md:h-[18px]" strokeWidth={2.5} />
+              <div className="w-6 h-6 md:w-7 md:h-7 rounded-full bg-white flex items-center justify-center">
+                <User size={14} className="text-brand-red md:w-4 md:h-4" strokeWidth={2.5} />
               </div>
               {userName && (
-                <span className="hidden md:inline font-semibold text-xs">{userName}</span>
+                <span className="hidden md:inline font-semibold text-[10px]">{userName}</span>
               )}
             </button>
             <button
               onClick={onLogout}
-              className="px-2.5 py-1 md:px-3 md:py-1.5 bg-white/10 hover:bg-white/20 rounded-md font-semibold transition-colors text-[10px] md:text-xs"
+              className="px-2 py-0.5 md:px-2.5 md:py-1 bg-white/10 hover:bg-white/20 rounded-md font-semibold transition-colors text-[9px] md:text-[10px]"
             >
               Sair
             </button>

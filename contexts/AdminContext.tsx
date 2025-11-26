@@ -180,7 +180,9 @@ export const AdminProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       priceDisclaimer: 'Preços sujeitos a alteração sem aviso prévio',
       facebookUrl: '',
       instagramUrl: '',
-      whatsappNumber: ''
+      whatsappNumber: '',
+      youtubeUrl: '',
+      twitterUrl: ''
     };
   });
 

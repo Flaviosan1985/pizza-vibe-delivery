@@ -88,6 +88,8 @@ export interface ThemeSettings {
   facebookUrl?: string; // Link do Facebook
   instagramUrl?: string; // Link do Instagram
   whatsappNumber?: string; // Número do WhatsApp
+  youtubeUrl?: string; // Link do YouTube
+  twitterUrl?: string; // Link do Twitter/X
 }
 
 export interface BannerItem {
