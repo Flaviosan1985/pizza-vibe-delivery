@@ -101,7 +101,7 @@ const CartPage: React.FC<CartPageProps> = ({
 
   if (cartItems.length === 0) {
     return (
-      <div className="min-h-screen bg-neutral-900 text-white flex flex-col items-center justify-center p-4 font-sans">
+      <div className="min-h-screen bg-gradient-to-b from-black via-black via-50% to-[#8B0000] text-white flex flex-col items-center justify-center p-4 font-sans">
         <div className="bg-neutral-800 p-8 rounded-full mb-6 animate-pulse">
           <ShoppingBag size={64} className="text-neutral-500" />
         </div>
@@ -168,11 +168,10 @@ const CartPage: React.FC<CartPageProps> = ({
                 {!showCouponInput && appliedDiscount === 0 ? (
                   <button 
                     onClick={() => setShowCouponInput(true)}
-                    className="w-full bg-gradient-to-r from-[#009246] to-green-700 hover:from-green-700 hover:to-[#009246] text-white font-black py-4 rounded-xl shadow-lg shadow-green-900/50 flex items-center justify-center gap-2 transition-all transform hover:scale-[1.02] active:scale-[0.98] border-2 border-green-400"
-                    style={{opacity: 1}}
+                    className="w-full bg-gradient-to-r from-[#009246] to-green-700 hover:from-green-700 hover:to-[#009246] text-white font-black py-5 rounded-xl shadow-[0_0_20px_rgba(0,146,70,0.6)] flex items-center justify-center gap-3 transition-all transform hover:scale-105 active:scale-95 border-4 border-green-300"
                   >
-                    <Tag size={20} className="animate-wiggle" />
-                    <span className="font-display tracking-wide uppercase text-base" style={{fontWeight: 900}}>Tem Cupom de Desconto?</span>
+                    <Tag size={24} className="animate-wiggle" />
+                    <span className="font-display tracking-wide uppercase text-lg" style={{fontWeight: 900, opacity: 1}}>Tem Cupom de Desconto?</span>
                   </button>
                 ) : (
                   <div className="animate-slide-up bg-neutral-900 p-4 rounded-xl border border-neutral-700 shadow-inner">
@@ -275,8 +274,8 @@ const CartPage: React.FC<CartPageProps> = ({
               )}
 
               <div className="space-y-3 py-4 border-y border-neutral-700 mb-6 bg-black/20 p-4 rounded-xl">
-                <div className="flex justify-between text-neutral-400 text-sm"><span>Subtotal</span><span className="font-display font-medium text-white">{formatCurrency(subtotal)}</span></div>
-                <div className="flex justify-between text-neutral-400 text-sm"><span>Taxa de Entrega</span><span className="font-display font-medium text-white">{formatCurrency(deliveryFee)}</span></div>
+                <div className="flex justify-between text-sm"><span className="font-bold" style={{opacity: 1, fontWeight: 900, color: '#FFF'}}>Subtotal</span><span className="font-display font-black text-white" style={{opacity: 1}}>{formatCurrency(subtotal)}</span></div>
+                <div className="flex justify-between text-sm"><span className="font-bold" style={{opacity: 1, fontWeight: 900, color: '#FFF'}}>Taxa de Entrega</span><span className="font-display font-black text-white" style={{opacity: 1}}>{formatCurrency(deliveryFee)}</span></div>
                 
                 {appliedDiscount > 0 && (
                    <div className="flex justify-between text-green-500 font-bold text-sm bg-green-500/10 p-1.5 rounded">
@@ -293,9 +292,9 @@ const CartPage: React.FC<CartPageProps> = ({
                 )}
               </div>
 
-              <div className="flex justify-between items-end mb-6">
-                 <span className="text-lg font-black text-black font-display" style={{opacity: 1}}>Total Estimado</span>
-                 <span className="text-4xl font-black text-[#B91C1C] font-display tracking-tight drop-shadow-lg" style={{opacity: 1}}>{formatCurrency(total)}</span>
+              <div className="flex justify-between items-end mb-6 bg-neutral-900/50 p-4 rounded-xl border border-neutral-700">
+                 <span className="text-xl font-black font-display" style={{opacity: 1, fontWeight: 900, color: '#FFF'}}>Total Estimado</span>
+                 <span className="text-5xl font-black text-[#B91C1C] font-display tracking-tight" style={{opacity: 1, fontWeight: 900, textShadow: '0 0 15px rgba(185, 28, 28, 0.8)'}}>{formatCurrency(total)}</span>
               </div>
               
               <button onClick={proceedToCheckout} className="w-full bg-gradient-to-r from-[#B91C1C] to-red-700 hover:from-red-700 hover:to-[#B91C1C] text-white font-black text-base md:text-lg py-4 rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 font-display uppercase tracking-wider group hover:scale-[1.02] active:scale-[0.98]" style={{fontWeight: 900}}>
@@ -303,8 +302,8 @@ const CartPage: React.FC<CartPageProps> = ({
                  <ArrowRight size={22} className="group-hover:translate-x-1 transition-transform" />
               </button>
               
-              <button onClick={onBackToMenu} className="w-full mt-3 bg-transparent border-2 border-white hover:bg-white hover:text-black text-white font-black text-sm md:text-base py-3 rounded-xl transition-all flex items-center justify-center gap-2 font-display uppercase tracking-wider hover:scale-[1.02] active:scale-[0.98]" style={{fontWeight: 900, opacity: 1}}>
-                 <ChevronLeft size={20} />
+              <button onClick={onBackToMenu} className="w-full mt-3 bg-transparent border-4 border-white hover:bg-white hover:text-black text-white font-black text-base md:text-lg py-4 rounded-xl transition-all flex items-center justify-center gap-2 font-display uppercase tracking-wider hover:scale-105 active:scale-95 shadow-[0_0_15px_rgba(255,255,255,0.3)]" style={{fontWeight: 900, opacity: 1}}>
+                 <ChevronLeft size={22} />
                  Continuar Comprando
               </button>
             </div>
