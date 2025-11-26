@@ -114,7 +114,7 @@ const CartPage: React.FC<CartPageProps> = ({
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black via-black via-50% to-[#8B0000] text-white font-sans pb-44 lg:pb-0 relative">
+    <div className="min-h-screen bg-black text-white font-sans pb-44 lg:pb-0 relative">
       <div className="max-w-7xl mx-auto p-4 md:p-8">
         <div className="flex items-center gap-4 mb-6 md:mb-8">
           <button onClick={onBackToMenu} className="p-2 hover:bg-neutral-800 rounded-full transition-colors">
