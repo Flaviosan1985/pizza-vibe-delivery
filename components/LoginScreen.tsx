@@ -70,8 +70,8 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, logo, storeName, bac
       </div>
 
       {/* Login Card */}
-      <div className="relative z-10 w-full max-w-md p-6 mx-4">
-        <div className="bg-black/60 backdrop-blur-xl border border-white/10 rounded-3xl p-8 shadow-2xl animate-slide-up">
+      <div className="relative z-10 w-full max-w-md p-4 mx-4 max-h-[95vh] overflow-y-auto no-scrollbar">
+        <div className="bg-black/60 backdrop-blur-xl border border-white/10 rounded-3xl p-6 md:p-8 shadow-2xl animate-slide-up">
           
           <div className="text-center mb-8">
             {logo ? (
@@ -165,6 +165,69 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, logo, storeName, bac
               {isAdminMode ? 'Voltar para Login de Cliente' : 'Sou Administrador'}
             </button>
           </div>
+
+          {/* Informações Importantes */}
+          {!isAdminMode && (
+            <div className="mt-6 space-y-4 pt-6 border-t border-white/10">
+              {/* Horário de Atendimento */}
+              <div className="bg-black/30 rounded-xl p-4 border border-white/5">
+                <h3 className="text-sm font-bold text-brand-orange uppercase tracking-wider mb-2 flex items-center gap-2">
+                  🕐 Horário de Atendimento
+                </h3>
+                <div className="text-xs text-gray-300 space-y-1">
+                  <p className="flex justify-between">
+                    <span>Segunda a Quinta:</span>
+                    <span className="font-bold text-white">18:00 - 23:00</span>
+                  </p>
+                  <p className="flex justify-between">
+                    <span>Sexta a Domingo:</span>
+                    <span className="font-bold text-white">18:00 - 00:00</span>
+                  </p>
+                </div>
+              </div>
+
+              {/* Dias de Funcionamento */}
+              <div className="bg-black/30 rounded-xl p-4 border border-white/5">
+                <h3 className="text-sm font-bold text-brand-orange uppercase tracking-wider mb-2 flex items-center gap-2">
+                  📅 Dias de Funcionamento
+                </h3>
+                <p className="text-xs text-gray-300">
+                  <span className="font-bold text-white">Segunda a Domingo</span>
+                  <span className="block text-[10px] text-gray-500 mt-1">Aberto todos os dias da semana</span>
+                </p>
+              </div>
+
+              {/* Métodos de Pagamento */}
+              <div className="bg-black/30 rounded-xl p-4 border border-white/5">
+                <h3 className="text-sm font-bold text-brand-orange uppercase tracking-wider mb-2 flex items-center gap-2">
+                  💳 Métodos de Pagamento
+                </h3>
+                <div className="text-xs text-gray-300 space-y-1">
+                  <p>✓ Dinheiro</p>
+                  <p>✓ Cartão de Débito/Crédito</p>
+                  <p>✓ PIX</p>
+                  <p>✓ Vale Refeição</p>
+                </div>
+              </div>
+
+              {/* Avisos Importantes */}
+              <div className="bg-yellow-500/10 rounded-xl p-4 border border-yellow-500/20">
+                <h3 className="text-sm font-bold text-yellow-500 uppercase tracking-wider mb-2 flex items-center gap-2">
+                  ⚠️ Informações Importantes
+                </h3>
+                <div className="text-xs text-gray-300 space-y-2">
+                  <p className="flex items-start gap-2">
+                    <span className="text-yellow-500 font-bold">•</span>
+                    <span><span className="font-bold text-white">Pizza Meio a Meio:</span> Será cobrado pelo maior valor entre os sabores escolhidos</span>
+                  </p>
+                  <p className="flex items-start gap-2">
+                    <span className="text-yellow-500 font-bold">•</span>
+                    <span className="font-bold text-yellow-400">Preços sujeitos a alteração sem aviso prévio</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
