@@ -1,5 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
+import TopBar from './components/TopBar';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import PizzaCard from './components/PizzaCard';
@@ -469,12 +470,13 @@ const App: React.FC = () => {
         {categoriesInTab.map(category => {
           const pizzasInCategory = filteredPizzas.filter(p => p.categoryId === category.id);
           return (
-            <div key={category.id}>
-              <h4 className="font-display text-xl md:text-3xl font-bold mb-4 md:mb-6 text-white tracking-tight border-b border-white/10 pb-3 flex items-center gap-3">
-                <span className="w-1.5 h-6 md:h-8 bg-brand-orange rounded-full"></span>
-                {category.name}
-              </h4>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-6">
+            <div key={category.id} className="mb-12">
+              <div className="bg-brand-red rounded-lg p-4 mb-6 border-l-4 border-brand-orange shadow-lg">
+                <h4 className="font-display text-2xl md:text-3xl font-bold text-white tracking-tight uppercase">
+                  {category.name}
+                </h4>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
                 {pizzasInCategory.map(pizza => (
                   <div key={pizza.id} className="h-full">
                     <PizzaCard 
@@ -515,20 +517,21 @@ const App: React.FC = () => {
        .sort((a, b) => a.name.localeCompare(b.name));
      
      return (
-        <div className="space-y-12 animate-slide-up">
-           <div className="bg-brand-orange/10 border border-brand-orange/30 p-4 rounded-2xl mb-8 flex items-center justify-between backdrop-blur-md">
-              <span className="text-brand-orange font-bold font-display">🔍 Resultados para "{searchQuery}"</span>
-              <button onClick={() => setSearchQuery('')} className="text-sm text-gray-400 hover:text-white underline">Limpar</button>
+        <div className="space-y-8 animate-slide-up">
+           <div className="bg-white border-2 border-brand-orange p-4 rounded-lg mb-8 flex items-center justify-between shadow-lg">
+              <span className="text-brand-red font-bold font-display text-lg">🔍 Resultados para "{searchQuery}"</span>
+              <button onClick={() => setSearchQuery('')} className="text-sm text-gray-600 hover:text-brand-red font-semibold underline">Limpar</button>
            </div>
            {categoriesInResults.map(category => {
               const pizzasInCategory = allMatches.filter(p => p.categoryId === category.id);
               return (
-                <div key={category.id}>
-                   <h4 className="font-display text-2xl md:text-3xl font-bold mb-6 text-white tracking-tight flex items-center gap-3">
-                      <span className="w-1.5 h-6 md:h-8 bg-brand-orange rounded-full"></span>
-                      {category.name}
-                   </h4>
-                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-6">
+                <div key={category.id} className="mb-12">
+                   <div className="bg-brand-red rounded-lg p-4 mb-6 border-l-4 border-brand-orange shadow-lg">
+                      <h4 className="font-display text-2xl md:text-3xl font-bold text-white tracking-tight uppercase">
+                         {category.name}
+                      </h4>
+                   </div>
+                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
                       {pizzasInCategory.map(pizza => (
                          <div key={pizza.id} className="h-full">
                             <PizzaCard pizza={pizza} onSelect={handleSelectPizza} isRecommended={recommendedId === pizza.id} userId={user?.phone} />
@@ -543,12 +546,9 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen font-sans text-gray-100 relative selection:bg-brand-orange selection:text-white">
+    <div className="min-h-screen font-sans text-gray-900 relative selection:bg-brand-orange selection:text-white bg-gray-50">
       {/* Global Background */}
-      <div className="fixed inset-0 z-[-1]">
-         <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url("${theme.backgroundImage || 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=2070&auto=format&fit=crop'}")` }}>
-           <div className="absolute inset-0 bg-black/40"></div>
-         </div>
+      <div className="fixed inset-0 z-[-1] bg-gray-50">
       </div>
 
       {/* Toast Notification */}
@@ -600,6 +600,12 @@ const App: React.FC = () => {
           />
         ) : (
           <>
+            <TopBar 
+              phone={theme.businessHours?.weekdays ? `${theme.operatingDays}` : '(11) 99999-9999'}
+              hours={theme.businessHours ? `${theme.businessHours.weekdays}` : 'Seg-Dom: 18:00 - 23:00'}
+              facebook="https://facebook.com"
+              instagram="https://instagram.com"
+            />
             <Navbar 
               cartCount={cartCount} 
               onOpenCart={() => setIsCartOpen(true)} 
@@ -628,40 +634,40 @@ const App: React.FC = () => {
 
             <main className="container mx-auto px-2 md:px-4 py-8 md:py-12" ref={menuRef}>
               {/* Search Bar */}
-              <div className="max-w-xl mx-auto mb-8 md:mb-10 relative animate-slide-up px-2">
+              <div className="max-w-2xl mx-auto mb-8 md:mb-12 relative animate-slide-up px-2">
                 <div className="relative group">
-                  <div className="absolute inset-y-0 left-0 pl-4 md:pl-5 flex items-center pointer-events-none text-gray-400 group-focus-within:text-brand-orange transition-colors">
-                    <Search size={18} className="md:w-5 md:h-5" />
+                  <div className="absolute inset-y-0 left-0 pl-4 md:pl-5 flex items-center pointer-events-none text-gray-500 group-focus-within:text-brand-orange transition-colors">
+                    <Search size={20} className="md:w-6 md:h-6" />
                   </div>
                   <input 
                     type="text" 
-                    placeholder="O que você quer comer hoje?"
+                    placeholder="Buscar pizza, ingredientes..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 md:pl-12 pr-10 md:pr-12 py-2.5 md:py-4 text-sm md:text-base rounded-full border border-white/20 bg-black/40 backdrop-blur-xl text-white focus:outline-none focus:ring-2 focus:ring-brand-orange/50 focus:border-brand-orange transition-all shadow-xl"
+                    className="w-full pl-12 md:pl-14 pr-12 py-3 md:py-4 text-sm md:text-base rounded-lg border-2 border-gray-300 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-brand-orange focus:border-brand-orange transition-all shadow-md placeholder:text-gray-400"
                   />
                   {searchQuery && (
-                    <button onClick={() => setSearchQuery('')} className="absolute inset-y-0 right-0 pr-5 flex items-center text-gray-400 hover:text-white"><X size={18} /></button>
+                    <button onClick={() => setSearchQuery('')} className="absolute inset-y-0 right-0 pr-5 flex items-center text-gray-400 hover:text-brand-red"><X size={20} /></button>
                   )}
                 </div>
               </div>
 
               {/* Menu Tabs */}
               {!searchQuery && (
-                <div className="flex justify-start md:justify-center gap-2 md:gap-3 mb-8 md:mb-12 overflow-x-auto pb-4 px-2 no-scrollbar">
+                <div className="flex justify-start md:justify-center gap-2 md:gap-4 mb-8 md:mb-10 overflow-x-auto pb-4 px-2 no-scrollbar">
                   {[
-                    { id: 'traditional', label: 'Inteiras' },
-                    { id: 'broto', label: 'Broto' },
-                    { id: 'sweet', label: 'Doces' },
+                    { id: 'traditional', label: 'Pizzas Tradicionais' },
+                    { id: 'broto', label: 'Pizzas Broto' },
+                    { id: 'sweet', label: 'Pizzas Doces' },
                     { id: 'half', label: 'Meio a Meio' }
                   ].map(tab => (
                     <button
                       key={tab.id}
                       onClick={() => setActiveMenuTab(tab.id as any)}
-                      className={`flex-shrink-0 px-6 py-3 rounded-full font-display font-bold text-sm md:text-base transition-all duration-300 whitespace-nowrap backdrop-blur-md border relative overflow-hidden group ${
+                      className={`flex-shrink-0 px-6 py-3 rounded-lg font-display font-bold text-sm md:text-base transition-all duration-200 whitespace-nowrap border-2 ${
                         activeMenuTab === tab.id
-                          ? 'bg-brand-orange text-white shadow-lg shadow-orange-500/30 border-brand-orange scale-105'
-                          : 'bg-black/40 text-gray-400 hover:bg-black/60 hover:text-white border-white/10 hover:border-white/20 hover:scale-105'
+                          ? 'bg-brand-red text-white shadow-lg border-brand-red'
+                          : 'bg-white text-gray-700 hover:bg-gray-50 border-gray-300 hover:border-brand-orange'
                       }`}
                     >
                       {tab.label}

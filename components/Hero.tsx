@@ -1,105 +1,108 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Star, Percent, Flame } from 'lucide-react';
+import { Percent, Phone, Clock } from 'lucide-react';
 import { useAdmin } from '../contexts/AdminContext';
 
 const Hero: React.FC<{ onCtaClick: () => void }> = ({ onCtaClick }) => {
-  const { banners } = useAdmin();
+  const { banners, promotion } = useAdmin();
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
     if (banners.length === 0) return;
     const timer = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % banners.length);
-    }, 5000); // Change every 5 seconds
+    }, 5000);
     return () => clearInterval(timer);
   }, [banners.length]);
-
-  const getGradient = (theme: string) => {
-    switch (theme) {
-      case 'orange': return "from-orange-600/80 to-yellow-600/80";
-      case 'green': return "from-green-600/80 to-brand-green/80";
-      case 'red': return "from-red-600/80 to-brand-orange/80";
-      default: return "from-gray-600/80 to-gray-800/80";
-    }
-  };
-
-  const getIcon = (theme: string) => {
-    switch (theme) {
-      case 'orange': return <Flame className="text-orange-500" size={16} />;
-      case 'green': return <Star className="text-yellow-400" size={16} />;
-      case 'red': return <Percent className="text-brand-yellow" size={16} />;
-      default: return <Sparkles className="text-white" size={16} />;
-    }
-  };
-
-  if (banners.length === 0) return null;
 
   const currentItem = banners[currentIndex];
 
   return (
-    <div className="relative h-[280px] md:h-[400px] flex items-center justify-center overflow-hidden mb-[-20px] md:mb-[-40px]">
-      {/* Content */}
-      <div className="container mx-auto px-4 relative z-20 text-center pt-20 md:pt-24">
-        
-        {/* Animated Image Banner Carousel */}
-        <div className="mx-auto max-w-4xl h-48 md:h-72 relative rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl border border-white/10 bg-black/40 backdrop-blur-sm group">
-           <AnimatePresence mode='wait'>
-             {currentItem && (
-               <motion.div
-                 key={currentItem.id}
-                 initial={{ opacity: 0, scale: 1.1 }}
-                 animate={{ opacity: 1, scale: 1 }}
-                 exit={{ opacity: 0 }}
-                 transition={{ duration: 0.8 }}
-                 className="absolute inset-0"
-               >
-                 {/* Background Image */}
-                 <img 
-                   src={currentItem.image} 
-                   alt={currentItem.title}
-                   className="w-full h-full object-cover opacity-80"
-                 />
-                 
-                 {/* Gradient Overlay based on item color */}
-                 <div className={`absolute inset-0 bg-gradient-to-r ${getGradient(currentItem.colorTheme)} opacity-90 mix-blend-multiply`}></div>
-                 
-                 {/* Content Overlay */}
-                 <div className="absolute inset-0 flex flex-col items-center justify-center text-white p-4 md:p-6 bg-black/20">
-                    <motion.div 
-                      initial={{ y: 20, opacity: 0 }}
-                      animate={{ y: 0, opacity: 1 }}
-                      transition={{ delay: 0.2 }}
-                      className="flex items-center gap-2 mb-2 md:mb-3 bg-black/40 px-3 py-1.5 md:px-5 md:py-2 rounded-full backdrop-blur-md border border-white/10"
-                    >
-                      {getIcon(currentItem.colorTheme)}
-                      <span className="font-display font-bold text-[10px] md:text-sm tracking-[0.2em] uppercase">{currentItem.title}</span>
-                    </motion.div>
-                    
-                    <motion.h3 
-                      initial={{ y: 20, opacity: 0 }}
-                      animate={{ y: 0, opacity: 1 }}
-                      transition={{ delay: 0.3 }}
-                      className="font-display text-xl md:text-4xl font-extrabold text-center max-w-2xl drop-shadow-md leading-tight"
-                    >
-                      "{currentItem.subtitle}"
-                    </motion.h3>
-                 </div>
-               </motion.div>
-             )}
-           </AnimatePresence>
+    <div className="relative bg-gradient-to-b from-black/60 to-transparent pt-[90px] md:pt-[100px]">
+      <div className="container mx-auto px-4 py-8 md:py-12">
+        {/* Promoção em Destaque */}
+        {promotion && (
+          <div className="bg-brand-red border-2 border-brand-orange rounded-2xl p-6 md:p-8 mb-6 shadow-2xl">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <div className="bg-brand-orange rounded-full p-4">
+                  <Percent size={32} className="text-white" />
+                </div>
+                <div className="text-white text-center md:text-left">
+                  <h2 className="font-display text-2xl md:text-4xl font-extrabold mb-1">
+                    {promotion.title}
+                  </h2>
+                  <p className="text-white/90 text-sm md:text-base">
+                    {promotion.description}
+                  </p>
+                </div>
+              </div>
+              <button 
+                onClick={onCtaClick}
+                className="bg-brand-orange hover:bg-orange-600 text-white font-display font-bold px-8 py-4 rounded-full text-lg uppercase tracking-wider shadow-lg transition-all transform hover:scale-105 whitespace-nowrap"
+              >
+                Peça Agora
+              </button>
+            </div>
+          </div>
+        )}
 
-           {/* Progress Indicators */}
-           <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5 z-20">
-             {banners.map((item, idx) => (
-               <button
-                 key={item.id}
-                 onClick={() => setCurrentIndex(idx)}
-                 className={`h-1 md:h-1.5 rounded-full transition-all duration-300 ${idx === currentIndex ? 'w-6 md:w-8 bg-white shadow-glow' : 'w-1.5 md:w-2 bg-white/30 hover:bg-white/50'}`}
-               />
-             ))}
-           </div>
-        </div>
+        {/* Banner Carousel */}
+        {banners.length > 0 && (
+          <div className="relative h-[200px] md:h-[300px] rounded-xl overflow-hidden shadow-xl">
+            <AnimatePresence mode='wait'>
+              {currentItem && (
+                <motion.div
+                  key={currentItem.id}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.5 }}
+                  className="absolute inset-0"
+                >
+                  <img 
+                    src={currentItem.image} 
+                    alt={currentItem.title}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent"></div>
+                  
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="container mx-auto px-8">
+                      <motion.h3 
+                        initial={{ x: -50, opacity: 0 }}
+                        animate={{ x: 0, opacity: 1 }}
+                        transition={{ delay: 0.2 }}
+                        className="font-display text-white text-3xl md:text-5xl font-extrabold mb-2 drop-shadow-lg"
+                      >
+                        {currentItem.title}
+                      </motion.h3>
+                      <motion.p
+                        initial={{ x: -50, opacity: 0 }}
+                        animate={{ x: 0, opacity: 1 }}
+                        transition={{ delay: 0.3 }}
+                        className="text-white/90 text-lg md:text-2xl drop-shadow-md"
+                      >
+                        {currentItem.subtitle}
+                      </motion.p>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Indicators */}
+            <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2 z-20">
+              {banners.map((item, idx) => (
+                <button
+                  key={item.id}
+                  onClick={() => setCurrentIndex(idx)}
+                  className={`h-2 rounded-full transition-all ${idx === currentIndex ? 'w-8 bg-brand-orange' : 'w-2 bg-white/50'}`}
+                />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
