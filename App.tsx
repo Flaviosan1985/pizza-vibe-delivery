@@ -575,10 +575,9 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen font-sans text-gray-900 relative selection:bg-brand-orange selection:text-white">
-      {/* Global Background */}
+      {/* Global Background - Preto em cima, Vermelho embaixo */}
       <div className="fixed inset-0 z-[-1]">
-        <div className="absolute inset-0 bg-cover bg-center opacity-20" style={{ backgroundImage: `url("${theme.backgroundImage || 'https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=2070&auto=format&fit=crop'}")` }}></div>
-        <div className="absolute inset-0 bg-black"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-black via-black via-50% to-[#8B0000]"></div>
       </div>
 
       {/* Toast Notification */}
