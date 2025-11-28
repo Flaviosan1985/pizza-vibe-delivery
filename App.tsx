@@ -629,7 +629,24 @@ const App: React.FC = () => {
           />
         ) : (
           <>
-            {/* Banner animado no topo */}
+            {/* Navbar com logo centralizada */}
+            <Navbar
+              cartCount={cartCount}
+              onOpenCart={() => setIsCartOpen(true)}
+              onOpenAI={() => setIsAIOpen(true)}
+              isDarkMode={isDarkMode}
+              toggleTheme={toggleTheme}
+              onLogout={handleLogout}
+              onMyAccount={() => setCurrentView('myAccount')}
+              onMyOrders={() => setCurrentView('myOrders')}
+              onMyFavorites={() => setCurrentView('myFavorites')}
+              userName={user?.name.split(' ')[0] || 'Usuário'}
+              userAvatar={user?.avatar}
+              logo={theme.logo}
+              storeName={theme.storeName}
+            />
+            
+            {/* Banner animado */}
             <Hero onCtaClick={scrollToMenu} />
             
             {/* TopBar com telefone, redes sociais e usuário */}
