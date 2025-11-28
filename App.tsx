@@ -629,7 +629,10 @@ const App: React.FC = () => {
           />
         ) : (
           <>
-            {/* Navbar com logo centralizada */}
+            {/* Banner animado no topo */}
+            <Hero onCtaClick={scrollToMenu} />
+            
+            {/* Navbar com logo centralizada (SEM barra vermelha) */}
             <Navbar
               cartCount={cartCount}
               onOpenCart={() => setIsCartOpen(true)}
@@ -642,22 +645,6 @@ const App: React.FC = () => {
               onMyFavorites={() => setCurrentView('myFavorites')}
               userName={user?.name.split(' ')[0] || 'Usuário'}
               userAvatar={user?.avatar}
-              logo={theme.logo}
-              storeName={theme.storeName}
-            />
-            
-            {/* Banner animado */}
-            <Hero onCtaClick={scrollToMenu} />
-            
-            {/* TopBar com telefone, redes sociais e usuário */}
-            <TopBar 
-              phone="(13) 99651-1793"
-              hours={theme.businessHours ? `${theme.businessHours.weekdays}` : 'Seg-Dom: 18:00 - 23:00'}
-              facebook={theme.facebookUrl}
-              instagram={theme.instagramUrl}
-              userName={user?.name.split(' ')[0] || 'Usuário'}
-              onUserClick={() => setCurrentView('myAccount')}
-              onLogout={handleLogout}
               logo={theme.logo}
               storeName={theme.storeName}
             />
