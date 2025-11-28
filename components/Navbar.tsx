@@ -63,33 +63,13 @@ const Navbar: React.FC<NavbarProps> = ({ cartCount, onOpenCart, onOpenAI, isDark
     }
   }, [cartCount]);
 
-  const navBackground = isScrolled 
-    ? 'bg-[#B91C1C] shadow-lg py-3' 
-    : 'bg-[#B91C1C] py-4';
-
   const name = storeName || 'PizzaVibe';
 
   return (
-    <nav className={`fixed w-full z-50 transition-all duration-300 ${navBackground}`}>
+    <nav className="fixed w-full z-50 py-6 md:py-8">
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-3 items-center gap-4">
-          
-          {/* LEFT: TELEFONE */}
-          <div className="flex items-center justify-start">
-            <a 
-              href="tel:+5513996511793" 
-              className="flex items-center gap-2 text-white hover:text-white/80 transition-colors"
-            >
-              <div className="bg-white/20 p-2 rounded-full">
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 md:w-5 md:h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
-                </svg>
-              </div>
-              <span className="hidden md:block font-bold text-sm">(13) 99651-1793</span>
-            </a>
-          </div>
-
-          {/* CENTER: LOGO (MAIOR e em DESTAQUE) */}
+        <div className="flex items-center justify-center">
+          {/* CENTER: LOGO (CENTRADA, SEM BARRA) */}
           <div className="flex items-center justify-center">
             {logo ? (
               <img 
@@ -106,33 +86,6 @@ const Navbar: React.FC<NavbarProps> = ({ cartCount, onOpenCart, onOpenAI, isDark
                 <Pizza className="w-12 h-12 md:w-16 md:h-16" />
               </div>
             )}
-          </div>
-
-          {/* RIGHT: PERFIL (Cart + User Menu) */}
-          <div className="flex items-center justify-end space-x-2 md:space-x-3">
-            {/* Cart Button */}
-            <button
-              onClick={onOpenCart}
-              className={`relative bg-white text-[#B91C1C] p-2.5 md:p-3 rounded-full shadow-lg hover:scale-110 active:scale-95 transition-transform touch-manipulation ${isBumping ? 'animate-bounce' : ''}`}
-              title="Carrinho"
-            >
-              <ShoppingCart size={20} className="md:w-6 md:h-6" />
-              {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] md:text-xs font-bold w-5 h-5 md:w-6 md:h-6 rounded-full flex items-center justify-center shadow-lg animate-pulse">
-                  {cartCount}
-                </span>
-              )}
-            </button>
-
-            {/* User Menu */}
-            <UserMenu
-              userName={userName}
-              userAvatar={userAvatar}
-              onMyAccount={onMyAccount}
-              onMyOrders={onMyOrders}
-              onMyFavorites={onMyFavorites}
-              onLogout={onLogout}
-            />
           </div>
         </div>
       </div>
