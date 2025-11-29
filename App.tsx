@@ -657,19 +657,19 @@ const App: React.FC = () => {
               </div>
             )}
 
-            <main className="container mx-auto px-2 md:px-4 py-8 md:py-12" ref={menuRef}>
+            <main className="container mx-auto px-2 md:px-4 py-8 md:py-12 mt-32 md:mt-40" ref={menuRef}>
               {/* Search Bar */}
-              <div className="max-w-2xl mx-auto mb-8 md:mb-12 relative animate-slide-up px-2">
+              <div className="max-w-md mx-auto mb-6 md:mb-8 relative animate-slide-up px-2">
                 <div className="relative group">
                   <div className="absolute inset-y-0 left-0 pl-4 md:pl-5 flex items-center pointer-events-none text-gray-500 group-focus-within:text-brand-orange transition-colors">
                     <Search size={20} className="md:w-6 md:h-6" />
                   </div>
                   <input 
                     type="text" 
-                    placeholder="Buscar pizza, ingredientes..."
+                    placeholder="Buscar pizza..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-12 md:pl-14 pr-12 py-3 md:py-4 text-sm md:text-base rounded-lg border-2 border-gray-300 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-brand-orange focus:border-brand-orange transition-all shadow-md placeholder:text-gray-400"
+                    className="w-full pl-10 md:pl-12 pr-10 py-2 md:py-2.5 text-xs md:text-sm rounded-lg border-2 border-gray-300 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-brand-orange focus:border-brand-orange transition-all shadow-md placeholder:text-gray-400"
                   />
                   {searchQuery && (
                     <button onClick={() => setSearchQuery('')} className="absolute inset-y-0 right-0 pr-5 flex items-center text-gray-400 hover:text-brand-red"><X size={20} /></button>
@@ -679,11 +679,11 @@ const App: React.FC = () => {
 
               {/* Menu Tabs - Animadas */}
               {!searchQuery && (
-                <div className="flex justify-start md:justify-center gap-3 md:gap-4 mb-8 md:mb-10 overflow-x-auto pb-4 px-2 scrollbar-hide">
+                <div className="flex justify-start md:justify-center gap-2 md:gap-3 mb-6 md:mb-8 overflow-x-auto pb-4 px-2 scrollbar-hide">
                   {[
-                    { id: 'traditional', label: '🍕 Pizzas Tradicionais', color: 'from-[#B91C1C] to-red-700' },
-                    { id: 'broto', label: '🍕 Pizzas Broto', color: 'from-orange-600 to-orange-700' },
-                    { id: 'sweet', label: '🍰 Pizzas Doces', color: 'from-pink-600 to-pink-700' },
+                    { id: 'traditional', label: '🍕 Tradicionais', color: 'from-[#B91C1C] to-red-700' },
+                    { id: 'broto', label: '🍕 Broto', color: 'from-orange-600 to-orange-700' },
+                    { id: 'sweet', label: '🍰 Doces', color: 'from-pink-600 to-pink-700' },
                     { id: 'half', label: '🎯 Meio a Meio', color: 'from-[#009246] to-green-700' }
                   ].map(tab => (
                     <motion.button
@@ -691,7 +691,7 @@ const App: React.FC = () => {
                       onClick={() => setActiveMenuTab(tab.id as any)}
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
-                      className={`relative flex-shrink-0 px-6 py-3.5 rounded-xl font-display font-bold text-sm md:text-base transition-all duration-300 whitespace-nowrap overflow-hidden ${
+                      className={`relative flex-shrink-0 px-4 py-2 md:px-5 md:py-2.5 rounded-lg font-display font-bold text-xs md:text-sm transition-all duration-300 whitespace-nowrap overflow-hidden ${
                         activeMenuTab === tab.id
                           ? 'text-white shadow-2xl'
                           : 'bg-white text-gray-700 hover:bg-gray-50 shadow-md hover:shadow-lg'
