@@ -64,22 +64,22 @@ const PizzaCard: React.FC<PizzaCardProps> = ({ pizza, onSelect, isRecommended, u
       </div>
 
       {/* Text Content - Compacto estilo Pedido.app */}
-      <div className="p-3 md:p-4 flex flex-col flex-1 bg-white">
+      <div className="p-2 md:p-3 flex flex-col flex-1 bg-white">
         {/* Nome em negrito */}
-        <h3 className="text-sm md:text-base font-black text-gray-900 mb-1 leading-tight group-hover:text-[#B91C1C] transition-colors uppercase tracking-tight">
+        <h3 className="text-xs md:text-sm font-black text-gray-900 mb-0.5 leading-tight group-hover:text-[#B91C1C] transition-colors uppercase tracking-tight">
           {pizza.name}
         </h3>
         
         {/* Descrição fonte normal */}
-        <p className="text-xs text-gray-600 leading-snug line-clamp-2 mb-2 flex-1 font-normal">
+        <p className="text-[10px] md:text-xs text-gray-600 leading-snug line-clamp-2 mb-1.5 flex-1 font-normal">
           {pizza.description}
         </p>
         
         {/* Preço e Botão - Layout horizontal compacto */}
-        <div className="flex items-center justify-between gap-2 pt-2">
+        <div className="flex items-center justify-between gap-1.5 pt-1">
           <div className="flex flex-col">
-            <span className="text-[10px] text-gray-500 font-medium">A partir de</span>
-            <span className="text-lg md:text-xl font-black text-[#009246]">
+            <span className="text-[9px] md:text-[10px] text-gray-500 font-medium">A partir de</span>
+            <span className="text-base md:text-lg font-black text-[#009246]">
               R${pizza.price.toFixed(2).replace('.', ',')}
             </span>
           </div>
@@ -91,10 +91,10 @@ const PizzaCard: React.FC<PizzaCardProps> = ({ pizza, onSelect, isRecommended, u
               e.stopPropagation();
               onSelect(pizza);
             }}
-            className="bg-[#009246] hover:bg-green-700 text-white font-bold p-3 rounded-lg flex items-center justify-center transition-all shadow-md hover:shadow-lg touch-manipulation"
+            className="bg-[#009246] hover:bg-green-700 text-white font-bold p-2 md:p-2.5 rounded-lg flex items-center justify-center transition-all shadow-md hover:shadow-lg touch-manipulation"
             aria-label="Adicionar ao carrinho"
           >
-            <ShoppingCart size={20} strokeWidth={2.5} />
+            <ShoppingCart size={18} strokeWidth={2.5} />
           </motion.button>
         </div>
       </div>
