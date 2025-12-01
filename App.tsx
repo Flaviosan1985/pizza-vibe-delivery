@@ -657,7 +657,7 @@ const App: React.FC = () => {
               </div>
             )}
 
-            <main className="container mx-auto px-2 md:px-4 py-8 md:py-12" ref={menuRef}>
+            <main className="container mx-auto px-2 md:px-4 py-8 md:py-12 pt-20" ref={menuRef}>
               {/* Search Bar */}
               <div className="max-w-xs mx-auto mb-6 md:mb-8 relative animate-slide-up px-2">
                 <div className="relative group">

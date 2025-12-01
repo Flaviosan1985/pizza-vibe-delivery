@@ -67,21 +67,18 @@ const Navbar: React.FC<NavbarProps> = ({ cartCount, onOpenCart, onOpenAI, isDark
 
   return (
     <>
-      {/* Navbar transparente para espaçamento */}
-      <nav className="h-24 md:h-28"></nav>
-      
-      {/* Logo fixo no topo */}
-      <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[100]">
+      {/* Logo fixo no canto superior direito */}
+      <div className="fixed top-4 right-4 z-[100]">
         {logo ? (
           <img 
             src={logo} 
             alt="Logo" 
-            className="w-16 h-16 md:w-20 md:h-20 rounded-full object-cover shadow-2xl border-4 border-white" 
+            className="w-14 h-14 md:w-16 md:h-16 rounded-full object-cover shadow-2xl border-4 border-white cursor-pointer hover:scale-110 transition-transform" 
             style={{boxShadow: '0 20px 60px rgba(0, 0, 0, 0.5)'}}
           />
         ) : (
           <div 
-            className="bg-white p-4 md:p-5 rounded-full text-[#B91C1C] shadow-2xl border-4 border-white" 
+            className="bg-white p-3 md:p-4 rounded-full text-[#B91C1C] shadow-2xl border-4 border-white cursor-pointer hover:scale-110 transition-transform" 
             style={{boxShadow: '0 20px 60px rgba(0, 0, 0, 0.5)'}}
           >
             <Pizza className="w-8 h-8 md:w-10 md:h-10" />
