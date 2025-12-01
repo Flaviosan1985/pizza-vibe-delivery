@@ -504,7 +504,7 @@ const App: React.FC = () => {
                   {category.name}
                 </h4>
               </div>
-              <div className="grid grid-cols-2 gap-3 md:gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 max-w-5xl mx-auto">
                 {pizzasInCategory.map(pizza => (
                   <div key={pizza.id} className="h-full">
                     <PizzaCard 
@@ -657,7 +657,7 @@ const App: React.FC = () => {
               </div>
             )}
 
-            <main className="container mx-auto px-2 md:px-4 py-8 md:py-12 mt-32 md:mt-40" ref={menuRef}>
+            <main className="container mx-auto px-2 md:px-4 py-8 md:py-12 mt-28 md:mt-32" ref={menuRef}>
               {/* Search Bar */}
               <div className="max-w-md mx-auto mb-6 md:mb-8 relative animate-slide-up px-2">
                 <div className="relative group">

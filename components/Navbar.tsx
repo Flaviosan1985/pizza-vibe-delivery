@@ -66,24 +66,24 @@ const Navbar: React.FC<NavbarProps> = ({ cartCount, onOpenCart, onOpenAI, isDark
   const name = storeName || 'PizzaVibe';
 
   return (
-    <nav className="fixed w-full z-50 py-6 md:py-8">
+    <nav className="fixed top-0 w-full z-50 bg-gradient-to-b from-black/80 via-black/60 to-transparent backdrop-blur-sm py-4 md:py-6">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-center">
-          {/* CENTER: LOGO (CENTRADA, SEM BARRA) */}
+          {/* CENTER: LOGO (CENTRADA, FIXA NO TOPO) */}
           <div className="flex items-center justify-center">
             {logo ? (
               <img 
                 src={logo} 
                 alt="Logo" 
-                className="w-24 h-24 md:w-32 md:h-32 rounded-full object-cover shadow-2xl relative -mt-6 md:-mt-8 border-4 border-white" 
+                className="w-20 h-20 md:w-24 md:h-24 rounded-full object-cover shadow-2xl border-4 border-white" 
                 style={{boxShadow: '0 20px 60px rgba(0, 0, 0, 0.5)'}}
               />
             ) : (
               <div 
-                className="bg-white p-6 md:p-8 rounded-full text-[#B91C1C] shadow-2xl relative -mt-6 md:-mt-8 border-4 border-white" 
+                className="bg-white p-5 md:p-6 rounded-full text-[#B91C1C] shadow-2xl border-4 border-white" 
                 style={{boxShadow: '0 20px 60px rgba(0, 0, 0, 0.5)'}}
               >
-                <Pizza className="w-12 h-12 md:w-16 md:h-16" />
+                <Pizza className="w-10 h-10 md:w-12 md:h-12" />
               </div>
             )}
           </div>
