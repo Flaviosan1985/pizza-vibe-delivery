@@ -659,17 +659,17 @@ const App: React.FC = () => {
 
             <main className="container mx-auto px-2 md:px-4 py-8 md:py-12" ref={menuRef}>
               {/* Search Bar */}
-              <div className="max-w-md mx-auto mb-6 md:mb-8 relative animate-slide-up px-2">
+              <div className="max-w-xs mx-auto mb-6 md:mb-8 relative animate-slide-up px-2">
                 <div className="relative group">
-                  <div className="absolute inset-y-0 left-0 pl-4 md:pl-5 flex items-center pointer-events-none text-gray-500 group-focus-within:text-brand-orange transition-colors">
-                    <Search size={20} className="md:w-6 md:h-6" />
+                  <div className="absolute inset-y-0 left-0 pl-3 md:pl-4 flex items-center pointer-events-none text-gray-500 group-focus-within:text-brand-orange transition-colors">
+                    <Search size={16} className="md:w-5 md:h-5" />
                   </div>
                   <input 
                     type="text" 
                     placeholder="Buscar pizza..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 md:pl-12 pr-10 py-2 md:py-2.5 text-xs md:text-sm rounded-lg border-2 border-gray-300 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-brand-orange focus:border-brand-orange transition-all shadow-md placeholder:text-gray-400"
+                    className="w-full pl-9 md:pl-10 pr-9 py-1.5 md:py-2 text-xs md:text-sm rounded-lg border-2 border-gray-300 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-brand-orange focus:border-brand-orange transition-all shadow-md placeholder:text-gray-400"
                   />
                   {searchQuery && (
                     <button onClick={() => setSearchQuery('')} className="absolute inset-y-0 right-0 pr-5 flex items-center text-gray-400 hover:text-brand-red"><X size={20} /></button>
