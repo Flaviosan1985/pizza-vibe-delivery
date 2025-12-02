@@ -65,28 +65,8 @@ const Navbar: React.FC<NavbarProps> = ({ cartCount, onOpenCart, onOpenAI, isDark
 
   const name = storeName || 'PizzaVibe';
 
-  return (
-    <>
-      {/* Logo fixo no canto superior direito */}
-      <div className="fixed top-4 right-4 z-[100]">
-        {logo ? (
-          <img 
-            src={logo} 
-            alt="Logo" 
-            className="w-14 h-14 md:w-16 md:h-16 rounded-full object-cover shadow-2xl border-4 border-white cursor-pointer hover:scale-110 transition-transform" 
-            style={{boxShadow: '0 20px 60px rgba(0, 0, 0, 0.5)'}}
-          />
-        ) : (
-          <div 
-            className="bg-white p-3 md:p-4 rounded-full text-[#B91C1C] shadow-2xl border-4 border-white cursor-pointer hover:scale-110 transition-transform" 
-            style={{boxShadow: '0 20px 60px rgba(0, 0, 0, 0.5)'}}
-          >
-            <Pizza className="w-8 h-8 md:w-10 md:h-10" />
-          </div>
-        )}
-      </div>
-    </>
-  );
+  // Navbar atualmente sem logo (logo movida para dentro do fluxo da página em App.tsx)
+  return <div className="h-2" />;
 };
 
 export default Navbar;
