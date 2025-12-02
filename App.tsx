@@ -22,7 +22,7 @@ import Toast from './components/Toast';
 import { AdminProvider, useAdmin } from './contexts/AdminContext';
 // REMOVED static imports of CRUST_OPTIONS, ADDON_OPTIONS
 import { Pizza, CartItem, User, Order, OrderStatus, Category } from './types';
-import { Phone, MapPin, Instagram, Facebook, Search, X, CircleDashed } from 'lucide-react';
+import { Phone, MapPin, Instagram, Facebook, Search, X, CircleDashed, Pizza as PizzaIcon } from 'lucide-react';
 
 // Wrapper component to provide context to the inner App logic
 const AppWrapper: React.FC = () => {
@@ -631,8 +631,31 @@ const App: React.FC = () => {
           <>
             {/* Banner animado no topo */}
             <Hero onCtaClick={scrollToMenu} />
-            
-            {/* Navbar com logo centralizada (SEM barra vermelha) */}
+
+            {/* Logo abaixo do banner alinhada à esquerda */}
+            <div className="px-4 mt-4 flex items-center gap-3 animate-slide-up">
+              {theme.logo ? (
+                <img
+                  src={theme.logo}
+                  alt={theme.storeName}
+                  className="h-16 w-auto object-contain drop-shadow-lg"
+                />
+              ) : (
+                <PizzaIcon className="h-12 w-12 text-brand-orange drop-shadow" />
+              )}
+              <div>
+                <h1 className="text-2xl md:text-3xl font-display font-bold text-gray-900">
+                  {theme.storeName}
+                </h1>
+                {promotion && promotion.active && (
+                  <p className="text-xs md:text-sm text-brand-red font-medium mt-1 animate-pulse">
+                    {promotion.description}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Navbar (mantida apenas como espaçador/minimal) */}
             <Navbar
               cartCount={cartCount}
               onOpenCart={() => setIsCartOpen(true)}
@@ -657,9 +680,9 @@ const App: React.FC = () => {
               </div>
             )}
 
-            <main className="container mx-auto px-2 md:px-4 py-8 md:py-12 pt-20" ref={menuRef}>
-              {/* Search Bar */}
-              <div className="max-w-xs mx-auto mb-6 md:mb-8 relative animate-slide-up px-2">
+            <main className="container mx-auto px-2 md:px-4 py-8 md:py-12" ref={menuRef}>
+              {/* Search Bar alinhada à esquerda menor */}
+              <div className="w-52 md:w-60 mb-6 md:mb-8 relative animate-slide-up px-2">
                 <div className="relative group">
                   <div className="absolute inset-y-0 left-0 pl-3 md:pl-4 flex items-center pointer-events-none text-gray-500 group-focus-within:text-brand-orange transition-colors">
                     <Search size={16} className="md:w-5 md:h-5" />
